@@ -53,7 +53,6 @@ namespace MonODGE.UI.Components {
 
         internal override void Draw(SpriteBatch batch, bool selected) {
             DrawCanvas(batch);
-            DrawCorners(batch);
 
             Vector2 TextPos;
 
@@ -76,10 +75,14 @@ namespace MonODGE.UI.Components {
                 );
             }
 
-            if (selected)
+            if (selected) {
+                DrawBorders(batch);
                 batch.DrawString(Style.Font, Text, TextPos, Style.SelectedTextColor);
-            else
+            }
+            else {
+                DrawCorners(batch);
                 batch.DrawString(Style.Font, Text, TextPos, Style.UnselectedTextColor);
+            }
         }
     }
 }

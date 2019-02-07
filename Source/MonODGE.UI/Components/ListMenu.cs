@@ -10,6 +10,10 @@ using Microsoft.Xna.Framework.Input;
 
 namespace MonODGE.UI.Components {
     public class ListMenu : Control {
+        /*
+        Needs Add(option) and Remove(option) for dynamic lists (think inventory).
+        Re-design with title and scrolling ListOptionPanel.
+        */
         public List<AbstractListMenuOption> Options { get; private set; }
 
         private int selectedIndex;
@@ -130,7 +134,6 @@ namespace MonODGE.UI.Components {
                 else
                     Options[p].Draw(batch, false);
             }
-            //Style.BackgroundColor = Color.Gray;
         }
 
 
