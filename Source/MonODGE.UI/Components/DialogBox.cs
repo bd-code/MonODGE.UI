@@ -66,12 +66,13 @@ namespace MonODGE.UI.Components {
 
         public override void Draw(SpriteBatch batch) {
             DrawCanvas(batch);
-            DrawCorners(batch);
-            
+            DrawBorders(batch);
+            //DrawCorners(batch);
+
             if (dialogIndex < dialog.Length) {
 
                 Vector2 textPos;
-
+                // Maybe positioning should be in Update().
                 if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
                     textPos = new Vector2(Dimensions.X + Style.Padding, Dimensions.Y + Style.Padding);
                 }

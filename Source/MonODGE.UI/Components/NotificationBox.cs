@@ -23,46 +23,21 @@ namespace MonODGE.UI.Components {
             Dimensions = new Rectangle(
                 (int)position.X,
                 (int)position.Y,
-                (int)textDimensions.X + (Style.Corners?.Width ?? Style.Padding * 2),
-                Style.Corners?.Height ?? ((int)textDimensions.Y + Style.Padding * 2)
-                );
-            
-            // This should be using TextAlign property.
-            textPos = new Vector2(
-                (Dimensions.Width - textDimensions.X) / 2 + Dimensions.X,
-                (Dimensions.Height - textDimensions.Y) / 2 + Dimensions.Y
+                (int)textDimensions.X + MathHelper.Max(Style.BorderTileWidth * 2, Style.Padding * 2),
+                MathHelper.Max(Style.BorderTileHeight * 2, (int)textDimensions.Y + Style.Padding * 2)
                 );
         }
+
+        public NotificationBox(CityUIManager manager, string text, Vector2 position, int lifetime = 255) : 
+            this(manager.GlobalStyle, text, position, lifetime) {
+            manager.Add(this);
+        }
+
 
         public override void Update() {
             timeout--;
 
-            // Reduce background opacity.
-            Color bgcolor = Style.BackgroundColor;
-            bgcolor.A = (byte)timeout;
-            Style.BackgroundColor = bgcolor;
-
-            // Darken text and corner color.
-            Color textcolor = Style.TextColor;
-            if (textcolor.R > 0) {
-                textcolor.R -= 1;
-                textcolor.G -= 1;
-                textcolor.B -= 1;
-                textcolor.A -= 1;
-            }
-            Style.TextColor = textcolor;
-            Style.CornerColor = textcolor;
-
-            if (timeout == 0)
-                Close();
-        }
-
-        public override void Draw(SpriteBatch batch) {
-            DrawCanvas(batch);
-            DrawCorners(batch);
-
-            Vector2 textPos;
-
+            // Update Text Position
             if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
                 textPos = new Vector2(
                     Dimensions.X + Style.Padding,
@@ -83,6 +58,29 @@ namespace MonODGE.UI.Components {
                 );
             }
 
+            // Reduce background opacity.
+            Color bgcolor = Style.BackgroundColor;
+            bgcolor.A = (byte)timeout;
+            Style.BackgroundColor = bgcolor;
+
+            // Darken text and corner color.
+            Color textcolor = Style.TextColor;
+            if (textcolor.R > 0) {
+                textcolor.R -= 1;
+                textcolor.G -= 1;
+                textcolor.B -= 1;
+                textcolor.A -= 1;
+            }
+            Style.TextColor = textcolor;
+            Style.BorderColor = textcolor;
+
+            if (timeout == 0)
+                Close();
+        }
+
+        public override void Draw(SpriteBatch batch) {
+            DrawCanvas(batch);
+            DrawBorders(batch);
             batch.DrawString(Style.Font, notification, textPos, Style.TextColor);
         }
     }

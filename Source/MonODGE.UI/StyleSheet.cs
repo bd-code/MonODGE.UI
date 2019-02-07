@@ -16,12 +16,31 @@ namespace MonODGE.UI {
 
         public Texture2D Background { get; set; }
         public Color BackgroundColor { get; set; }
+        
+        private Texture2D _borders;
+        public Texture2D Borders {
+            get { return _borders; }
+            set {
+                _borders = value;
+                BorderSourceRects = new Rectangle[] {
+                    new Rectangle(0, 0, BorderTileWidth, BorderTileHeight),
+                    new Rectangle(BorderTileWidth, 0, BorderTileWidth, BorderTileHeight),
+                    new Rectangle(BorderTileWidth*2, 0, BorderTileWidth, BorderTileHeight),
 
-        public Texture2D Corners { get; set; }
-        public Rectangle[] CornerSourceRectangles { get; private set; }
-        public int CornerTileWidth { get { return Corners?.Width / 2 ?? 0; } }
-        public int CornerTileHeight { get { return Corners?.Height / 2 ?? 0; } }
-        public Color CornerColor { get; set; }
+                    new Rectangle(0, BorderTileHeight, BorderTileWidth, BorderTileHeight),
+                    new Rectangle(BorderTileWidth, BorderTileHeight, BorderTileWidth, BorderTileHeight),
+                    new Rectangle(BorderTileWidth*2, BorderTileHeight, BorderTileWidth, BorderTileHeight),
+
+                    new Rectangle(0, BorderTileHeight*2, BorderTileWidth, BorderTileHeight),
+                    new Rectangle(BorderTileWidth, BorderTileHeight*2, BorderTileWidth, BorderTileHeight),
+                    new Rectangle(BorderTileWidth*2, BorderTileHeight*2, BorderTileWidth, BorderTileHeight)
+                };
+            }
+        }
+        public Rectangle[] BorderSourceRects { get; private set; }
+        public int BorderTileWidth { get { return _borders?.Width / 3 ?? 0; } }
+        public int BorderTileHeight { get { return _borders?.Height / 3 ?? 0; } }
+        public Color BorderColor { get; set; }
 
         public SpriteFont HeaderFont { get; set; }
         public Color HeaderColor { get; set; }
@@ -42,8 +61,8 @@ namespace MonODGE.UI {
         public Keys CancelKey { get; set; }
 
         
-        public StyleSheet(Texture2D background = null, Color? bgcolor = default(Color?), 
-                          Texture2D corners = null, Color? cornercolor = default(Color?),
+        public StyleSheet(Texture2D background = null, Color? bgcolor = default(Color?),
+                          Texture2D borders = null, Color? bordercolor = default(Color?),
                           SpriteFont headerfont = null, Color? headercolor = default(Color?),
                           SpriteFont font = null, Color? textColor = default(Color?), 
                           SpriteFont footerfont = null, Color? footercolor = default(Color?),
@@ -54,19 +73,8 @@ namespace MonODGE.UI {
             Background = background;
             BackgroundColor = bgcolor ?? Color.TransparentBlack;
 
-            Corners = corners;
-            if (Corners != null) {
-                int width = Corners.Width / 2;
-                int height = Corners.Height / 2;
-
-                CornerSourceRectangles = new Rectangle[] {
-                    new Rectangle(0, 0, width, height),
-                    new Rectangle(width, 0, width, height),
-                    new Rectangle(0, height, width, height),
-                    new Rectangle(width, height, width, height)
-                };
-            }
-            CornerColor = cornercolor ?? Color.Gray;
+            Borders = borders;
+            BorderColor = bordercolor ?? Color.White;
 
             HeaderFont = headerfont;
             if (HeaderFont == null)
@@ -87,12 +95,13 @@ namespace MonODGE.UI {
             TextAlign = textAlign;
             Padding = padding;
         }
-
+        
+        public static StyleSheet Default { get { return new StyleSheet(); } }
 
         public StyleSheet Clone() {
             StyleSheet clone = new StyleSheet(
                 Background, BackgroundColor, 
-                Corners, CornerColor, 
+                Borders, BorderColor, 
                 HeaderFont, HeaderColor, 
                 Font, TextColor, 
                 FooterFont, FooterColor, 
@@ -102,13 +111,5 @@ namespace MonODGE.UI {
             clone.CancelKey = CancelKey;
             return clone;
         }
-
-        /*public static StyleSheet Default {
-            get {
-                StyleSheet sheet = new StyleSheet();
-                //sheet.Background = new Texture2D();
-                return sheet;
-            }
-        }*/
     }
 }

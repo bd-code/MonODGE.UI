@@ -8,17 +8,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace MonODGE.UI.Components {
-    /* 
-    Project Names: Gooi, Pooi, BuiGui, 
-    DuiGui (Driving under influence of graphical user interfaces),
-    BGUI, BsGUI (Bob's shitty GUI)
-
-    Drop the 'G':
-    BUI, DUI, PUI, SUI (Shitty UI), 
-    BSUI (Bob's Shitty UI)
-    ShtiUI, CityUI (as in City Wok)
-    */
-
     /*
     Need:
     TextBox
@@ -48,14 +37,36 @@ namespace MonODGE.UI.Components {
 
 
         protected void DrawCorners(SpriteBatch batch) {
-            if (Style.Corners != null) {
-                int width = Style.CornerSourceRectangles[0].Width;
-                int height = Style.CornerSourceRectangles[0].Height;
+            if (Style.Borders != null) {
+                int width = Style.BorderTileWidth;
+                int height = Style.BorderTileHeight;
 
-                batch.Draw(Style.Corners, new Vector2(Dimensions.X, Dimensions.Y), Style.CornerSourceRectangles[0], Style.CornerColor);
-                batch.Draw(Style.Corners, new Vector2(Dimensions.X + Dimensions.Width - width, Dimensions.Y), Style.CornerSourceRectangles[1], Style.CornerColor);
-                batch.Draw(Style.Corners, new Vector2(Dimensions.X, Dimensions.Y + Dimensions.Height - height), Style.CornerSourceRectangles[2], Style.CornerColor);
-                batch.Draw(Style.Corners, new Vector2(Dimensions.X + Dimensions.Width - width, Dimensions.Y + Dimensions.Height - height), Style.CornerSourceRectangles[3], Style.CornerColor);
+                batch.Draw(Style.Borders, new Vector2(Dimensions.X, Dimensions.Y), Style.BorderSourceRects[0], Style.BorderColor);
+                batch.Draw(Style.Borders, new Vector2(Dimensions.X + Dimensions.Width - width, Dimensions.Y), Style.BorderSourceRects[2], Style.BorderColor);
+                batch.Draw(Style.Borders, new Vector2(Dimensions.X, Dimensions.Y + Dimensions.Height - height), Style.BorderSourceRects[6], Style.BorderColor);
+                batch.Draw(Style.Borders, new Vector2(Dimensions.X + Dimensions.Width - width, Dimensions.Y + Dimensions.Height - height), Style.BorderSourceRects[8], Style.BorderColor);
+            }
+        }
+
+
+        protected void DrawBorders(SpriteBatch batch) {
+            if (Style.Borders != null) {
+                Rectangle[] dests = new Rectangle[] {
+                    new Rectangle(Dimensions.X, Dimensions.Y, Style.BorderTileWidth, Style.BorderTileHeight),
+                    new Rectangle(Dimensions.X + Style.BorderTileWidth, Dimensions.Y, Dimensions.Width - Style.BorderTileWidth*2, Style.BorderTileHeight),
+                    new Rectangle(Dimensions.X + Dimensions.Width - Style.BorderTileWidth, Dimensions.Y, Style.BorderTileWidth, Style.BorderTileHeight),
+
+                    new Rectangle(Dimensions.X, Dimensions.Y + Style.BorderTileHeight, Style.BorderTileWidth, Dimensions.Height - Style.BorderTileHeight*2),
+                    new Rectangle(), // Center is empty.
+                    new Rectangle(Dimensions.X + Dimensions.Width - Style.BorderTileWidth, Dimensions.Y + Style.BorderTileHeight, Style.BorderTileWidth, Dimensions.Height - Style.BorderTileHeight*2),
+
+                    new Rectangle(Dimensions.X, Dimensions.Y + Dimensions.Height - Style.BorderTileHeight, Style.BorderTileWidth, Style.BorderTileHeight),
+                    new Rectangle(Dimensions.X + Style.BorderTileWidth, Dimensions.Y + Dimensions.Height - Style.BorderTileHeight, Dimensions.Width - Style.BorderTileWidth*2, Style.BorderTileHeight),
+                    new Rectangle(Dimensions.X + Dimensions.Width - Style.BorderTileWidth, Dimensions.Y + Dimensions.Height - Style.BorderTileHeight, Style.BorderTileWidth, Style.BorderTileHeight),
+                };
+
+                for (int b = 0; b < 9; b++)
+                    batch.Draw(Style.Borders, dests[b], Style.BorderSourceRects[b], Style.BorderColor);
             }
         }
 
@@ -128,8 +139,7 @@ namespace MonODGE.UI.Components {
         public Control(StyleSheet style) {
             Style = style;
         }
-
-        //internal virtual void Initialize() { }
+        
         public void Close() { _manager?.CloseControl(this); }
     }
 
