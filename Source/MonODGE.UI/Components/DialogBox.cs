@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace CityUI.Components {
+namespace MonODGE.UI.Components {
     public class DialogBox : Control {
         // Should have a textwrap function.
         private string[] dialog;

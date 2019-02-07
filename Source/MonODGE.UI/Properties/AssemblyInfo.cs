@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("CityUI")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("MonODGE.UI")]
+[assembly: AssemblyDescription("A stylesheet-based, keyboard-input UI for MonoGame projects.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("CityUI")]
+[assembly: AssemblyProduct("MonODGE.UI")]
 [assembly: AssemblyCopyright("Copyright ©  2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

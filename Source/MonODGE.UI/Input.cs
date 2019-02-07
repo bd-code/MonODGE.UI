@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using Microsoft.Xna.Framework.Input;
 
-namespace CityUI {
+namespace MonODGE.UI {
     internal class CityInput {
         private KeyboardState prevState;
         private KeyboardState state;

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace CityUI.Components {
+namespace MonODGE.UI.Components {
     /* 
     Project Names: Gooi, Pooi, BuiGui, 
     DuiGui (Driving under influence of graphical user interfaces),

@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace CityUI.Components {
+namespace MonODGE.UI.Components {
     public class ListMenu : Control {
         public List<AbstractListMenuOption> Options { get; private set; }
 

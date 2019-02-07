@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace CityUI.Components {
+namespace MonODGE.UI.Components {
     public class PopText : PopUpComponent {
         public enum MoveType {
             Static, Rising, Falling, Bouncing

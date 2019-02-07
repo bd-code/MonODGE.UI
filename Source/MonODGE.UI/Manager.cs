@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-using CityUI.Components;
+using MonODGE.UI.Components;
 
-namespace CityUI {
+namespace MonODGE.UI {
     public class CityUIManager {
         private GraphicsDevice _graphics;
 

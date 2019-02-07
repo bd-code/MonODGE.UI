@@ -7,8 +7,8 @@
     <ProjectGuid>{6FB44421-15D1-4A48-B519-754AC4D92274}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CityUI</RootNamespace>
-    <AssemblyName>CityUI</AssemblyName>
+    <RootNamespace>MonODGE.UI</RootNamespace>
+    <AssemblyName>MonODGE.UI</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

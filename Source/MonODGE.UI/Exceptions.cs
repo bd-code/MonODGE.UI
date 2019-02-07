@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CityUI {
+namespace MonODGE.UI {
     internal class CityComponentUsedException : Exception {
         public CityComponentUsedException(string message) : base(message) { }
     }

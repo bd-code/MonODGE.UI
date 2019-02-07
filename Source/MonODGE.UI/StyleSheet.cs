@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace CityUI {
+namespace MonODGE.UI {
     public class StyleSheet {
         public enum TextAlignments {
             LEFT, CENTER, RIGHT
