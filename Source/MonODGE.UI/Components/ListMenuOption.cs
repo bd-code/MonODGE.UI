@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace CityUI.Components {
+namespace MonODGE.UI.Components {
     public abstract class AbstractListMenuOption : Component {
         protected ListMenu parent;
         public event EventHandler Confirm;

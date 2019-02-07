@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using Microsoft.Xna.Framework.Graphics;
 
-namespace CityUI.Utilities {
+namespace MonODGE.UI.Utilities {
     /// <summary>
     /// Provides static methods for wrapping a string to a specified screenwidth using an XNA/MonoGame SpriteFont.
     /// </summary>
