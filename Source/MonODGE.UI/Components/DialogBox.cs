@@ -10,11 +10,11 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace MonODGE.UI.Components {
     public class DialogBox : Control {
-        // Should have a textwrap function.
         private string[] dialog;
         private int dialogIndex;
         private bool isCancelable;
-        
+
+        private Vector2 textPosition;
         private Vector2 textDimensions;
 
         public DialogBox(StyleSheet style, string line, Rectangle area, bool canCancel = false) :
@@ -28,6 +28,7 @@ namespace MonODGE.UI.Components {
 
             Dimensions = area;
             textDimensions = Style.Font?.MeasureString(dialog[dialogIndex]) ?? Vector2.Zero;
+            Refresh();
         }
 
         public DialogBox(CityUIManager manager, string line, Rectangle area, bool canCancel = false) :
@@ -51,15 +52,39 @@ namespace MonODGE.UI.Components {
             else if (dialogIndex > 0
                 && (_manager.Input.isKeyPress(Keys.Left) || _manager.Input.isKeyDown(Keys.A))) {
                 dialogIndex--;
-                textDimensions = Style.Font.MeasureString(dialog[dialogIndex]);
+                textDimensions = Style.Font?.MeasureString(dialog[dialogIndex]) ?? Vector2.Zero;
             }
             else if (dialogIndex < dialog.Length - 1
                 && (_manager.Input.isKeyPress(Keys.Right) || _manager.Input.isKeyDown(Keys.D))) {
                 dialogIndex++;
-                textDimensions = Style.Font.MeasureString(dialog[dialogIndex]);
+                textDimensions = Style.Font?.MeasureString(dialog[dialogIndex]) ?? Vector2.Zero;
             }
             else if (isCancelable && _manager.Input.isKeyPress(Style.CancelKey)) {
                 Close();
+            }
+            
+            Refresh();
+        }
+
+
+        public override void Refresh() {
+            if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
+                textPosition = new Vector2(
+                    Dimensions.X + Style.Padding,
+                    Dimensions.Y + Style.Padding
+                );
+            }
+            else if (Style.TextAlign == StyleSheet.TextAlignments.CENTER) {
+                textPosition = new Vector2(
+                    (Dimensions.Width - textDimensions.X) / 2 + Dimensions.X,
+                    Dimensions.Y + Style.Padding
+                );
+            }
+            else { // Right
+                textPosition = new Vector2(
+                    Dimensions.Width - textDimensions.X - Style.Padding + Dimensions.X,
+                    Dimensions.Y + Style.Padding
+                );
             }
         }
 
@@ -67,30 +92,9 @@ namespace MonODGE.UI.Components {
         public override void Draw(SpriteBatch batch) {
             DrawCanvas(batch);
             DrawBorders(batch);
-            //DrawCorners(batch);
 
             if (dialogIndex < dialog.Length) {
-
-                Vector2 textPos;
-                // Maybe positioning should be in Update().
-                if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
-                    textPos = new Vector2(Dimensions.X + Style.Padding, Dimensions.Y + Style.Padding);
-                }
-
-                else if (Style.TextAlign == StyleSheet.TextAlignments.CENTER) {
-                    textPos = new Vector2(
-                        (Dimensions.Width - textDimensions.X) / 2 + Dimensions.X, 
-                        Dimensions.Y + Style.Padding
-                    );
-                }
-                else { // Right
-                    textPos = new Vector2(
-                        Dimensions.Width - textDimensions.X - Style.Padding + Dimensions.X,
-                        Dimensions.Y + Style.Padding
-                    );
-                }
-
-                batch.DrawString(Style.Font, dialog[dialogIndex], textPos, Style.TextColor);
+                batch.DrawString(Style.Font, dialog[dialogIndex], textPosition, Style.TextColor);
 
                 int pageIndex = dialogIndex + 1;
                 string pageString = "[Page " + pageIndex + " of " + dialog.Length + "]";
