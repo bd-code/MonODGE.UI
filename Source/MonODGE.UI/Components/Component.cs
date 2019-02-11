@@ -21,13 +21,29 @@ namespace MonODGE.UI.Components {
             BOTTOMLEFT, BOTTOM, BOTTOMRIGHT
         }
 
-        public StyleSheet Style { get; set; }
-        public Rectangle Dimensions { get; set; }
+        private StyleSheet _style;
+        public virtual StyleSheet Style {
+            get { return _style; }
+            set { _style = value; }
+        }
+
+        private Rectangle _dimensions;
+        public virtual Rectangle Dimensions {
+            get { return _dimensions; }
+            set { _dimensions = value; }
+        }
 
         internal CityUIManager _manager;
 
         public virtual void Update() { }
         public virtual void Draw(SpriteBatch batch) { }
+
+        /// <summary>
+        /// This should be called everytime changes are made to the StyleSheet
+        /// to avoid a one-frame delay in applying the new style and 
+        /// repositioning some elements. 
+        /// </summary>
+        public virtual void Refresh() { }
 
 
         protected void DrawCanvas(SpriteBatch batch) {

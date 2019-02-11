@@ -11,7 +11,7 @@ namespace MonODGE.UI.Components {
     public class NotificationBox : PopUpComponent {
         private string notification;
         private int timeout;
-        private Vector2 textPos;
+        private Vector2 textPosition;
         private Vector2 textDimensions;
 
         public NotificationBox(StyleSheet style, string text, Vector2 position, int lifetime = 255) : base(style) {
@@ -26,6 +26,8 @@ namespace MonODGE.UI.Components {
                 (int)textDimensions.X + MathHelper.Max(Style.BorderTileWidth * 2, Style.Padding * 2),
                 MathHelper.Max(Style.BorderTileHeight * 2, (int)textDimensions.Y + Style.Padding * 2)
                 );
+
+            Refresh();
         }
 
         public NotificationBox(CityUIManager manager, string text, Vector2 position, int lifetime = 255) : 
@@ -36,27 +38,7 @@ namespace MonODGE.UI.Components {
 
         public override void Update() {
             timeout--;
-
-            // Update Text Position
-            if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
-                textPos = new Vector2(
-                    Dimensions.X + Style.Padding,
-                    (Dimensions.Height - textDimensions.Y) / 2 + Dimensions.Y
-                );
-            }
-
-            else if (Style.TextAlign == StyleSheet.TextAlignments.CENTER) {
-                textPos = new Vector2(
-                    (Dimensions.Width - textDimensions.X) / 2 + Dimensions.X,
-                    (Dimensions.Height - textDimensions.Y) / 2 + Dimensions.Y
-                );
-            }
-            else { // Right
-                textPos = new Vector2(
-                    Dimensions.Width - textDimensions.X - Style.Padding + Dimensions.X,
-                    (Dimensions.Height - textDimensions.Y) / 2 + Dimensions.Y
-                );
-            }
+            Refresh();
 
             // Reduce background opacity.
             Color bgcolor = Style.BackgroundColor;
@@ -78,10 +60,33 @@ namespace MonODGE.UI.Components {
                 Close();
         }
 
+
+        public override void Refresh() {
+            if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
+                textPosition = new Vector2(
+                    Dimensions.X + Style.Padding,
+                    (Dimensions.Height - textDimensions.Y) / 2 + Dimensions.Y
+                );
+            }
+            else if (Style.TextAlign == StyleSheet.TextAlignments.CENTER) {
+                textPosition = new Vector2(
+                    (Dimensions.Width - textDimensions.X) / 2 + Dimensions.X,
+                    (Dimensions.Height - textDimensions.Y) / 2 + Dimensions.Y
+                );
+            }
+            else { // Right
+                textPosition = new Vector2(
+                    Dimensions.Width - textDimensions.X - Style.Padding + Dimensions.X,
+                    (Dimensions.Height - textDimensions.Y) / 2 + Dimensions.Y
+                );
+            }
+        }
+
+
         public override void Draw(SpriteBatch batch) {
             DrawCanvas(batch);
             DrawBorders(batch);
-            batch.DrawString(Style.Font, notification, textPos, Style.TextColor);
+            batch.DrawString(Style.Font, notification, textPosition, Style.TextColor);
         }
     }
 }

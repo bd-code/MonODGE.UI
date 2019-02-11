@@ -14,6 +14,22 @@ namespace MonODGE.UI.Components {
         Needs Add(option) and Remove(option) for dynamic lists (think inventory).
         Re-design with title and scrolling ListOptionPanel.
         */
+        public override StyleSheet Style {
+            get { return base.Style; }
+
+            set {
+                base.Style = value;
+
+                // Cascade StyleSheet down.
+                if (Options != null) {
+                    foreach (AbstractListMenuOption option in Options) {
+                        option.Style = Style;
+                        option.Measure();
+                    }
+                    Refresh();
+                }
+            }
+        }
         public List<AbstractListMenuOption> Options { get; private set; }
 
         private int selectedIndex;
@@ -30,8 +46,16 @@ namespace MonODGE.UI.Components {
             : base(style) {
             title = heading;
             Dimensions = area;
-            AddOptions(listOptions);
+            Options = listOptions;
+
+            // Cascade StyleSheet down.
+            foreach (AbstractListMenuOption option in Options) {
+                option.Style = Style;
+                option.Measure();
+            }
+
             isCancelable = canCancel;
+            Refresh();
         }
 
         public ListMenu(CityUIManager manager, string heading, Rectangle area, bool canCancel = true) :
@@ -45,17 +69,17 @@ namespace MonODGE.UI.Components {
         }
 
 
-        private void Initialize() {
+        public override void Refresh() {
+            /*
+            Refresh should really cascade Style down, then call Refresh to recalc positions.
+            */
+
             // Calculates and sets the initial positions 
             // and dimensions of all list options.
-            int width = 0;
+            int width = Dimensions.Width;
 
-            foreach (AbstractListMenuOption option in Options) {
-                // Cascade style down and initialize width.
-                option.Style = Style;
-                option.InitMenuOption();
-                
-                // First get max width of options.
+            // First get max width of options.
+            foreach (AbstractListMenuOption option in Options) {   
                 if (option.Dimensions.Width > width)
                     width = option.Dimensions.Width;
             }
@@ -65,7 +89,7 @@ namespace MonODGE.UI.Components {
             foreach (AbstractListMenuOption option in Options) {
                 int height = option.Dimensions.Height;
                 option.Dimensions = new Rectangle(Dimensions.X, ypos, width, height);
-                ypos += height;
+                ypos += option.Dimensions.Height;
             }
         }
 
@@ -136,14 +160,17 @@ namespace MonODGE.UI.Components {
             }
         }
 
-
-        public void AddOptions(List<AbstractListMenuOption> options) {
+        /// <summary>
+        /// This is deprecated, but we still need options to add and remove options.
+        /// (Think inventory.)
+        /// </summary>
+        /*public void AddOptions(List<AbstractListMenuOption> options) {
             // Expensive, as it calls Initialize() to recalculate option
             // positions every call. It is preferred to pass in options via
             // the constructor.
             Options = options;
-            Initialize();
-        }
+            Refresh();
+        }*/
 
 
         private void scrollList() {            
