@@ -30,22 +30,58 @@ namespace MonODGE.UI.Components {
         private Rectangle _dimensions;
         public virtual Rectangle Dimensions {
             get { return _dimensions; }
-            set { _dimensions = value; }
+            set {
+                Rectangle old = _dimensions;
+                _dimensions = value;
+
+                if (value.Width != old.Width || value.Height != old.Height)
+                    OnResize();
+
+                if (value.X != old.X || value.Y != old.Y)
+                    OnMove();
+            }
         }
 
         internal CityUIManager _manager;
 
-        public virtual void Update() { }
-        public virtual void Draw(SpriteBatch batch) { }
+        /// <summary>
+        /// Initialize is called when the Component is added to the UI Manager,
+        /// and should not be called manually.
+        /// 
+        /// Initialize is intended to be overriden when the user needs to perform 
+        /// any Component initialization after it is certain to be assigned a manager.
+        /// </summary>
+        public virtual void Initialize() { }
 
         /// <summary>
-        /// This should be called everytime changes are made to the StyleSheet
-        /// to avoid a one-frame delay in applying the new style and 
-        /// repositioning some elements. 
+        /// This is called when the Component's Dimensions.X or Dimensions.Y positions change.
+        /// This should be overriden to reposition any text, textures, or other elements 
+        /// when the Component's position changes.
+        /// </summary>
+        public virtual void OnMove() { }
+
+        /// <summary>
+        /// This is called when the Component's Dimensions.Width or Dimensions.Height variables
+        /// change. This can be overriden if any additional calculations or resizing needs to
+        /// occur.
+        /// </summary>
+        public virtual void OnResize() { }
+
+        /// <summary>
+        /// Refresh should be called every time changes are made to the StyleSheet or Dimensions 
+        /// that result in a repositioning of text or other sub-elements.
         /// </summary>
         public virtual void Refresh() { }
 
+        public virtual void Update() { }
+        public virtual void Draw(SpriteBatch batch) { }
 
+
+        /// <summary>
+        /// Draws the Texture2D saved in Style.Background in color Style.BackgroundColor
+        /// to Dimensions.
+        /// </summary>
+        /// <param name="batch">SpriteBatch</param>
         protected void DrawCanvas(SpriteBatch batch) {
             if (Style.Background != null)
                 batch.Draw(Style.Background, Dimensions, Style.BackgroundColor);

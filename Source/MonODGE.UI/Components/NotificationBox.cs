@@ -30,36 +30,6 @@ namespace MonODGE.UI.Components {
             Refresh();
         }
 
-        public NotificationBox(CityUIManager manager, string text, Vector2 position, int lifetime = 255) : 
-            this(manager.GlobalStyle, text, position, lifetime) {
-            manager.Add(this);
-        }
-
-
-        public override void Update() {
-            timeout--;
-            Refresh();
-
-            // Reduce background opacity.
-            Color bgcolor = Style.BackgroundColor;
-            bgcolor.A = (byte)timeout;
-            Style.BackgroundColor = bgcolor;
-
-            // Darken text and corner color.
-            Color textcolor = Style.TextColor;
-            if (textcolor.R > 0) {
-                textcolor.R -= 1;
-                textcolor.G -= 1;
-                textcolor.B -= 1;
-                textcolor.A -= 1;
-            }
-            Style.TextColor = textcolor;
-            Style.BorderColor = textcolor;
-
-            if (timeout == 0)
-                Close();
-        }
-
 
         public override void Refresh() {
             if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
@@ -80,6 +50,31 @@ namespace MonODGE.UI.Components {
                     (Dimensions.Height - textDimensions.Y) / 2 + Dimensions.Y
                 );
             }
+        }
+
+
+        public override void Update() {
+            timeout--;
+            //Refresh();
+
+            // Reduce background opacity.
+            Color bgcolor = Style.BackgroundColor;
+            bgcolor.A = (byte)timeout;
+            Style.BackgroundColor = bgcolor;
+
+            // Darken text and corner color.
+            Color textcolor = Style.TextColor;
+            if (textcolor.R > 0) {
+                textcolor.R -= 1;
+                textcolor.G -= 1;
+                textcolor.B -= 1;
+                textcolor.A -= 1;
+            }
+            Style.TextColor = textcolor;
+            Style.BorderColor = textcolor;
+
+            if (timeout == 0)
+                Close();
         }
 
 

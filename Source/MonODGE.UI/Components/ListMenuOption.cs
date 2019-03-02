@@ -10,18 +10,38 @@ using Microsoft.Xna.Framework.Graphics;
 namespace MonODGE.UI.Components {
     public abstract class AbstractListMenuOption : Component {
         protected ListMenu parent;
-        public event EventHandler Confirm;
+        public event EventHandler Submit;
 
         public AbstractListMenuOption(EventHandler action) {
-            Confirm += action;
+            Dimensions = new Rectangle(0, 0, 1, 1);
+            Submit += action;
         }
 
-        public void OnConfirm() {
-            Confirm?.Invoke(this, new EventArgs());
+        /// <summary>
+        /// This is called when the user presses the key assigned in Style.SubmitKey.
+        /// </summary>
+        public virtual void OnSubmit() {
+            Submit?.Invoke(this, new EventArgs());
         }
+
+        /// <summary>
+        /// This is called when the user presses the key assigned in Style.CancelKey.
+        /// </summary>
+        public virtual void OnCancel() { }
+
+        /// <summary>
+        /// This is called when an option is highlighted in the ListMenu.
+        /// </summary>
+        public virtual void OnSelected() { }
+
+        /// <summary>
+        /// This is called when an option is unhighlighted (another option is selected) in the
+        /// ListMenu.
+        /// </summary>
+        public virtual void OnUnselected() { }
         
+        internal virtual void Update(bool selected) { }
         internal virtual void Draw(SpriteBatch batch, bool selected) { }
-        public virtual void Measure() { }
     }
 
     /////////////////////////////////////////////////////////////////
@@ -36,22 +56,8 @@ namespace MonODGE.UI.Components {
             Dimensions = new Rectangle();
         }
 
-
-        public override void Measure() {
-            textDimensions = Style.Font?.MeasureString(Text) ?? new Vector2(1, 8);
-            
-            Dimensions = new Rectangle(
-                0, // <-- X-Pos will be set by ListMenu.
-                0, // <-- Y-Pos will be changed frequently by ListMenu.
-                (int)textDimensions.X + MathHelper.Max(Style.BorderTileWidth * 2, Style.Padding * 2),
-                MathHelper.Max(Style.BorderTileHeight * 2, (int)textDimensions.Y + Style.Padding * 2)
-                );
-
-            Refresh();
-        }
-
-
-        public override void Refresh() {            
+        public override void OnMove() {
+            // Text Positioning
             if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
                 textPosition = new Vector2(
                     Dimensions.X + Style.Padding,
@@ -73,9 +79,21 @@ namespace MonODGE.UI.Components {
         }
 
 
+        public override void Refresh() {
+            textDimensions = Style.Font?.MeasureString(Text) ?? new Vector2(1, 8);
+
+            // Set Width + Height based on textDimensions.
+            // X + Y placement won't matter, as the ListMenuOptionPanel will set these.
+            Dimensions = new Rectangle(
+                0, 0,
+                (int)textDimensions.X + MathHelper.Max(Style.BorderTileWidth * 2, Style.Padding * 2),
+                (int)textDimensions.Y + Style.Padding * 4
+            );
+        }
+
+
         internal override void Draw(SpriteBatch batch, bool selected) {
             DrawCanvas(batch);
-            Refresh(); // REMOVE ONCE FIXED!
 
             if (selected) {
                 DrawBorders(batch);
