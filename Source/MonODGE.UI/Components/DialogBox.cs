@@ -31,14 +31,26 @@ namespace MonODGE.UI.Components {
             Refresh();
         }
 
-        public DialogBox(CityUIManager manager, string line, Rectangle area, bool canCancel = false) :
-            this(manager.GlobalStyle, new string[] { line }, area, canCancel) {
-            manager.Add(this);
-        }
 
-        public DialogBox(CityUIManager manager, string[] text, Rectangle area, bool canCancel = false) :
-            this(manager.GlobalStyle, text, area, canCancel) {
-            manager.Add(this);
+        public override void Refresh() {
+            if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
+                textPosition = new Vector2(
+                    Dimensions.X + Style.Padding,
+                    Dimensions.Y + Style.Padding
+                );
+            }
+            else if (Style.TextAlign == StyleSheet.TextAlignments.CENTER) {
+                textPosition = new Vector2(
+                    (Dimensions.Width - textDimensions.X) / 2 + Dimensions.X,
+                    Dimensions.Y + Style.Padding
+                );
+            }
+            else { // Right
+                textPosition = new Vector2(
+                    Dimensions.Width - textDimensions.X - Style.Padding + Dimensions.X,
+                    Dimensions.Y + Style.Padding
+                );
+            }
         }
 
 
@@ -61,30 +73,6 @@ namespace MonODGE.UI.Components {
             }
             else if (isCancelable && _manager.Input.isKeyPress(Style.CancelKey)) {
                 Close();
-            }
-            
-            Refresh();
-        }
-
-
-        public override void Refresh() {
-            if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
-                textPosition = new Vector2(
-                    Dimensions.X + Style.Padding,
-                    Dimensions.Y + Style.Padding
-                );
-            }
-            else if (Style.TextAlign == StyleSheet.TextAlignments.CENTER) {
-                textPosition = new Vector2(
-                    (Dimensions.Width - textDimensions.X) / 2 + Dimensions.X,
-                    Dimensions.Y + Style.Padding
-                );
-            }
-            else { // Right
-                textPosition = new Vector2(
-                    Dimensions.Width - textDimensions.X - Style.Padding + Dimensions.X,
-                    Dimensions.Y + Style.Padding
-                );
             }
         }
 

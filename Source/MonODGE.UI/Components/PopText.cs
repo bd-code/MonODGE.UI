@@ -40,11 +40,6 @@ namespace MonODGE.UI.Components {
             movetype = motion;
         }
 
-        public PopText(CityUIManager manager, string message, Vector2 position, int lifetime = 80, MoveType motion = MoveType.Static) :
-            this(manager.GlobalStyle, message, position, lifetime, motion) {
-            manager.Add(this);
-        }
-
 
         public override void Update() {
             if (movetype == MoveType.Rising)

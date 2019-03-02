@@ -12,6 +12,7 @@ using MonODGE.UI.Components;
 namespace MonODGE.UI {
     public class CityUIManager {
         private GraphicsDevice _graphics;
+        public GraphicsDevice GraphicsDevice { get { return _graphics; } }
 
         private Stack<Control> controlStack;
         private Queue<PopUpComponent> popupQ;
@@ -77,7 +78,7 @@ namespace MonODGE.UI {
                 control.Style = GlobalStyle;
 
             controlStack.Push(control);
-            //control.Initialize();
+            control.Initialize();
         }
 
 
@@ -90,6 +91,7 @@ namespace MonODGE.UI {
                 popup.Style = GlobalStyle;
 
             popupQ.Enqueue(popup);
+            popup.Initialize();
         }
 
 
@@ -101,6 +103,10 @@ namespace MonODGE.UI {
         public void ClearPopUp(PopUpComponent popup) {
             // Do we need to pass it in?
             popupQ.Dequeue();
+        }
+
+        public RenderTarget2D CreateRenderTarget(int width, int height) {
+            return new RenderTarget2D(_graphics, width, height);
         }
     }
 }
