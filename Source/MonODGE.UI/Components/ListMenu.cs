@@ -12,7 +12,7 @@ namespace MonODGE.UI.Components {
     /// <summary>
     /// Vertically displays a list of options extended from AbstractListMenuOption.
     /// </summary>
-    public class ListMenu : Control {
+    public class ListMenu : OdgeControl {
         /*
         Needs Add(option) and Remove(option) for dynamic lists (think inventory).
         Re-design with title and scrolling ListOptionPanel.
@@ -26,20 +26,34 @@ namespace MonODGE.UI.Components {
             }
         }
 
-        /*private Rectangle _setDimensions;
         public override Rectangle Dimensions {
             get { return base.Dimensions; }
             set {
-                _setDimensions = value;
-                base.Dimensions = value;
-            }
-        }*/
+                optionPanel.Dimensions = new Rectangle(
+                    value.X + Style.Padding,
+                    value.Y + (int)textDimensions.Y + Style.Padding,
+                    value.Width - Style.Padding * 2,
+                    value.Height - (int)textDimensions.Y - Style.Padding * 2
+                );
+                
+                // Resize only if title or panel is too wide.
+                int width = MathHelper.Max(
+                    Dimensions.Width,
+                    MathHelper.Max(
+                        optionPanel.Dimensions.Width + Style.Padding * 2,  // <- In case options are wider.
+                        (int)textDimensions.X + Style.Padding * 2          // <- In case title is wider.
+                    )
+                );
 
-        private ListMenuOptionPanel optionPanel;
+                base.Dimensions = new Rectangle(value.X, value.Y, width, value.Height);
+            }
+        }
 
         private string title;
         private Vector2 textPosition;
         private Vector2 textDimensions;
+
+        private ListMenuOptionPanel optionPanel;
 
         private bool isCancelable;
 
@@ -50,48 +64,34 @@ namespace MonODGE.UI.Components {
 
         public ListMenu(StyleSheet style, string heading, List<AbstractListMenuOption> listOptions, Rectangle area, bool canCancel = true) 
             : base(style) {
+            // Set local privates first.
             title = heading;
-            Dimensions = area;
+            textDimensions = string.IsNullOrEmpty(title) ? Vector2.Zero : (Style.HeaderFont?.MeasureString(title) ?? Vector2.Zero);
             isCancelable = canCancel;
+
+            // First create option panel and cascade StyleSheet all the way down.
             optionPanel = new ListMenuOptionPanel(this, listOptions);
+            CascadeStyle();
+
+            // Initialize option dimensions, then cascade real Dimension down.
+            foreach (AbstractListMenuOption option in listOptions)
+                option.Dimensions = new Rectangle(-1, -1, 0, 0);
+            Dimensions = area;
         }
+
 
         public override void Initialize() {
             optionPanel.Initialize();
-            CascadeStyle();
-            Refresh();
         }
-        
-
-        /*public override void SnapTo(SnapAnchors anchor, int screenwidth, int screenheight) {
-            base.SnapTo(anchor, screenwidth, screenheight);
-            //Refresh();
-        }*/
 
 
-        public override void Refresh() {
+        public override void OnStyleSet() {
             textDimensions = string.IsNullOrEmpty(title) ? Vector2.Zero : (Style.HeaderFont?.MeasureString(title) ?? Vector2.Zero);
+            // FIX: Set new Dimensions.
+        }
 
-            // Refresh option panel first.
-            optionPanel.Dimensions = new Rectangle(
-                Dimensions.X + Style.Padding,
-                Dimensions.Y + (int)textDimensions.Y + Style.Padding,
-                Dimensions.Width - Style.Padding * 2,
-                Dimensions.Height - (int)textDimensions.Y - Style.Padding * 2
-            );
-            optionPanel.Refresh();
 
-            // Resize only if title or panel is too wide.
-            int newWidth = MathHelper.Max(
-                Dimensions.Width,
-                MathHelper.Max(
-                    optionPanel.Dimensions.Width + Style.Padding * 2,  // <- In case options are wider.
-                    (int)textDimensions.X + Style.Padding * 2          // <- In case title is wider.
-                )
-            );
-
-            Dimensions = new Rectangle(Dimensions.X, Dimensions.Y, newWidth, Dimensions.Height);
-
+        public override void OnMove() {
             // Text Positioning
             if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
                 textPosition = new Vector2(
@@ -152,7 +152,51 @@ namespace MonODGE.UI.Components {
     /// <summary>
     /// Internal: A container for AbstractListMenuOption objects for use in a ListMenu.
     /// </summary>
-    internal class ListMenuOptionPanel : Component {
+    internal class ListMenuOptionPanel : OdgeComponent {
+        public override StyleSheet Style {
+            get { return base.Style; }
+            set {
+                base.Style = value;
+                CascadeStyle();
+            }
+        }
+
+        public override Rectangle Dimensions {
+            get { return base.Dimensions; }
+            set {
+                int width = value.Width;
+
+                // Set initial option widths.
+                foreach (AbstractListMenuOption option in Options) {
+                    option.Dimensions = new Rectangle(
+                        option.Dimensions.X,
+                        option.Dimensions.Y,
+                        width,
+                        option.Dimensions.Height
+                        );
+
+                    if (option.Dimensions.Width > width)
+                        width = option.Dimensions.Width;
+                }
+
+                // Resize options again to full width.
+                foreach (AbstractListMenuOption option in Options) {
+                    if (option.Dimensions.Width < width)
+                        option.Dimensions = new Rectangle(
+                            option.Dimensions.X,
+                            option.Dimensions.Y,
+                            width,
+                            option.Dimensions.Height
+                            );
+                }
+
+                base.Dimensions = new Rectangle(value.X, value.Y, width, value.Height);
+
+                if (parent._manager != null)
+                    panel = parent._manager.CreateRenderTarget(Dimensions.Width, Dimensions.Height);
+            }
+        }
+
         private ListMenu parent;
         private RenderTarget2D panel;
         private SpriteBatch panelBatch;
@@ -162,48 +206,27 @@ namespace MonODGE.UI.Components {
 
         public AbstractListMenuOption SelectedOption { get { return Options[selectedIndex]; } }
 
-        public override StyleSheet Style {
-            get { return base.Style; }
-            set {
-                base.Style = value;
-                CascadeStyle();
-            }
-        }
-
         internal ListMenuOptionPanel(ListMenu parentMenu, List<AbstractListMenuOption> listOptions) {
             parent = parentMenu;
             Options = listOptions;
-            Style = parentMenu.Style;
-            Dimensions = parent.Dimensions;
         }
 
 
         public override void Initialize() {
             panel = parent._manager.CreateRenderTarget(Dimensions.Width, Dimensions.Height);
             panelBatch = new SpriteBatch(parent._manager.GraphicsDevice);
+            foreach (AbstractListMenuOption option in Options)
+                option.Initialize();
         }
 
 
-        public override void Refresh() {
-            // First get max width of options.
-            int newWidth = 0;
-            foreach (AbstractListMenuOption option in Options) {
-                option.Refresh();
-                if (option.Dimensions.Width > newWidth)
-                    newWidth = option.Dimensions.Width;
-            }
-
-            // Now set the option dimensions.
+        public override void OnMove() {
+            // Set the option positions.
             int ypos = 0;
             foreach (AbstractListMenuOption option in Options) {
-                option.Dimensions = new Rectangle(0, ypos, newWidth, option.Dimensions.Height);
-                option.OnMove();
+                option.Dimensions = new Rectangle(0, ypos, option.Dimensions.Width, option.Dimensions.Height);
                 ypos += option.Dimensions.Height;
             }
-
-            Dimensions = new Rectangle(Dimensions.X, Dimensions.Y, newWidth, Dimensions.Height);
-            if (parent._manager != null)
-                panel = parent._manager.CreateRenderTarget(Dimensions.Width, Dimensions.Height);
         }
 
 
@@ -279,7 +302,6 @@ namespace MonODGE.UI.Components {
         public override void Draw(SpriteBatch batch) {
             DrawToPanel();
             batch.Draw(panel, Dimensions, Color.White);
-            //batch.Draw(panel, new Rectangle(0, 0, Dimensions.Width, 500), Color.White);
         }
 
 

@@ -8,7 +8,11 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace MonODGE.UI.Components {
-    public class PopText : PopUpComponent {
+    /// <summary>
+    /// An unframed (windowless) text display intended for damage numbers and other 
+    /// "point" text, exclamations, etc.
+    /// </summary>
+    public class PopText : OdgePopUp {
         public enum MoveType {
             Static, Rising, Falling, Bouncing
         };
@@ -119,7 +123,7 @@ namespace MonODGE.UI.Components {
 
         public override void Draw(SpriteBatch batch) {
             if (timeout > 0) {
-                batch.DrawString(Style.Font, text, shadowPosition, Color.Black);
+                batch.DrawString(Style.Font, text, shadowPosition, Style.FooterColor);
                 batch.DrawString(Style.Font, text, textPosition, Style.TextColor);
             }
         }

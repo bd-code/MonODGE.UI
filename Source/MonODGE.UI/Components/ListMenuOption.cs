@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace MonODGE.UI.Components {
-    public abstract class AbstractListMenuOption : Component {
+    public abstract class AbstractListMenuOption : OdgeComponent {
         protected ListMenu parent;
         public event EventHandler Submit;
 
@@ -44,17 +44,50 @@ namespace MonODGE.UI.Components {
         internal virtual void Draw(SpriteBatch batch, bool selected) { }
     }
 
-    /////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
 
     public class TextListMenuOption : AbstractListMenuOption {
         public string Text { get; protected set; }
         private Vector2 textPosition;
         private Vector2 textDimensions;
 
+        public override Rectangle Dimensions {
+            get { return base.Dimensions; }
+            set {
+                // First check if value is too small for the text, and if so, resize.
+                int minWidth = 0, minHeight = 0;
+                if (Style != null) {
+                    minWidth = (int)textDimensions.X + MathHelper.Max(Style.BorderTileWidth * 2, Style.Padding * 2);
+                    minHeight = (int)textDimensions.Y + Style.Padding * 4;
+                }
+
+                base.Dimensions = new Rectangle(
+                    value.X, value.Y, 
+                    MathHelper.Max(value.Width, minWidth), 
+                    MathHelper.Max(value.Height, minHeight)
+                    );
+            }
+        }
+
         public TextListMenuOption(string optionText, EventHandler action) : base(action) {
             Text = optionText;
-            Dimensions = new Rectangle();
         }
+
+
+        public override void OnStyleSet() {
+            if (!string.IsNullOrEmpty(Text)) {
+                textDimensions = Style.Font?.MeasureString(Text) ?? new Vector2(1, 8);
+
+                int minWidth = (int)textDimensions.X + MathHelper.Max(Style.BorderTileWidth * 2, Style.Padding * 2);
+                int minHeight = (int)textDimensions.Y + Style.Padding * 4;
+                Dimensions = new Rectangle(
+                    Dimensions.X, Dimensions.Y,
+                    MathHelper.Max(Dimensions.Width, minWidth),
+                    MathHelper.Max(Dimensions.Height, minHeight)
+                    );
+            }
+        }
+
 
         public override void OnMove() {
             // Text Positioning
@@ -79,19 +112,6 @@ namespace MonODGE.UI.Components {
         }
 
 
-        public override void Refresh() {
-            textDimensions = Style.Font?.MeasureString(Text) ?? new Vector2(1, 8);
-
-            // Set Width + Height based on textDimensions.
-            // X + Y placement won't matter, as the ListMenuOptionPanel will set these.
-            Dimensions = new Rectangle(
-                0, 0,
-                (int)textDimensions.X + MathHelper.Max(Style.BorderTileWidth * 2, Style.Padding * 2),
-                (int)textDimensions.Y + Style.Padding * 4
-            );
-        }
-
-
         internal override void Draw(SpriteBatch batch, bool selected) {
             DrawCanvas(batch);
 
@@ -105,4 +125,44 @@ namespace MonODGE.UI.Components {
             }
         }
     }
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    //public class PictureListMenuOption : AbstractListMenuOption {
+    //    private Texture2D texture;
+    //    private Rectangle dstRect;
+    //    private Rectangle srcRect;
+
+    //    public PictureListMenuOption(Texture2D image, Rectangle sourceRect, EventHandler action) 
+    //        : base(action) {
+    //        texture = image;
+    //        srcRect = sourceRect;
+    //        dstRect = new Rectangle(0, 0, srcRect.Width, srcRect.Height);
+    //    }
+
+
+    //    public override void OnMove() {
+    //        dstRect = new Rectangle(
+    //            Dimensions.X + Style.Padding, 
+    //            Dimensions.Y + Style.Padding,
+    //            srcRect.Width,
+    //            srcRect.Height
+    //            );
+    //    }
+
+
+    //    internal override void Draw(SpriteBatch batch, bool selected) {
+    //        DrawCanvas(batch);
+            
+    //        if (selected) {
+    //            DrawBorders(batch);
+    //            batch.Draw(texture, dstRect, srcRect, Color.White);
+    //        }
+    //        else {
+    //            DrawCorners(batch);
+    //            batch.Draw(texture, dstRect, srcRect, Color.Gray);
+    //        }
+    //    }
+    //}
+
 }

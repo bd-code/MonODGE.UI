@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MonODGE.UI {
-    internal class CityComponentUsedException : Exception {
-        public CityComponentUsedException(string message) : base(message) { }
+    internal class OdgeComponentUsedException : Exception {
+        public OdgeComponentUsedException(string message) : base(message) { }
     }
 }

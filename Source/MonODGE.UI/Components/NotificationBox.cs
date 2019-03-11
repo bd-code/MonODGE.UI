@@ -8,13 +8,17 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace MonODGE.UI.Components {
-    public class NotificationBox : PopUpComponent {
+    /// <summary>
+    /// A lightweight text display intended for, but not limited to, short-lived 
+    /// one-line notifications.
+    /// </summary>
+    public class NotificationBox : OdgePopUp {
         private string notification;
         private int timeout;
         private Vector2 textPosition;
         private Vector2 textDimensions;
 
-        public NotificationBox(StyleSheet style, string text, Vector2 position, int lifetime = 255) : base(style) {
+        public NotificationBox(StyleSheet style, string text, Vector2 position, int lifetime = 355) : base(style) {
             notification = text;
             timeout = lifetime;
 
@@ -24,14 +28,12 @@ namespace MonODGE.UI.Components {
                 (int)position.X,
                 (int)position.Y,
                 (int)textDimensions.X + MathHelper.Max(Style.BorderTileWidth * 2, Style.Padding * 2),
-                MathHelper.Max(Style.BorderTileHeight * 2, (int)textDimensions.Y + Style.Padding * 2)
+                (int)textDimensions.Y + Style.Padding
                 );
-
-            Refresh();
         }
 
 
-        public override void Refresh() {
+        public override void OnMove() {            
             if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
                 textPosition = new Vector2(
                     Dimensions.X + Style.Padding,
@@ -53,25 +55,34 @@ namespace MonODGE.UI.Components {
         }
 
 
+        public override void OnResize() {
+            OnMove();
+        }
+
+
         public override void Update() {
             timeout--;
-            //Refresh();
 
             // Reduce background opacity.
             Color bgcolor = Style.BackgroundColor;
-            bgcolor.A = (byte)timeout;
+            bgcolor.A = (byte)MathHelper.Max(0, bgcolor.A - 1);
             Style.BackgroundColor = bgcolor;
 
-            // Darken text and corner color.
+            // Darken text color.
             Color textcolor = Style.TextColor;
-            if (textcolor.R > 0) {
-                textcolor.R -= 1;
-                textcolor.G -= 1;
-                textcolor.B -= 1;
-                textcolor.A -= 1;
-            }
+            textcolor.R = (byte)MathHelper.Max(0, textcolor.R - 1);
+            textcolor.G = (byte)MathHelper.Max(0, textcolor.G - 1);
+            textcolor.B = (byte)MathHelper.Max(0, textcolor.B - 1);
+            textcolor.A = (byte)MathHelper.Max(0, textcolor.A - 1);
             Style.TextColor = textcolor;
-            Style.BorderColor = textcolor;
+
+            // Darken border color.
+            Color bordercolor = Style.BorderColor;
+            bordercolor.R = (byte)MathHelper.Max(0, bordercolor.R - 1);
+            bordercolor.G = (byte)MathHelper.Max(0, bordercolor.G - 1);
+            bordercolor.B = (byte)MathHelper.Max(0, bordercolor.B - 1);
+            bordercolor.A = (byte)MathHelper.Max(0, bordercolor.A - 1);
+            Style.BorderColor = bordercolor;
 
             if (timeout == 0)
                 Close();
