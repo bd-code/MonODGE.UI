@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Input;
 
 namespace MonODGE.UI {
-    internal class CityInput {
+    internal class OdgeInput {
         private KeyboardState prevState;
         private KeyboardState state;
 
-        public CityInput() {
+        public OdgeInput() {
             prevState = Keyboard.GetState();
             state = Keyboard.GetState();
         }

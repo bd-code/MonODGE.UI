@@ -9,13 +9,16 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace MonODGE.UI.Components {
-    public class DialogBox : Control {
-        private string[] dialog;
-        private int dialogIndex;
-        private bool isCancelable;
+    /// <summary>
+    /// A multi-page text display box, intended for NPC dialog.
+    /// </summary>
+    public class DialogBox : OdgeControl {
+        protected string[] dialog;
+        protected int dialogIndex;
+        protected bool isCancelable;
 
-        private Vector2 textPosition;
-        private Vector2 textDimensions;
+        protected Vector2 textPosition;
+        protected Vector2 textDimensions;
 
         public DialogBox(StyleSheet style, string line, Rectangle area, bool canCancel = false) :
             this(style, new string[] { line }, area, canCancel) { }
@@ -24,15 +27,12 @@ namespace MonODGE.UI.Components {
             : base(style) {
             dialog = text;
             dialogIndex = 0;
+            OnTextChanged();
             isCancelable = canCancel;
-
             Dimensions = area;
-            textDimensions = Style.Font?.MeasureString(dialog[dialogIndex]) ?? Vector2.Zero;
-            Refresh();
         }
 
-
-        public override void Refresh() {
+        public override void OnMove() {
             if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
                 textPosition = new Vector2(
                     Dimensions.X + Style.Padding,
@@ -54,25 +54,47 @@ namespace MonODGE.UI.Components {
         }
 
 
+        public override void OnSubmit() {
+            dialogIndex++;
+            if (dialogIndex >= dialog.Length) 
+                Close();            
+        }
+
+
+        public override void OnCancel() {
+            if (isCancelable)
+                Close();            
+        }
+
+
+        public override void OnStyleSet() {
+            if (dialog != null && !string.IsNullOrEmpty(dialog[dialogIndex])) 
+                OnTextChanged();
+        }
+
+
+        public void OnTextChanged() {
+            textDimensions = Style.Font?.MeasureString(dialog[dialogIndex]) ?? Vector2.Zero;
+            OnMove();
+        }
+
+
         public override void Update() {
             if (_manager.Input.isKeyPress(Style.SubmitKey)) {
-                dialogIndex++;
-                if (dialogIndex >= dialog.Length) {
-                    Close();
-                }
+                OnSubmit();
             }
             else if (dialogIndex > 0
                 && (_manager.Input.isKeyPress(Keys.Left) || _manager.Input.isKeyDown(Keys.A))) {
                 dialogIndex--;
-                textDimensions = Style.Font?.MeasureString(dialog[dialogIndex]) ?? Vector2.Zero;
+                OnTextChanged();
             }
             else if (dialogIndex < dialog.Length - 1
                 && (_manager.Input.isKeyPress(Keys.Right) || _manager.Input.isKeyDown(Keys.D))) {
                 dialogIndex++;
-                textDimensions = Style.Font?.MeasureString(dialog[dialogIndex]) ?? Vector2.Zero;
+                OnTextChanged();
             }
-            else if (isCancelable && _manager.Input.isKeyPress(Style.CancelKey)) {
-                Close();
+            else if (_manager.Input.isKeyPress(Style.CancelKey)) {
+                OnCancel();
             }
         }
 

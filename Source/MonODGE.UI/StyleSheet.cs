@@ -87,8 +87,8 @@ namespace MonODGE.UI {
                 FooterFont = font;
 
             TextColor = textColor ?? Color.White;
-            HeaderColor = TextColor;
-            FooterColor = TextColor;
+            HeaderColor = headercolor ?? Color.White;
+            FooterColor = footercolor ?? Color.White;
             SelectedTextColor = selectedTextColor ?? Color.Gold;
             UnselectedTextColor = unselectedTextColor ?? Color.Gray;
             
