@@ -32,6 +32,13 @@ namespace MonODGE.UI.Components {
             Dimensions = area;
         }
 
+
+        public override void OnStyleSet() {
+            if (dialog != null && !string.IsNullOrEmpty(dialog[dialogIndex]))
+                OnTextChanged();
+        }
+
+
         public override void OnMove() {
             if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
                 textPosition = new Vector2(
@@ -64,12 +71,6 @@ namespace MonODGE.UI.Components {
         public override void OnCancel() {
             if (isCancelable)
                 Close();            
-        }
-
-
-        public override void OnStyleSet() {
-            if (dialog != null && !string.IsNullOrEmpty(dialog[dialogIndex])) 
-                OnTextChanged();
         }
 
 

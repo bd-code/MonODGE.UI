@@ -27,7 +27,7 @@ namespace MonODGE.UI.Components {
             Dimensions = new Rectangle(
                 (int)position.X,
                 (int)position.Y,
-                (int)textDimensions.X + MathHelper.Max(Style.BorderTileWidth * 2, Style.Padding * 2),
+                (int)textDimensions.X + Style.Padding * 2,
                 (int)textDimensions.Y + Style.Padding
                 );
         }

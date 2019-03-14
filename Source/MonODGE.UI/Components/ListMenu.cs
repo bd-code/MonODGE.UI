@@ -17,6 +17,16 @@ namespace MonODGE.UI.Components {
         Needs Add(option) and Remove(option) for dynamic lists (think inventory).
         Re-design with title and scrolling ListOptionPanel.
         */
+        private string title;
+        private Vector2 textPosition;
+        private Vector2 textDimensions;
+
+        private ListMenuOptionPanel optionPanel;
+
+        private bool isCancelable;
+
+        public AbstractMenuOption SelectedOption { get { return optionPanel.SelectedOption; } }
+
         public override StyleSheet Style {
             get { return base.Style; }
             set {
@@ -49,20 +59,11 @@ namespace MonODGE.UI.Components {
             }
         }
 
-        private string title;
-        private Vector2 textPosition;
-        private Vector2 textDimensions;
-
-        private ListMenuOptionPanel optionPanel;
-
-        private bool isCancelable;
-
-        public AbstractListMenuOption SelectedOption { get { return optionPanel.SelectedOption; } }
 
         public ListMenu(StyleSheet style, string heading, Rectangle area, bool canCancel = true) : 
-            this(style, heading, new List<AbstractListMenuOption>(), area, canCancel) { }
+            this(style, heading, new List<AbstractMenuOption>(), area, canCancel) { }
 
-        public ListMenu(StyleSheet style, string heading, List<AbstractListMenuOption> listOptions, Rectangle area, bool canCancel = true) 
+        public ListMenu(StyleSheet style, string heading, List<AbstractMenuOption> listOptions, Rectangle area, bool canCancel = true) 
             : base(style) {
             // Set local privates first.
             title = heading;
@@ -74,7 +75,7 @@ namespace MonODGE.UI.Components {
             CascadeStyle();
 
             // Initialize option dimensions, then cascade real Dimension down.
-            foreach (AbstractListMenuOption option in listOptions)
+            foreach (AbstractMenuOption option in listOptions)
                 option.Dimensions = new Rectangle(-1, -1, 0, 0);
             Dimensions = area;
         }
@@ -153,6 +154,15 @@ namespace MonODGE.UI.Components {
     /// Internal: A container for AbstractListMenuOption objects for use in a ListMenu.
     /// </summary>
     internal class ListMenuOptionPanel : OdgeComponent {
+        private ListMenu parent;
+        private RenderTarget2D panel;
+        private SpriteBatch panelBatch;
+
+        internal List<AbstractMenuOption> Options { get; private set; }
+        private int selectedIndex;
+
+        public AbstractMenuOption SelectedOption { get { return Options[selectedIndex]; } }
+
         public override StyleSheet Style {
             get { return base.Style; }
             set {
@@ -167,7 +177,7 @@ namespace MonODGE.UI.Components {
                 int width = value.Width;
 
                 // Set initial option widths.
-                foreach (AbstractListMenuOption option in Options) {
+                foreach (AbstractMenuOption option in Options) {
                     option.Dimensions = new Rectangle(
                         option.Dimensions.X,
                         option.Dimensions.Y,
@@ -180,7 +190,7 @@ namespace MonODGE.UI.Components {
                 }
 
                 // Resize options again to full width.
-                foreach (AbstractListMenuOption option in Options) {
+                foreach (AbstractMenuOption option in Options) {
                     if (option.Dimensions.Width < width)
                         option.Dimensions = new Rectangle(
                             option.Dimensions.X,
@@ -197,16 +207,8 @@ namespace MonODGE.UI.Components {
             }
         }
 
-        private ListMenu parent;
-        private RenderTarget2D panel;
-        private SpriteBatch panelBatch;
 
-        internal List<AbstractListMenuOption> Options { get; private set; }
-        private int selectedIndex;
-
-        public AbstractListMenuOption SelectedOption { get { return Options[selectedIndex]; } }
-
-        internal ListMenuOptionPanel(ListMenu parentMenu, List<AbstractListMenuOption> listOptions) {
+        internal ListMenuOptionPanel(ListMenu parentMenu, List<AbstractMenuOption> listOptions) {
             parent = parentMenu;
             Options = listOptions;
         }
@@ -215,7 +217,7 @@ namespace MonODGE.UI.Components {
         public override void Initialize() {
             panel = parent._manager.CreateRenderTarget(Dimensions.Width, Dimensions.Height);
             panelBatch = new SpriteBatch(parent._manager.GraphicsDevice);
-            foreach (AbstractListMenuOption option in Options)
+            foreach (AbstractMenuOption option in Options)
                 option.Initialize();
         }
 
@@ -223,7 +225,7 @@ namespace MonODGE.UI.Components {
         public override void OnMove() {
             // Set the option positions.
             int ypos = 0;
-            foreach (AbstractListMenuOption option in Options) {
+            foreach (AbstractMenuOption option in Options) {
                 option.Dimensions = new Rectangle(0, ypos, option.Dimensions.Width, option.Dimensions.Height);
                 ypos += option.Dimensions.Height;
             }
@@ -325,8 +327,9 @@ namespace MonODGE.UI.Components {
         /// </param>
         public void CascadeStyle(bool forced = false) {
             if (Options != null) {
-                foreach (AbstractListMenuOption option in Options)
-                    option.Style = Style;
+                foreach (AbstractMenuOption option in Options)
+                    if (forced || option.Style == null)
+                        option.Style = Style;
             }                
         }
     }
