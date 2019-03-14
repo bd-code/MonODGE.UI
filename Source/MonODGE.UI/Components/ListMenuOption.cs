@@ -8,12 +8,11 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace MonODGE.UI.Components {
-    public abstract class AbstractListMenuOption : OdgeComponent {
+    public abstract class AbstractMenuOption : OdgeComponent {
         protected ListMenu parent;
         public event EventHandler Submit;
 
-        public AbstractListMenuOption(EventHandler action) {
-            Dimensions = new Rectangle(0, 0, 1, 1);
+        public AbstractMenuOption(EventHandler action) {
             Submit += action;
         }
 
@@ -46,7 +45,7 @@ namespace MonODGE.UI.Components {
 
     ///////////////////////////////////////////////////////////////////////////
 
-    public class TextListMenuOption : AbstractListMenuOption {
+    public class TextMenuOption : AbstractMenuOption {
         public string Text { get; protected set; }
         private Vector2 textPosition;
         private Vector2 textDimensions;
@@ -57,7 +56,7 @@ namespace MonODGE.UI.Components {
                 // First check if value is too small for the text, and if so, resize.
                 int minWidth = 0, minHeight = 0;
                 if (Style != null) {
-                    minWidth = (int)textDimensions.X + MathHelper.Max(Style.BorderTileWidth * 2, Style.Padding * 2);
+                    minWidth = (int)textDimensions.X + Style.Padding * 2;
                     minHeight = (int)textDimensions.Y + Style.Padding * 4;
                 }
 
@@ -69,7 +68,7 @@ namespace MonODGE.UI.Components {
             }
         }
 
-        public TextListMenuOption(string optionText, EventHandler action) : base(action) {
+        public TextMenuOption(string optionText, EventHandler action) : base(action) {
             Text = optionText;
         }
 
@@ -78,18 +77,40 @@ namespace MonODGE.UI.Components {
             if (!string.IsNullOrEmpty(Text)) {
                 textDimensions = Style.Font?.MeasureString(Text) ?? new Vector2(1, 8);
 
-                int minWidth = (int)textDimensions.X + MathHelper.Max(Style.BorderTileWidth * 2, Style.Padding * 2);
-                int minHeight = (int)textDimensions.Y + Style.Padding * 4;
+                // Reset Dimensions by simply setting same values. Property will take care of resizing.
                 Dimensions = new Rectangle(
                     Dimensions.X, Dimensions.Y,
-                    MathHelper.Max(Dimensions.Width, minWidth),
-                    MathHelper.Max(Dimensions.Height, minHeight)
+                    Dimensions.Width, Dimensions.Height
                     );
+
+                repositionText();
             }
         }
 
 
         public override void OnMove() {
+            repositionText();
+        }
+        public override void OnResize() {
+            repositionText();
+        }
+
+
+        internal override void Draw(SpriteBatch batch, bool selected) {
+            DrawCanvas(batch);
+
+            if (selected) {
+                DrawBorders(batch);
+                batch.DrawString(Style.Font, Text, textPosition, Style.SelectedTextColor);
+            }
+            else {
+                DrawCorners(batch);
+                batch.DrawString(Style.Font, Text, textPosition, Style.UnselectedTextColor);
+            }
+        }
+
+
+        private void repositionText() {
             // Text Positioning
             if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
                 textPosition = new Vector2(
@@ -110,6 +131,54 @@ namespace MonODGE.UI.Components {
                 );
             }
         }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    public class ImageMenuOption : AbstractMenuOption {
+        private Texture2D texture;
+        private Rectangle dstRect;
+        private Rectangle srcRect;
+
+        public override Rectangle Dimensions {
+            get { return base.Dimensions; }
+
+            set {
+                // Make sure it's at least as big as the texture.
+                int minWidth = 0, minHeight = 0;
+                if (Style != null) {
+                    minWidth = srcRect.Width + Style.Padding * 2;
+                    minHeight = srcRect.Height + Style.Padding * 2;
+                }
+
+                base.Dimensions = new Rectangle(
+                    value.X, value.Y,
+                    MathHelper.Max(value.Width, minWidth),
+                    MathHelper.Max(value.Height, minHeight)
+                    );
+            }
+        }
+
+        public ImageMenuOption(Texture2D image, Rectangle sourceRect, EventHandler action)
+            : base(action) {
+            texture = image;
+            srcRect = sourceRect;
+            dstRect = new Rectangle(0, 0, srcRect.Width, srcRect.Height);
+        }
+
+
+        public override void OnStyleSet() {
+            // Reset Dimensions by simply setting same values. Property will take care of resizing.
+            Dimensions = new Rectangle(
+                Dimensions.X, Dimensions.Y,
+                Dimensions.Width, Dimensions.Height
+                );
+        }
+
+
+        public override void OnMove() {
+            repositionImage();
+        }
 
 
         internal override void Draw(SpriteBatch batch, bool selected) {
@@ -117,52 +186,41 @@ namespace MonODGE.UI.Components {
 
             if (selected) {
                 DrawBorders(batch);
-                batch.DrawString(Style.Font, Text, textPosition, Style.SelectedTextColor);
+                batch.Draw(texture, dstRect, srcRect, Color.White);
             }
             else {
                 DrawCorners(batch);
-                batch.DrawString(Style.Font, Text, textPosition, Style.UnselectedTextColor);
+                batch.Draw(texture, dstRect, srcRect, Color.Gray);
+            }
+        }
+
+
+        private void repositionImage() {
+            if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
+                dstRect = new Rectangle(
+                    Dimensions.X + Style.Padding,
+                    Dimensions.Y + Style.Padding,
+                    srcRect.Width,
+                    srcRect.Height
+                    );
+            }
+            else if (Style.TextAlign == StyleSheet.TextAlignments.CENTER) {
+                dstRect = new Rectangle(
+                    (Dimensions.Width - srcRect.Width) / 2 + Dimensions.X,
+                    Dimensions.Y + Style.Padding,
+                    srcRect.Width,
+                    srcRect.Height
+                    );
+            }
+            else { // Right
+                dstRect = new Rectangle(
+                    Dimensions.X + Dimensions.Width - srcRect.Width - Style.Padding,
+                    Dimensions.Y + Style.Padding,
+                    srcRect.Width,
+                    srcRect.Height
+                    );
             }
         }
     }
-
-    ///////////////////////////////////////////////////////////////////////////
-
-    //public class PictureListMenuOption : AbstractListMenuOption {
-    //    private Texture2D texture;
-    //    private Rectangle dstRect;
-    //    private Rectangle srcRect;
-
-    //    public PictureListMenuOption(Texture2D image, Rectangle sourceRect, EventHandler action) 
-    //        : base(action) {
-    //        texture = image;
-    //        srcRect = sourceRect;
-    //        dstRect = new Rectangle(0, 0, srcRect.Width, srcRect.Height);
-    //    }
-
-
-    //    public override void OnMove() {
-    //        dstRect = new Rectangle(
-    //            Dimensions.X + Style.Padding, 
-    //            Dimensions.Y + Style.Padding,
-    //            srcRect.Width,
-    //            srcRect.Height
-    //            );
-    //    }
-
-
-    //    internal override void Draw(SpriteBatch batch, bool selected) {
-    //        DrawCanvas(batch);
-            
-    //        if (selected) {
-    //            DrawBorders(batch);
-    //            batch.Draw(texture, dstRect, srcRect, Color.White);
-    //        }
-    //        else {
-    //            DrawCorners(batch);
-    //            batch.Draw(texture, dstRect, srcRect, Color.Gray);
-    //        }
-    //    }
-    //}
 
 }
