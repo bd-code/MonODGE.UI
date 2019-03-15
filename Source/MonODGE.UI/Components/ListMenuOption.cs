@@ -88,12 +88,8 @@ namespace MonODGE.UI.Components {
         }
 
 
-        public override void OnMove() {
-            repositionText();
-        }
-        public override void OnResize() {
-            repositionText();
-        }
+        public override void OnMove() { repositionText(); }
+        public override void OnResize() { repositionText(); }
 
 
         internal override void Draw(SpriteBatch batch, bool selected) {

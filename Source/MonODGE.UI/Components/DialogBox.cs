@@ -15,7 +15,6 @@ namespace MonODGE.UI.Components {
     public class DialogBox : OdgeControl {
         protected string[] dialog;
         protected int dialogIndex;
-        protected bool isCancelable;
 
         protected Vector2 textPosition;
         protected Vector2 textDimensions;
@@ -28,7 +27,7 @@ namespace MonODGE.UI.Components {
             dialog = text;
             dialogIndex = 0;
             OnTextChanged();
-            isCancelable = canCancel;
+            IsCancelable = canCancel;
             Dimensions = area;
         }
 
@@ -40,7 +39,7 @@ namespace MonODGE.UI.Components {
 
 
         public override void OnMove() {
-            if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
+            /*if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
                 textPosition = new Vector2(
                     Dimensions.X + Style.Padding,
                     Dimensions.Y + Style.Padding
@@ -57,7 +56,8 @@ namespace MonODGE.UI.Components {
                     Dimensions.Width - textDimensions.X - Style.Padding + Dimensions.X,
                     Dimensions.Y + Style.Padding
                 );
-            }
+            }*/
+            repositionText();
         }
 
 
@@ -69,14 +69,14 @@ namespace MonODGE.UI.Components {
 
 
         public override void OnCancel() {
-            if (isCancelable)
+            if (IsCancelable)
                 Close();            
         }
 
 
         public void OnTextChanged() {
             textDimensions = Style.Font?.MeasureString(dialog[dialogIndex]) ?? Vector2.Zero;
-            OnMove();
+            repositionText();
         }
 
 
@@ -122,6 +122,28 @@ namespace MonODGE.UI.Components {
                     batch.DrawString(Style.FooterFont, "<< . . .",
                         new Vector2(Dimensions.X + 16, Dimensions.Y + Dimensions.Height - 32),
                         Style.FooterColor);
+            }
+        }
+
+
+        private void repositionText() {
+            if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
+                textPosition = new Vector2(
+                    Dimensions.X + Style.Padding,
+                    Dimensions.Y + Style.Padding
+                );
+            }
+            else if (Style.TextAlign == StyleSheet.TextAlignments.CENTER) {
+                textPosition = new Vector2(
+                    (Dimensions.Width - textDimensions.X) / 2 + Dimensions.X,
+                    Dimensions.Y + Style.Padding
+                );
+            }
+            else { // Right
+                textPosition = new Vector2(
+                    Dimensions.Width - textDimensions.X - Style.Padding + Dimensions.X,
+                    Dimensions.Y + Style.Padding
+                );
             }
         }
     }

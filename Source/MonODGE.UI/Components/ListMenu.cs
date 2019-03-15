@@ -23,8 +23,6 @@ namespace MonODGE.UI.Components {
 
         private ListMenuOptionPanel optionPanel;
 
-        private bool isCancelable;
-
         public AbstractMenuOption SelectedOption { get { return optionPanel.SelectedOption; } }
 
         public override StyleSheet Style {
@@ -68,7 +66,7 @@ namespace MonODGE.UI.Components {
             // Set local privates first.
             title = heading;
             textDimensions = string.IsNullOrEmpty(title) ? Vector2.Zero : (Style.HeaderFont?.MeasureString(title) ?? Vector2.Zero);
-            isCancelable = canCancel;
+            IsCancelable = canCancel;
 
             // First create option panel and cascade StyleSheet all the way down.
             optionPanel = new ListMenuOptionPanel(this, listOptions);
@@ -115,8 +113,14 @@ namespace MonODGE.UI.Components {
         }
 
 
+        public override void OnCancel() {
+            if (IsCancelable)
+                Close();
+        }
+
+
         public override void Update() {
-            if (_manager.Input.isKeyPress(Style.CancelKey) && isCancelable) {
+            if (_manager.Input.isKeyPress(Style.CancelKey) && IsCancelable) {
                 Close();
             }
 
@@ -254,6 +258,10 @@ namespace MonODGE.UI.Components {
                 if (selectedIndex < 0)
                     selectedIndex = Options.Count - 1;
                 Options[selectedIndex].OnSelected();
+            }
+
+            else if (parent._manager.Input.isKeyPress(Style.CancelKey)) {
+                parent.OnCancel();
             }
 
 

@@ -46,6 +46,8 @@ namespace MonODGE.UI.Components {
             }
         }
 
+        public bool IsCancelable { get; set; }
+
         internal OdgeUI _manager;
 
         /// <summary>
