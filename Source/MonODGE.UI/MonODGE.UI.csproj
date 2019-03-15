@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="Components\Component.cs" />
     <Compile Include="Components\DialogBox.cs" />
+    <Compile Include="Components\DialogOption.cs" />
     <Compile Include="Components\ListMenu.cs" />
     <Compile Include="Components\ListMenuOption.cs" />
     <Compile Include="Components\PopText.cs" />

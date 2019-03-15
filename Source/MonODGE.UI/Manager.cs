@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -14,12 +15,14 @@ namespace MonODGE.UI {
         private GraphicsDevice _graphics;
         public GraphicsDevice GraphicsDevice { get { return _graphics; } }
 
+        Texture2D mask;
+
         private Stack<OdgeControl> controlStack;
         private Queue<OdgePopUp> popupQ;
 
         private StyleSheet _style;
         public StyleSheet GlobalStyle {
-            get { return _style.Clone(); }
+            get { return _style; }
             set { _style = value; }
         }
 
@@ -29,15 +32,24 @@ namespace MonODGE.UI {
         public int ScreenHeight { get { return _graphics.Viewport.Height; } }
         public int ControlCount { get { return controlStack.Count; } }
         public int PopUpCount { get { return popupQ.Count; } }
+
+        // Config settings
+        public bool DrawAllControls { get; set; }
+        public bool DrawInactiveMask { get; set; }
+        public bool RunAllPopUps { get; set; }
         
         public OdgeUI(GraphicsDevice graphics, StyleSheet stylesheet) {
             _graphics = graphics;
+            mask = new Texture2D(graphics, 1, 1);
+            mask.SetData(new Color[] { Color.White });
 
             controlStack = new Stack<OdgeControl>();
             popupQ = new Queue<OdgePopUp>();
 
             GlobalStyle = stylesheet;
             Input = new OdgeInput();
+
+            DrawInactiveMask = true;
         }
 
 
@@ -53,19 +65,41 @@ namespace MonODGE.UI {
 
 
         public void UpdatePopup() {
-            if (popupQ.Count > 0)
-                popupQ.Peek().Update();
+            if (popupQ.Count > 0) {
+                if (RunAllPopUps) {
+                    OdgePopUp[] pops = popupQ.ToArray();
+                    foreach (OdgePopUp pop in pops)
+                        pop.Update();
+                }
+                else
+                    popupQ.Peek().Update();
+            }
         }
 
 
         public void DrawControl(SpriteBatch batch) {
-            if (controlStack.Count > 0)
-                controlStack.Peek().Draw(batch);
+            if (controlStack.Count > 0) {
+                if (DrawAllControls) {
+                    foreach (OdgeControl odge in controlStack.Reverse()) {
+                        odge.Draw(batch);
+                        if (DrawInactiveMask && odge != controlStack.Peek())
+                            batch.Draw(mask, odge.Dimensions, new Color(0, 0, 0, 128));
+                    }
+                }
+                else
+                    controlStack.Peek().Draw(batch);
+            }
         }
 
         public void DrawPopup(SpriteBatch batch) {
-            if (popupQ.Count > 0)
-                popupQ.Peek().Draw(batch);
+            if (popupQ.Count > 0) {
+                if (RunAllPopUps) {
+                    foreach (OdgePopUp pop in popupQ)
+                        pop.Draw(batch);
+                }
+                else
+                    popupQ.Peek().Draw(batch);
+            }
         }
 
 
