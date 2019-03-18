@@ -10,10 +10,15 @@ using Microsoft.Xna.Framework.Input;
 
 namespace MonODGE.UI {
     public class StyleSheet {
+        // Inner element alignment
         public enum TextAlignments {
             LEFT, CENTER, RIGHT
         }
 
+        public TextAlignments TextAlign { get; set; }
+
+
+        // Background and Borders
         public Texture2D Background { get; set; }
         public Color BackgroundColor { get; set; }
         
@@ -37,11 +42,14 @@ namespace MonODGE.UI {
                 };
             }
         }
+
         public Rectangle[] BorderSourceRects { get; private set; }
         public int BorderTileWidth { get { return _borders?.Width / 3 ?? 0; } }
         public int BorderTileHeight { get { return _borders?.Height / 3 ?? 0; } }
         public Color BorderColor { get; set; }
 
+
+        // Fonts and Text Color
         public SpriteFont HeaderFont { get; set; }
         public Color HeaderColor { get; set; }
 
@@ -54,9 +62,59 @@ namespace MonODGE.UI {
         public Color SelectedTextColor { get; set; }
         public Color UnselectedTextColor { get; set; }
 
-        public TextAlignments TextAlign { get; set; }
-        public int Padding { get; set; }
+
+        // Padding order: 0-Top, 1-Right, 2-Bottom, 3-Left
+        private int[] _padding;
+        public int[] Padding {
+            get { return _padding; }
+            set {
+                if (value.Length >= 4) {
+                    _padding[0] = value[0];
+                    _padding[1] = value[1];
+                    _padding[2] = value[2];
+                    _padding[3] = value[3];
+                }
+                else if (value.Length == 3) {
+                    _padding[0] = value[0];
+                    _padding[1] = _padding[3] = value[1];
+                    _padding[2] = value[2];
+                }
+                else if (value.Length == 2) {
+                    _padding[0] = _padding[2] = value[0];
+                    _padding[1] = _padding[3] = value[1];
+                }
+                else if (value.Length == 1) {
+                    _padding[0] = _padding[1] = _padding[2] = _padding[3] = value[0];
+                }
+            }
+        }
+
+        public int PaddingAll {
+            get { return _padding[0]; }
+            set { _padding[0] = _padding[1] = _padding[2] = _padding[3] = value; }
+        }
+
+        public int PaddingTop {
+            get { return _padding[0]; }
+            set { _padding[0] = value; }
+        }
+
+        public int PaddingRight {
+            get { return _padding[1]; }
+            set { _padding[1] = value; }
+        }
+
+        public int PaddingBottom {
+            get { return _padding[2]; }
+            set { _padding[2] = value; }
+        }
+
+        public int PaddingLeft {
+            get { return _padding[3]; }
+            set { _padding[3] = value; }
+        }
         
+        // Input keys
         public Keys SubmitKey { get; set; }
         public Keys CancelKey { get; set; }
 
@@ -93,7 +151,8 @@ namespace MonODGE.UI {
             UnselectedTextColor = unselectedTextColor ?? Color.Gray;
             
             TextAlign = textAlign;
-            Padding = padding;
+            _padding = new int[4];
+            PaddingAll = padding;
         }
         
         public static StyleSheet Default { get { return new StyleSheet(); } }
@@ -106,7 +165,7 @@ namespace MonODGE.UI {
                 Font, TextColor, 
                 FooterFont, FooterColor, 
                 SelectedTextColor, UnselectedTextColor,
-                TextAlign, Padding);
+                TextAlign, PaddingAll);
             clone.SubmitKey = SubmitKey;
             clone.CancelKey = CancelKey;
             return clone;

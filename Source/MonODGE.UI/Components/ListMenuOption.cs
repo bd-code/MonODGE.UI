@@ -56,8 +56,8 @@ namespace MonODGE.UI.Components {
                 // First check if value is too small for the text, and if so, resize.
                 int minWidth = 0, minHeight = 0;
                 if (Style != null) {
-                    minWidth = (int)textDimensions.X + Style.Padding * 2;
-                    minHeight = (int)textDimensions.Y + Style.Padding * 4;
+                    minWidth = (int)textDimensions.X + Style.PaddingLeft + Style.PaddingRight;
+                    minHeight = (int)textDimensions.Y + (Style.PaddingTop + Style.PaddingBottom) * 2;
                 }
 
                 base.Dimensions = new Rectangle(
@@ -107,10 +107,9 @@ namespace MonODGE.UI.Components {
 
 
         private void repositionText() {
-            // Text Positioning
             if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
                 textPosition = new Vector2(
-                    Dimensions.X + Style.Padding,
+                    Dimensions.X + Style.PaddingLeft,
                     (Dimensions.Height - textDimensions.Y) / 2 + Dimensions.Y
                 );
             }
@@ -122,7 +121,7 @@ namespace MonODGE.UI.Components {
             }
             else { // Right
                 textPosition = new Vector2(
-                    Dimensions.X + Dimensions.Width - textDimensions.X - Style.Padding,
+                    Dimensions.X + Dimensions.Width - textDimensions.X - Style.PaddingRight,
                     (Dimensions.Height - textDimensions.Y) / 2 + Dimensions.Y
                 );
             }
@@ -143,8 +142,8 @@ namespace MonODGE.UI.Components {
                 // Make sure it's at least as big as the texture.
                 int minWidth = 0, minHeight = 0;
                 if (Style != null) {
-                    minWidth = srcRect.Width + Style.Padding * 2;
-                    minHeight = srcRect.Height + Style.Padding * 2;
+                    minWidth = srcRect.Width + Style.PaddingLeft + Style.PaddingRight;
+                    minHeight = srcRect.Height + Style.PaddingTop + Style.PaddingBottom;
                 }
 
                 base.Dimensions = new Rectangle(
@@ -194,8 +193,8 @@ namespace MonODGE.UI.Components {
         private void repositionImage() {
             if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
                 dstRect = new Rectangle(
-                    Dimensions.X + Style.Padding,
-                    Dimensions.Y + Style.Padding,
+                    Dimensions.X + Style.PaddingLeft,
+                    Dimensions.Y + Style.PaddingTop,
                     srcRect.Width,
                     srcRect.Height
                     );
@@ -203,15 +202,15 @@ namespace MonODGE.UI.Components {
             else if (Style.TextAlign == StyleSheet.TextAlignments.CENTER) {
                 dstRect = new Rectangle(
                     (Dimensions.Width - srcRect.Width) / 2 + Dimensions.X,
-                    Dimensions.Y + Style.Padding,
+                    Dimensions.Y + Style.PaddingTop,
                     srcRect.Width,
                     srcRect.Height
                     );
             }
             else { // Right
                 dstRect = new Rectangle(
-                    Dimensions.X + Dimensions.Width - srcRect.Width - Style.Padding,
-                    Dimensions.Y + Style.Padding,
+                    Dimensions.X + Dimensions.Width - srcRect.Width - Style.PaddingRight,
+                    Dimensions.Y + Style.PaddingTop,
                     srcRect.Width,
                     srcRect.Height
                     );

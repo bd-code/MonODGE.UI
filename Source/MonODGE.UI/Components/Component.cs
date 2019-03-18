@@ -235,10 +235,12 @@ namespace MonODGE.UI.Components {
     ///////////////////////////////////////////////////////////////////////////
 
     public abstract class OdgePopUp : OdgeComponent {
+        public int Timeout { get; set; }
+
         public OdgePopUp(StyleSheet style) {
             Style = style;
         }
 
-        public void Close() { _manager?.ClearPopUp(this); }
+        public void Close() { _manager?.ClosePopUp(this); }
     }
 }

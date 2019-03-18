@@ -38,18 +38,18 @@ namespace MonODGE.UI.Components {
             get { return base.Dimensions; }
             set {
                 optionPanel.Dimensions = new Rectangle(
-                    value.X + Style.Padding,
-                    value.Y + (int)textDimensions.Y + Style.Padding,
-                    value.Width - Style.Padding * 2,
-                    value.Height - (int)textDimensions.Y - Style.Padding * 2
+                    value.X + Style.PaddingLeft,
+                    value.Y + (int)textDimensions.Y + Style.PaddingTop,
+                    value.Width - Style.PaddingLeft - Style.PaddingRight,
+                    value.Height - (int)textDimensions.Y - Style.PaddingTop - Style.PaddingBottom
                 );
                 
                 // Resize only if title or panel is too wide.
                 int width = MathHelper.Max(
                     Dimensions.Width,
                     MathHelper.Max(
-                        optionPanel.Dimensions.Width + Style.Padding * 2,  // <- In case options are wider.
-                        (int)textDimensions.X + Style.Padding * 2          // <- In case title is wider.
+                        optionPanel.Dimensions.Width + Style.PaddingLeft + Style.PaddingRight,  // <- In case options are wider.
+                        (int)textDimensions.X + Style.PaddingLeft + Style.PaddingRight          // <- In case title is wider.
                     )
                 );
 
@@ -94,20 +94,20 @@ namespace MonODGE.UI.Components {
             // Text Positioning
             if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
                 textPosition = new Vector2(
-                    Dimensions.X + Style.Padding,
-                    Dimensions.Y + Style.Padding
+                    Dimensions.X + Style.PaddingLeft,
+                    Dimensions.Y + Style.PaddingTop
                 );
             }
             else if (Style.TextAlign == StyleSheet.TextAlignments.CENTER) {
                 textPosition = new Vector2(
                     (Dimensions.Width - textDimensions.X) / 2 + Dimensions.X,
-                    Dimensions.Y + Style.Padding
+                    Dimensions.Y + Style.PaddingTop
                 );
             }
             else { // Right
                 textPosition = new Vector2(
-                    Dimensions.Width - textDimensions.X - Style.Padding + Dimensions.X,
-                    Dimensions.Y + Style.Padding
+                    Dimensions.Width - textDimensions.X - Style.PaddingRight + Dimensions.X,
+                    Dimensions.Y + Style.PaddingTop
                 );
             }
         }

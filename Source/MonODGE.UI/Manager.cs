@@ -67,9 +67,14 @@ namespace MonODGE.UI {
         public void UpdatePopup() {
             if (popupQ.Count > 0) {
                 if (RunAllPopUps) {
-                    OdgePopUp[] pops = popupQ.ToArray();
-                    foreach (OdgePopUp pop in pops)
-                        pop.Update();
+                    int c = popupQ.Count;
+                    for (int p = 0; p < c; p++) {
+                        OdgePopUp pop = popupQ.Dequeue();
+                        if (pop.Timeout > 0) {
+                            pop.Update();
+                            popupQ.Enqueue(pop);
+                        }
+                    }
                 }
                 else
                     popupQ.Peek().Update();
@@ -130,14 +135,30 @@ namespace MonODGE.UI {
 
 
         public void CloseControl(OdgeControl control) {
-            // Do we need to pass it in?
-            controlStack.Pop();
+            Stack<OdgeControl> temp = new Stack<OdgeControl>();
+
+            while (controlStack.Count > 0) {
+                OdgeControl con = controlStack.Pop();
+                if (con == control)
+                    break;
+                else
+                    temp.Push(con);
+            }
+
+            while (temp.Count > 0)
+                controlStack.Push(temp.Pop());
         }
 
-        public void ClearPopUp(OdgePopUp popup) {
-            // Do we need to pass it in?
-            popupQ.Dequeue();
+
+        public void ClosePopUp(OdgePopUp popup) {
+            int c = popupQ.Count;
+            for (int p = 0; p < c; p++) {
+                OdgePopUp pop = popupQ.Dequeue();
+                if (!(pop == popup))
+                    popupQ.Enqueue(pop);
+            }
         }
+
 
         public RenderTarget2D CreateRenderTarget(int width, int height) {
             return new RenderTarget2D(_graphics, width, height);
