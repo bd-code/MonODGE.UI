@@ -14,21 +14,20 @@ namespace MonODGE.UI.Components {
     /// </summary>
     public class NotificationBox : OdgePopUp {
         private string notification;
-        private int timeout;
         private Vector2 textPosition;
         private Vector2 textDimensions;
 
         public NotificationBox(StyleSheet style, string text, Vector2 position, int lifetime = 355) : base(style) {
             notification = text;
-            timeout = lifetime;
+            Timeout = lifetime;
 
             textDimensions = Style.Font?.MeasureString(notification) ?? Vector2.Zero;
 
             Dimensions = new Rectangle(
                 (int)position.X,
                 (int)position.Y,
-                (int)textDimensions.X + Style.Padding * 2,
-                (int)textDimensions.Y + Style.Padding
+                (int)textDimensions.X + Style.PaddingLeft + Style.PaddingRight,
+                (int)textDimensions.Y + Style.PaddingTop + Style.PaddingBottom
                 );
         }
 
@@ -36,20 +35,20 @@ namespace MonODGE.UI.Components {
         public override void OnMove() {            
             if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
                 textPosition = new Vector2(
-                    Dimensions.X + Style.Padding,
-                    (Dimensions.Height - textDimensions.Y) / 2 + Dimensions.Y
+                    Dimensions.X + Style.PaddingLeft,
+                    Dimensions.Y + Style.PaddingTop
                 );
             }
             else if (Style.TextAlign == StyleSheet.TextAlignments.CENTER) {
                 textPosition = new Vector2(
                     (Dimensions.Width - textDimensions.X) / 2 + Dimensions.X,
-                    (Dimensions.Height - textDimensions.Y) / 2 + Dimensions.Y
+                    Dimensions.Y + Style.PaddingTop
                 );
             }
             else { // Right
                 textPosition = new Vector2(
-                    Dimensions.Width - textDimensions.X - Style.Padding + Dimensions.X,
-                    (Dimensions.Height - textDimensions.Y) / 2 + Dimensions.Y
+                    Dimensions.Width - textDimensions.X - Style.PaddingRight + Dimensions.X,
+                    Dimensions.Y + Style.PaddingTop
                 );
             }
         }
@@ -61,7 +60,7 @@ namespace MonODGE.UI.Components {
 
 
         public override void Update() {
-            timeout--;
+            Timeout--;
 
             // Reduce background opacity.
             Color bgcolor = Style.BackgroundColor;
@@ -83,9 +82,6 @@ namespace MonODGE.UI.Components {
             bordercolor.B = (byte)MathHelper.Max(0, bordercolor.B - 1);
             bordercolor.A = (byte)MathHelper.Max(0, bordercolor.A - 1);
             Style.BorderColor = bordercolor;
-
-            if (timeout == 0)
-                Close();
         }
 
 

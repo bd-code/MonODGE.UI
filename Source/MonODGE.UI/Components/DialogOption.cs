@@ -58,11 +58,11 @@ namespace MonODGE.UI.Components {
 
         public override void OnMove() {
             repositionOptions();
-            repositionText();
+            //repositionText();
         }
         public override void OnResize() {
             repositionOptions();
-            repositionText();
+            //repositionText();
         }
 
 
@@ -117,15 +117,15 @@ namespace MonODGE.UI.Components {
             if (Dimensions.Y >= bottomspace) { 
                 // Draw on top
                 optionYes.Dimensions = new Rectangle(
-                    Dimensions.X + Style.Padding * 4,
-                    Dimensions.Y - optionYes.Dimensions.Height - Style.Padding,
+                    Dimensions.X + Style.PaddingLeft * 4,
+                    Dimensions.Y - optionYes.Dimensions.Height - Style.PaddingTop,
                     optionYes.Dimensions.Width, 
                     optionYes.Dimensions.Height
                     );
 
                 optionNo.Dimensions = new Rectangle(
-                    Dimensions.X + Dimensions.Width - optionNo.Dimensions.Width - Style.Padding * 4,
-                    Dimensions.Y - optionYes.Dimensions.Height - Style.Padding,
+                    Dimensions.X + Dimensions.Width - optionNo.Dimensions.Width - Style.PaddingRight * 4,
+                    Dimensions.Y - optionYes.Dimensions.Height - Style.PaddingTop,
                     optionYes.Dimensions.Width,
                     optionYes.Dimensions.Height
                     );
@@ -134,38 +134,40 @@ namespace MonODGE.UI.Components {
             else {
                 // Draw on bottom
                 optionYes.Dimensions = new Rectangle(
-                    Dimensions.X + Style.Padding * 4,
-                    Dimensions.Y + Dimensions.Height + Style.Padding,
+                    Dimensions.X + Style.PaddingLeft * 4,
+                    Dimensions.Y + Dimensions.Height + Style.PaddingBottom,
                     optionYes.Dimensions.Width,
                     optionYes.Dimensions.Height
                     );
 
                 optionNo.Dimensions = new Rectangle(
-                    Dimensions.X + Dimensions.Width - optionNo.Dimensions.Width - Style.Padding * 4,
-                    Dimensions.Y + Dimensions.Height + Style.Padding,
+                    Dimensions.X + Dimensions.Width - optionNo.Dimensions.Width - Style.PaddingRight * 4,
+                    Dimensions.Y + Dimensions.Height + Style.PaddingBottom,
                     optionYes.Dimensions.Width,
                     optionYes.Dimensions.Height
                     );
             }
+
+            repositionText();
         }
 
         private void repositionText() {
             if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
                 textPosition = new Vector2(
-                    Dimensions.X + Style.Padding,
-                    Dimensions.Y + Style.Padding
+                    Dimensions.X + Style.PaddingLeft,
+                    Dimensions.Y + Style.PaddingTop
                 );
             }
             else if (Style.TextAlign == StyleSheet.TextAlignments.CENTER) {
                 textPosition = new Vector2(
                     (Dimensions.Width - textDimensions.X) / 2 + Dimensions.X,
-                    Dimensions.Y + Style.Padding
+                    Dimensions.Y + Style.PaddingTop
                 );
             }
             else { // Right
                 textPosition = new Vector2(
-                    Dimensions.Width - textDimensions.X - Style.Padding + Dimensions.X,
-                    Dimensions.Y + Style.Padding
+                    Dimensions.Width - textDimensions.X - Style.PaddingRight + Dimensions.X,
+                    Dimensions.Y + Style.PaddingTop
                 );
             }
         }

@@ -18,7 +18,6 @@ namespace MonODGE.UI.Components {
         };
 
         private string text;
-        private int timeout;
 
         private Vector2 textPosition;
         private Vector2 shadowPosition;
@@ -31,9 +30,9 @@ namespace MonODGE.UI.Components {
             text = message;
 
             if (motion == MoveType.Bouncing)
-                timeout = 90;
+                Timeout = 90;
             else
-                timeout = lifetime;
+                Timeout = lifetime;
 
             Dimensions = new Rectangle((int)position.X, (int)position.Y, 0, 0);
 
@@ -53,35 +52,32 @@ namespace MonODGE.UI.Components {
             if (movetype == MoveType.Bouncing)
                 UpdateBouncing();
             else { // Static, stays put.
-                if (timeout > 0)
-                    timeout -= 1;
+                if (Timeout > 0)
+                    Timeout -= 1;
             }
-
-            if (timeout <= 0)
-                Close();
         }
 
 
         private void UpdateRising() {
-            if (timeout > 0) {
+            if (Timeout > 0) {
                 textPosition.Y -= 0.5f;
                 shadowPosition.Y -= 0.5f;
                 Rectangle d = Dimensions;
                 d.Y = (int)textPosition.Y;
                 Dimensions = d;
-                timeout -= 1;
+                Timeout -= 1;
             }
         }
 
 
         private void UpdateFalling() {
-            if (timeout > 0) {
+            if (Timeout > 0) {
                 textPosition.Y += 0.5f;
                 shadowPosition.Y += 0.5f;
                 Rectangle d = Dimensions;
                 d.Y = (int)textPosition.Y;
                 Dimensions = d;
-                timeout -= 1;
+                Timeout -= 1;
             }
         }
 
@@ -97,32 +93,32 @@ namespace MonODGE.UI.Components {
             Redirects at:
             40, 20, 20, 5, end at last 5.
             */
-            if (timeout > 60) {
+            if (Timeout > 60) {
                 // First 30 frames. Initial fall.
                 textPosition.Y += bounceVelocity;
                 shadowPosition.Y += bounceVelocity;
-                timeout -= 1;
+                Timeout -= 1;
                 bounceVelocity += 0.05f;
-                if (timeout == 60)
+                if (Timeout == 60)
                     bounceVelocity = -1.5f;
             }
 
-            else if (timeout > 0) {
+            else if (Timeout > 0) {
                 // Next 50 frames. Covers both "bounces".
                 bounceVelocity += 0.1f;
                 textPosition.Y += bounceVelocity;
                 shadowPosition.Y += bounceVelocity;
-                timeout -= 1;
+                Timeout -= 1;
 
                 // End of the first bounce, setup velocity for 2nd bounce.
-                if (timeout == 30)
+                if (Timeout == 30)
                     bounceVelocity = -1.0f;
             }
         }
 
 
         public override void Draw(SpriteBatch batch) {
-            if (timeout > 0) {
+            if (Timeout > 0) {
                 batch.DrawString(Style.Font, text, shadowPosition, Style.FooterColor);
                 batch.DrawString(Style.Font, text, textPosition, Style.TextColor);
             }

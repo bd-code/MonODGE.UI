@@ -39,24 +39,6 @@ namespace MonODGE.UI.Components {
 
 
         public override void OnMove() {
-            /*if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
-                textPosition = new Vector2(
-                    Dimensions.X + Style.Padding,
-                    Dimensions.Y + Style.Padding
-                );
-            }
-            else if (Style.TextAlign == StyleSheet.TextAlignments.CENTER) {
-                textPosition = new Vector2(
-                    (Dimensions.Width - textDimensions.X) / 2 + Dimensions.X,
-                    Dimensions.Y + Style.Padding
-                );
-            }
-            else { // Right
-                textPosition = new Vector2(
-                    Dimensions.Width - textDimensions.X - Style.Padding + Dimensions.X,
-                    Dimensions.Y + Style.Padding
-                );
-            }*/
             repositionText();
         }
 
@@ -115,7 +97,7 @@ namespace MonODGE.UI.Components {
 
                 if (dialogIndex < dialog.Length - 1)
                     batch.DrawString(Style.FooterFont, ". . . >>",
-                        new Vector2(Dimensions.X + Dimensions.Width - Style.Padding - 32, Dimensions.Y + Dimensions.Height - 32),
+                        new Vector2(Dimensions.X + Dimensions.Width - Style.PaddingAll - 32, Dimensions.Y + Dimensions.Height - 32),
                         Style.FooterColor);
 
                 if (dialogIndex > 0)
@@ -129,20 +111,20 @@ namespace MonODGE.UI.Components {
         private void repositionText() {
             if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
                 textPosition = new Vector2(
-                    Dimensions.X + Style.Padding,
-                    Dimensions.Y + Style.Padding
+                    Dimensions.X + Style.PaddingLeft,
+                    Dimensions.Y + Style.PaddingTop
                 );
             }
             else if (Style.TextAlign == StyleSheet.TextAlignments.CENTER) {
                 textPosition = new Vector2(
                     (Dimensions.Width - textDimensions.X) / 2 + Dimensions.X,
-                    Dimensions.Y + Style.Padding
+                    Dimensions.Y + Style.PaddingTop
                 );
             }
             else { // Right
                 textPosition = new Vector2(
-                    Dimensions.Width - textDimensions.X - Style.Padding + Dimensions.X,
-                    Dimensions.Y + Style.Padding
+                    Dimensions.Width - textDimensions.X - Style.PaddingRight + Dimensions.X,
+                    Dimensions.Y + Style.PaddingTop
                 );
             }
         }
