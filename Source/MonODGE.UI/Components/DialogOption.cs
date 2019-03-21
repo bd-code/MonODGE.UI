@@ -53,31 +53,41 @@ namespace MonODGE.UI.Components {
                 textDimensions = Style.Font?.MeasureString(dialog) ?? Vector2.Zero;
                 repositionText();
             }
+            base.OnStyleSet();
         }
 
 
         public override void OnMove() {
             repositionOptions();
-            //repositionText();
+            base.OnMove();
         }
         public override void OnResize() {
             repositionOptions();
-            //repositionText();
+            base.OnResize();
+        }
+
+        public override void OnSubmit() {
+            if (isYesSelected)
+                optionYes.OnSubmit();
+            else
+                optionNo.OnSubmit();
+            base.OnSubmit();
         }
 
 
         public override void OnCancel() {
-            if (IsCancelable)
-                Close();
+            if (isYesSelected) {
+                optionYes.OnUnselected();
+                isYesSelected = false;
+                optionNo.OnSelected();
+            }
+            base.OnCancel();
         }
 
 
         public override void Update() {
             if (_manager.Input.isKeyPress(Style.SubmitKey)) {
-                if (isYesSelected)
-                    optionYes.OnSubmit();
-                else
-                    optionNo.OnSubmit();
+                OnSubmit();
             }
 
             else if (!isYesSelected && _manager.Input.isKeyPress(Keys.Left)) {
@@ -112,39 +122,39 @@ namespace MonODGE.UI.Components {
         private void repositionOptions() {
             int bottomspace = 0;
             if (_manager != null)
-                bottomspace = _manager.ScreenHeight - (Dimensions.Y + Dimensions.Height);
+                bottomspace = _manager.ScreenHeight - (Y + Height);
             
-            if (Dimensions.Y >= bottomspace) { 
+            if (Y >= bottomspace) { 
                 // Draw on top
                 optionYes.Dimensions = new Rectangle(
-                    Dimensions.X + Style.PaddingLeft * 4,
-                    Dimensions.Y - optionYes.Dimensions.Height - Style.PaddingTop,
-                    optionYes.Dimensions.Width, 
-                    optionYes.Dimensions.Height
+                    X + Style.PaddingLeft * 4,
+                    Y - optionYes.Height - Style.PaddingTop,
+                    optionYes.Width, 
+                    optionYes.Height
                     );
 
                 optionNo.Dimensions = new Rectangle(
-                    Dimensions.X + Dimensions.Width - optionNo.Dimensions.Width - Style.PaddingRight * 4,
-                    Dimensions.Y - optionYes.Dimensions.Height - Style.PaddingTop,
-                    optionYes.Dimensions.Width,
-                    optionYes.Dimensions.Height
+                    X + Width - optionNo.Width - Style.PaddingRight * 4,
+                    Y - optionYes.Height - Style.PaddingTop,
+                    optionYes.Width,
+                    optionYes.Height
                     );
             }
 
             else {
                 // Draw on bottom
                 optionYes.Dimensions = new Rectangle(
-                    Dimensions.X + Style.PaddingLeft * 4,
-                    Dimensions.Y + Dimensions.Height + Style.PaddingBottom,
-                    optionYes.Dimensions.Width,
-                    optionYes.Dimensions.Height
+                    X + Style.PaddingLeft * 4,
+                    Y + Height + Style.PaddingBottom,
+                    optionYes.Width,
+                    optionYes.Height
                     );
 
                 optionNo.Dimensions = new Rectangle(
-                    Dimensions.X + Dimensions.Width - optionNo.Dimensions.Width - Style.PaddingRight * 4,
-                    Dimensions.Y + Dimensions.Height + Style.PaddingBottom,
-                    optionYes.Dimensions.Width,
-                    optionYes.Dimensions.Height
+                    X + Width - optionNo.Width - Style.PaddingRight * 4,
+                    Y + Height + Style.PaddingBottom,
+                    optionYes.Width,
+                    optionYes.Height
                     );
             }
 
@@ -154,20 +164,20 @@ namespace MonODGE.UI.Components {
         private void repositionText() {
             if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
                 textPosition = new Vector2(
-                    Dimensions.X + Style.PaddingLeft,
-                    Dimensions.Y + Style.PaddingTop
+                    X + Style.PaddingLeft,
+                    Y + Style.PaddingTop
                 );
             }
             else if (Style.TextAlign == StyleSheet.TextAlignments.CENTER) {
                 textPosition = new Vector2(
-                    (Dimensions.Width - textDimensions.X) / 2 + Dimensions.X,
-                    Dimensions.Y + Style.PaddingTop
+                    (Width - textDimensions.X) / 2 + X,
+                    Y + Style.PaddingTop
                 );
             }
             else { // Right
                 textPosition = new Vector2(
-                    Dimensions.Width - textDimensions.X - Style.PaddingRight + Dimensions.X,
-                    Dimensions.Y + Style.PaddingTop
+                    Width - textDimensions.X - Style.PaddingRight + X,
+                    Y + Style.PaddingTop
                 );
             }
         }
