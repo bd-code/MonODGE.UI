@@ -32,30 +32,13 @@ namespace MonODGE.UI.Components {
         }
 
 
-        public override void OnMove() {            
-            if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
-                textPosition = new Vector2(
-                    Dimensions.X + Style.PaddingLeft,
-                    Dimensions.Y + Style.PaddingTop
-                );
-            }
-            else if (Style.TextAlign == StyleSheet.TextAlignments.CENTER) {
-                textPosition = new Vector2(
-                    (Dimensions.Width - textDimensions.X) / 2 + Dimensions.X,
-                    Dimensions.Y + Style.PaddingTop
-                );
-            }
-            else { // Right
-                textPosition = new Vector2(
-                    Dimensions.Width - textDimensions.X - Style.PaddingRight + Dimensions.X,
-                    Dimensions.Y + Style.PaddingTop
-                );
-            }
+        public override void OnMove() {
+            repositionText();
+            base.OnMove();
         }
-
-
         public override void OnResize() {
-            OnMove();
+            repositionText();
+            base.OnResize();
         }
 
 
@@ -89,6 +72,28 @@ namespace MonODGE.UI.Components {
             DrawCanvas(batch);
             DrawBorders(batch);
             batch.DrawString(Style.Font, notification, textPosition, Style.TextColor);
+        }
+
+
+        private void repositionText() {
+            if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
+                textPosition = new Vector2(
+                    X + Style.PaddingLeft,
+                    Y + Style.PaddingTop
+                );
+            }
+            else if (Style.TextAlign == StyleSheet.TextAlignments.CENTER) {
+                textPosition = new Vector2(
+                    (Width - textDimensions.X) / 2 + X,
+                    Y + Style.PaddingTop
+                );
+            }
+            else { // Right
+                textPosition = new Vector2(
+                    Width - textDimensions.X - Style.PaddingRight + X,
+                    Y + Style.PaddingTop
+                );
+            }
         }
     }
 }

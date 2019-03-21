@@ -19,63 +19,88 @@ namespace MonODGE.UI.Components {
         protected Vector2 textPosition;
         protected Vector2 textDimensions;
 
-        public DialogBox(StyleSheet style, string line, Rectangle area, bool canCancel = false) :
-            this(style, new string[] { line }, area, canCancel) { }
+        public string Text {
+            get {
+                if (dialog != null && dialogIndex < dialog.Length)
+                    return dialog[dialogIndex];
+                else
+                    return string.Empty;
+            }
+        }
 
-        public DialogBox(StyleSheet style, string[] text, Rectangle area, bool canCancel = false) 
+        public DialogBox(StyleSheet style, Rectangle area, string line, bool canCancel = false) :
+            this(style, area, new string[] { line }, canCancel) { }
+
+        public DialogBox(StyleSheet style, Rectangle area, string[] text, bool canCancel = false) 
             : base(style) {
             dialog = text;
             dialogIndex = 0;
-            OnTextChanged();
-            IsCancelable = canCancel;
+            textDimensions = Style.Font?.MeasureString(dialog[dialogIndex]) ?? Vector2.Zero;
+            repositionText();
             Dimensions = area;
+            IsCancelable = canCancel;
         }
 
 
         public override void OnStyleSet() {
-            if (dialog != null && !string.IsNullOrEmpty(dialog[dialogIndex]))
-                OnTextChanged();
+            if (dialog != null && !string.IsNullOrEmpty(dialog[dialogIndex])) {
+                textDimensions = Style.Font?.MeasureString(dialog[dialogIndex]) ?? Vector2.Zero;
+                repositionText();
+            }
+            base.OnStyleSet();
         }
 
 
         public override void OnMove() {
             repositionText();
+            base.OnMove();
         }
 
 
         public override void OnSubmit() {
             dialogIndex++;
             if (dialogIndex >= dialog.Length) 
-                Close();            
+                Close();
+            base.OnSubmit();
         }
 
 
         public override void OnCancel() {
             if (IsCancelable)
-                Close();            
+                Close();
+            base.OnCancel();
         }
 
-
+        /// <summary>
+        /// This is called when the dialog page is changed and new text displays.
+        /// It is not called on style or position changes to the current text, only when a
+        /// completely new string displays.
+        /// </summary>
         public void OnTextChanged() {
             textDimensions = Style.Font?.MeasureString(dialog[dialogIndex]) ?? Vector2.Zero;
             repositionText();
+            TextChanged?.Invoke(this, EventArgs.Empty);
         }
+        public event EventHandler TextChanged;
 
 
         public override void Update() {
             if (_manager.Input.isKeyPress(Style.SubmitKey)) {
                 OnSubmit();
             }
+
             else if (dialogIndex > 0
                 && (_manager.Input.isKeyPress(Keys.Left) || _manager.Input.isKeyDown(Keys.A))) {
                 dialogIndex--;
                 OnTextChanged();
             }
+
             else if (dialogIndex < dialog.Length - 1
                 && (_manager.Input.isKeyPress(Keys.Right) || _manager.Input.isKeyDown(Keys.D))) {
                 dialogIndex++;
                 OnTextChanged();
             }
+
             else if (_manager.Input.isKeyPress(Style.CancelKey)) {
                 OnCancel();
             }
@@ -111,20 +136,20 @@ namespace MonODGE.UI.Components {
         private void repositionText() {
             if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
                 textPosition = new Vector2(
-                    Dimensions.X + Style.PaddingLeft,
-                    Dimensions.Y + Style.PaddingTop
+                    X + Style.PaddingLeft,
+                    Y + Style.PaddingTop
                 );
             }
             else if (Style.TextAlign == StyleSheet.TextAlignments.CENTER) {
                 textPosition = new Vector2(
-                    (Dimensions.Width - textDimensions.X) / 2 + Dimensions.X,
-                    Dimensions.Y + Style.PaddingTop
+                    (Width - textDimensions.X) / 2 + X,
+                    Y + Style.PaddingTop
                 );
             }
             else { // Right
                 textPosition = new Vector2(
-                    Dimensions.Width - textDimensions.X - Style.PaddingRight + Dimensions.X,
-                    Dimensions.Y + Style.PaddingTop
+                    Width - textDimensions.X - Style.PaddingRight + X,
+                    Y + Style.PaddingTop
                 );
             }
         }
