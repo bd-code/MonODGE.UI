@@ -10,7 +10,6 @@ using Microsoft.Xna.Framework.Graphics;
 namespace MonODGE.UI.Components {
     public abstract class AbstractMenuOption : OdgeComponent {
         protected ListMenu parent;
-        public event EventHandler Submit;
 
         public AbstractMenuOption(EventHandler action) {
             Submit += action;
@@ -19,26 +18,28 @@ namespace MonODGE.UI.Components {
         /// <summary>
         /// This is called when the user presses the key assigned in Style.SubmitKey.
         /// </summary>
-        public virtual void OnSubmit() {
-            Submit?.Invoke(this, new EventArgs());
-        }
+        public virtual void OnSubmit() { Submit?.Invoke(this, EventArgs.Empty); }
+        public event EventHandler Submit;
 
         /// <summary>
         /// This is called when the user presses the key assigned in Style.CancelKey.
         /// </summary>
-        public virtual void OnCancel() { }
+        public virtual void OnCancel() { Cancel?.Invoke(this, EventArgs.Empty); }
+        public event EventHandler Cancel;
 
         /// <summary>
         /// This is called when an option is highlighted in the ListMenu.
         /// </summary>
-        public virtual void OnSelected() { }
+        public virtual void OnSelected() { Selected?.Invoke(this, EventArgs.Empty); }
+        public event EventHandler Selected;
 
         /// <summary>
         /// This is called when an option is unhighlighted (another option is selected) in the
         /// ListMenu.
         /// </summary>
-        public virtual void OnUnselected() { }
-        
+        public virtual void OnUnselected() { Unselected?.Invoke(this, EventArgs.Empty); }
+        public event EventHandler Unselected;
+
         internal virtual void Update(bool selected) { }
         internal virtual void Draw(SpriteBatch batch, bool selected) { }
     }

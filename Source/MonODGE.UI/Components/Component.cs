@@ -22,6 +22,7 @@ namespace MonODGE.UI.Components {
             BOTTOMLEFT, BOTTOM, BOTTOMRIGHT
         }
 
+
         private StyleSheet _style;
         public virtual StyleSheet Style {
             get { return _style; }
@@ -30,6 +31,7 @@ namespace MonODGE.UI.Components {
                 OnStyleSet();
             }
         }
+
 
         private Rectangle _dimensions;
         public virtual Rectangle Dimensions {
@@ -43,6 +45,43 @@ namespace MonODGE.UI.Components {
 
                 if (value.X != old.X || value.Y != old.Y)
                     OnMove();
+            }
+        }
+
+        public int X {
+            get { return _dimensions.X; }
+            set {
+                if (_dimensions.X != value) {
+                    _dimensions.X = value;
+                    OnMove();
+                }
+            }
+        }
+        public int Y {
+            get { return _dimensions.Y; }
+            set {
+                if (_dimensions.Y != value) {
+                    _dimensions.Y = value;
+                    OnMove();
+                }
+            }
+        }
+        public int Width {
+            get { return _dimensions.Width; }
+            set {
+                if (_dimensions.Width != value){
+                    _dimensions.Width = value;
+                    OnResize();
+                }
+            }
+        }
+        public int Height {
+            get { return _dimensions.Height; }
+            set {
+                if (_dimensions.Height != value) {
+                    _dimensions.Height = value;
+                    OnResize();
+                }
             }
         }
 
@@ -66,14 +105,16 @@ namespace MonODGE.UI.Components {
         /// This method is NOT called when elements of the existing StyleSheet are changed.
         /// For style changes that must take place immediately, override the Refresh method.
         /// </summary>
-        public virtual void OnStyleSet() { }
+        public virtual void OnStyleSet() { StyleSet?.Invoke(this, EventArgs.Empty); }
+        public event EventHandler StyleSet;
 
         /// <summary>
         /// This is called when the OdgeComponent's Dimensions.X or Dimensions.Y positions change.
         /// This should be overriden to reposition any text, textures, or other elements 
         /// when the Component's position changes.
         /// </summary>
-        public virtual void OnMove() { }
+        public virtual void OnMove() { Move?.Invoke(this, EventArgs.Empty); }
+        public event EventHandler Move;
 
         /// <summary>
         /// This is called when the OdgeComponent's Dimensions.Width or Dimensions.Height variables
@@ -84,12 +125,14 @@ namespace MonODGE.UI.Components {
         /// OnResize(). If we need to check that the new width and height are large enough to 
         /// contain sub-elements, override the Dimensions property itself to check the values.
         /// </summary>
-        public virtual void OnResize() { }
+        public virtual void OnResize() { Resize?.Invoke(this, EventArgs.Empty); }
+        public event EventHandler Resize;
 
         /// <summary>
         /// This is called when the OdgeComponent is closed.
         /// </summary>
-        public virtual void OnClose() { }
+        public virtual void OnExit() { Exit?.Invoke(this, EventArgs.Empty); }
+        public event EventHandler Exit;
 
         /// <summary>
         /// Refresh should be called every time changes are made to the StyleSheet or Dimensions 
@@ -222,14 +265,19 @@ namespace MonODGE.UI.Components {
         /// <summary>
         /// This is called when the user presses the key assigned in Style.SubmitKey.
         /// </summary>
-        public virtual void OnSubmit() { }
+        public virtual void OnSubmit() { Submit?.Invoke(this, EventArgs.Empty); }
+        public event EventHandler Submit;
 
         /// <summary>
         /// This is called when the user presses the key assigned in Style.CancelKey.
         /// </summary>
-        public virtual void OnCancel() { }
+        public virtual void OnCancel() { Cancel?.Invoke(this, EventArgs.Empty); }
+        public event EventHandler Cancel;
 
-        public void Close() { _manager?.CloseControl(this); }
+        public void Close() {
+            _manager?.CloseControl(this);
+            OnExit();
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -241,6 +289,9 @@ namespace MonODGE.UI.Components {
             Style = style;
         }
 
-        public void Close() { _manager?.ClosePopUp(this); }
+        public void Close() {
+            _manager?.ClosePopUp(this);
+            OnExit();
+        }
     }
 }
