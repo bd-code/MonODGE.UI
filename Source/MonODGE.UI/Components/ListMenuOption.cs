@@ -11,6 +11,11 @@ namespace MonODGE.UI.Components {
     public abstract class AbstractMenuOption : OdgeComponent {
         protected ListMenu parent;
 
+        public override int Width {
+            get { return base.Width; }
+            set { Dimensions = new Rectangle(X, Y, value, Height); }
+        }
+
         public AbstractMenuOption(EventHandler action) {
             Submit += action;
         }
@@ -79,18 +84,21 @@ namespace MonODGE.UI.Components {
                 textDimensions = Style.Font?.MeasureString(Text) ?? new Vector2(1, 8);
 
                 // Reset Dimensions by simply setting same values. Property will take care of resizing.
-                Dimensions = new Rectangle(
-                    Dimensions.X, Dimensions.Y,
-                    Dimensions.Width, Dimensions.Height
-                    );
+                Dimensions = new Rectangle(X, Y, Width, Height);
 
                 repositionText();
             }
         }
 
 
-        public override void OnMove() { repositionText(); }
-        public override void OnResize() { repositionText(); }
+        public override void OnMove() {
+            repositionText();
+            base.OnMove();
+        }
+        public override void OnResize() {
+            repositionText();
+            base.OnResize();
+        }
 
 
         internal override void Draw(SpriteBatch batch, bool selected) {
@@ -110,20 +118,20 @@ namespace MonODGE.UI.Components {
         private void repositionText() {
             if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
                 textPosition = new Vector2(
-                    Dimensions.X + Style.PaddingLeft,
-                    (Dimensions.Height - textDimensions.Y) / 2 + Dimensions.Y
+                    X + Style.PaddingLeft,
+                    (Height - textDimensions.Y) / 2 + Y
                 );
             }
             else if (Style.TextAlign == StyleSheet.TextAlignments.CENTER) {
                 textPosition = new Vector2(
-                    (Dimensions.Width - textDimensions.X) / 2 + Dimensions.X,
-                    (Dimensions.Height - textDimensions.Y) / 2 + Dimensions.Y
+                    (Width - textDimensions.X) / 2 + X,
+                    (Height - textDimensions.Y) / 2 + Y
                 );
             }
             else { // Right
                 textPosition = new Vector2(
-                    Dimensions.X + Dimensions.Width - textDimensions.X - Style.PaddingRight,
-                    (Dimensions.Height - textDimensions.Y) / 2 + Dimensions.Y
+                    X + Width - textDimensions.X - Style.PaddingRight,
+                    (Height - textDimensions.Y) / 2 + Y
                 );
             }
         }
@@ -165,10 +173,7 @@ namespace MonODGE.UI.Components {
 
         public override void OnStyleSet() {
             // Reset Dimensions by simply setting same values. Property will take care of resizing.
-            Dimensions = new Rectangle(
-                Dimensions.X, Dimensions.Y,
-                Dimensions.Width, Dimensions.Height
-                );
+            Dimensions = new Rectangle(X, Y, Width, Height);
         }
 
 
@@ -194,24 +199,24 @@ namespace MonODGE.UI.Components {
         private void repositionImage() {
             if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
                 dstRect = new Rectangle(
-                    Dimensions.X + Style.PaddingLeft,
-                    Dimensions.Y + Style.PaddingTop,
+                    X + Style.PaddingLeft,
+                    Y + Style.PaddingTop,
                     srcRect.Width,
                     srcRect.Height
                     );
             }
             else if (Style.TextAlign == StyleSheet.TextAlignments.CENTER) {
                 dstRect = new Rectangle(
-                    (Dimensions.Width - srcRect.Width) / 2 + Dimensions.X,
-                    Dimensions.Y + Style.PaddingTop,
+                    (Width - srcRect.Width) / 2 + X,
+                    Y + Style.PaddingTop,
                     srcRect.Width,
                     srcRect.Height
                     );
             }
             else { // Right
                 dstRect = new Rectangle(
-                    Dimensions.X + Dimensions.Width - srcRect.Width - Style.PaddingRight,
-                    Dimensions.Y + Style.PaddingTop,
+                    X + Width - srcRect.Width - Style.PaddingRight,
+                    Y + Style.PaddingTop,
                     srcRect.Width,
                     srcRect.Height
                     );
