@@ -48,7 +48,7 @@ namespace MonODGE.UI.Components {
             }
         }
 
-        public int X {
+        public virtual int X {
             get { return _dimensions.X; }
             set {
                 if (_dimensions.X != value) {
@@ -57,7 +57,7 @@ namespace MonODGE.UI.Components {
                 }
             }
         }
-        public int Y {
+        public virtual int Y {
             get { return _dimensions.Y; }
             set {
                 if (_dimensions.Y != value) {
@@ -66,7 +66,7 @@ namespace MonODGE.UI.Components {
                 }
             }
         }
-        public int Width {
+        public virtual int Width {
             get { return _dimensions.Width; }
             set {
                 if (_dimensions.Width != value){
@@ -75,7 +75,7 @@ namespace MonODGE.UI.Components {
                 }
             }
         }
-        public int Height {
+        public virtual int Height {
             get { return _dimensions.Height; }
             set {
                 if (_dimensions.Height != value) {

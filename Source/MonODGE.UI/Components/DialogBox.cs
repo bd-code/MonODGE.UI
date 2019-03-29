@@ -19,6 +19,9 @@ namespace MonODGE.UI.Components {
         protected Vector2 textPosition;
         protected Vector2 textDimensions;
 
+        protected string[] footerStrings;
+        protected Vector2[] footerDimensions;
+
         public string Text {
             get {
                 if (dialog != null && dialogIndex < dialog.Length)
@@ -39,6 +42,18 @@ namespace MonODGE.UI.Components {
             repositionText();
             Dimensions = area;
             IsCancelable = canCancel;
+
+            footerStrings = new string[3]{
+                "<< . . .",
+                "[Page i of n]",
+                ". . . >>"
+                };
+
+            footerDimensions = new Vector2[] {
+                Style.FooterFont?.MeasureString(footerStrings[0]) ?? Vector2.Zero,
+                Style.FooterFont?.MeasureString(footerStrings[1]) ?? Vector2.Zero,
+                Style.FooterFont?.MeasureString(footerStrings[2]) ?? Vector2.Zero
+            };
         }
 
 
@@ -114,20 +129,27 @@ namespace MonODGE.UI.Components {
             if (dialogIndex < dialog.Length) {
                 batch.DrawString(Style.Font, dialog[dialogIndex], textPosition, Style.TextColor);
 
+                if (dialogIndex > 0)
+                    batch.DrawString(Style.FooterFont, "<< . . .",
+                        new Vector2(
+                            Dimensions.X + Style.PaddingLeft, 
+                            Dimensions.Y + Dimensions.Height - footerDimensions[0].Y - Style.PaddingBottom),
+                        Style.FooterColor);
+
                 int pageIndex = dialogIndex + 1;
-                string pageString = "[Page " + pageIndex + " of " + dialog.Length + "]";
-                batch.DrawString(Style.FooterFont, pageString,
-                    new Vector2(Dimensions.Center.X - (Style.FooterFont.MeasureString(pageString).X / 2), Dimensions.Y + Dimensions.Height - 32),
+                footerStrings[1] = "[Page " + pageIndex + " of " + dialog.Length + "]";
+                batch.DrawString(Style.FooterFont, footerStrings[1],
+                    new Vector2(
+                        Dimensions.Center.X - (footerDimensions[1].X / 2), 
+                        Dimensions.Y + Dimensions.Height - footerDimensions[1].Y - Style.PaddingBottom),
                     Style.FooterColor);
 
                 if (dialogIndex < dialog.Length - 1)
                     batch.DrawString(Style.FooterFont, ". . . >>",
-                        new Vector2(Dimensions.X + Dimensions.Width - Style.PaddingAll - 32, Dimensions.Y + Dimensions.Height - 32),
-                        Style.FooterColor);
-
-                if (dialogIndex > 0)
-                    batch.DrawString(Style.FooterFont, "<< . . .",
-                        new Vector2(Dimensions.X + 16, Dimensions.Y + Dimensions.Height - 32),
+                        new Vector2(
+                            Dimensions.X + Dimensions.Width - footerDimensions[2].X - Style.PaddingRight, 
+                            Dimensions.Y + Dimensions.Height - footerDimensions[2].Y - Style.PaddingBottom
+                            ),
                         Style.FooterColor);
             }
         }

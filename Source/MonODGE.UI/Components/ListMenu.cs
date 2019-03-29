@@ -21,39 +21,57 @@ namespace MonODGE.UI.Components {
         private Vector2 textPosition;
         private Vector2 textDimensions;
 
-        private ListMenuOptionPanel optionPanel;
+        public List<AbstractMenuOption> Options { get; private set; }
+        private int _selectedIndex;
+        public int SelectedIndex {
+            get { return _selectedIndex; }
+            set {
+                value = MathHelper.Clamp(value, 0, Options.Count - 1);
+                if (_selectedIndex != value) {
+                    SelectedOption.OnUnselected();
+                    _selectedIndex = value;
+                    SelectedOption.OnSelected();
+                }
+            }
+        }
 
-        public AbstractMenuOption SelectedOption { get { return optionPanel.SelectedOption; } }
+        public AbstractMenuOption SelectedOption { get { return Options[SelectedIndex]; } }
+        
+        private RenderTarget2D optionPanel;
+        private Rectangle panelRect;
+        private SpriteBatch panelBatch;
 
         public override StyleSheet Style {
             get { return base.Style; }
             set {
                 base.Style = value;
-                if (optionPanel != null)
-                    optionPanel.Style = value;
+                CascadeStyle();
             }
         }
 
         public override Rectangle Dimensions {
             get { return base.Dimensions; }
             set {
-                optionPanel.Dimensions = new Rectangle(
-                    value.X + Style.PaddingLeft,
-                    value.Y + (int)textDimensions.Y + Style.PaddingTop,
-                    value.Width - Style.PaddingLeft - Style.PaddingRight,
-                    value.Height - (int)textDimensions.Y - Style.PaddingTop - Style.PaddingBottom
-                );
-                
-                // Resize only if title or panel is too wide.
-                int width = MathHelper.Max(
-                    Dimensions.Width,
-                    MathHelper.Max(
-                        optionPanel.Dimensions.Width + Style.PaddingLeft + Style.PaddingRight,  // <- In case options are wider.
-                        (int)textDimensions.X + Style.PaddingLeft + Style.PaddingRight          // <- In case title is wider.
-                    )
-                );
+                int optionWidth = value.Width - Style.PaddingLeft - Style.PaddingRight;
 
-                base.Dimensions = new Rectangle(value.X, value.Y, width, value.Height);
+                // Set initial option widths.
+                foreach (AbstractMenuOption option in Options) {
+                    option.Width = optionWidth;
+
+                    if (option.Width > optionWidth)
+                        optionWidth = option.Width;
+                }
+
+                // Resize options again to full width.
+                foreach (AbstractMenuOption option in Options) {
+                    if (option.Width < optionWidth)
+                        option.Width = optionWidth;
+                }
+
+                value.Width = optionWidth + Style.PaddingLeft + Style.PaddingRight;
+                base.Dimensions = value;
+                
+                createOptionPanel();
             }
         }
 
@@ -64,29 +82,36 @@ namespace MonODGE.UI.Components {
         public ListMenu(StyleSheet style, string heading, List<AbstractMenuOption> listOptions, Rectangle area, bool canCancel = true) 
             : base(style) {
             // Set local privates first.
+            Options = listOptions;            
+            CascadeStyle();
+
+            // Need textDimensions before we set the menu and option Dimensions.
             title = heading;
             textDimensions = string.IsNullOrEmpty(title) ? Vector2.Zero : (Style.HeaderFont?.MeasureString(title) ?? Vector2.Zero);
-            IsCancelable = canCancel;
-
-            // First create option panel and cascade StyleSheet all the way down.
-            optionPanel = new ListMenuOptionPanel(this, listOptions);
-            CascadeStyle();
 
             // Initialize option dimensions, then cascade real Dimension down.
             foreach (AbstractMenuOption option in listOptions)
                 option.Dimensions = new Rectangle(-1, -1, 0, 0);
+
             Dimensions = area;
+            IsCancelable = canCancel;
         }
 
 
         public override void Initialize() {
-            optionPanel.Initialize();
+            createOptionPanel();
+
+            panelBatch = new SpriteBatch(_manager.GraphicsDevice);
+            foreach (AbstractMenuOption option in Options)
+                option.Initialize();
         }
 
 
         public override void OnStyleSet() {
             textDimensions = string.IsNullOrEmpty(title) ? Vector2.Zero : (Style.HeaderFont?.MeasureString(title) ?? Vector2.Zero);
-            // FIX: Set new Dimensions.
+            // Reset Dimensions by simply setting same values. Property will take care of resizing.
+            // BUT this is broken because OnSetStyle is called before Options are a thing.
+            //Dimensions = new Rectangle(X, Y, Width, Height);
         }
 
 
@@ -94,21 +119,28 @@ namespace MonODGE.UI.Components {
             // Text Positioning
             if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
                 textPosition = new Vector2(
-                    Dimensions.X + Style.PaddingLeft,
-                    Dimensions.Y + Style.PaddingTop
+                    X + Style.PaddingLeft,
+                    Y + Style.PaddingTop
                 );
             }
             else if (Style.TextAlign == StyleSheet.TextAlignments.CENTER) {
                 textPosition = new Vector2(
-                    (Dimensions.Width - textDimensions.X) / 2 + Dimensions.X,
-                    Dimensions.Y + Style.PaddingTop
+                    (Width - textDimensions.X) / 2 + X,
+                    Y + Style.PaddingTop
                 );
             }
             else { // Right
                 textPosition = new Vector2(
-                    Dimensions.Width - textDimensions.X - Style.PaddingRight + Dimensions.X,
-                    Dimensions.Y + Style.PaddingTop
+                    Width - textDimensions.X - Style.PaddingRight + X,
+                    Y + Style.PaddingTop
                 );
+            }
+
+            // Reposition options. Is this necessary?
+            int ypos = 0;
+            foreach (AbstractMenuOption option in Options) {
+                option.Dimensions = new Rectangle(0, ypos, option.Width, option.Height);
+                ypos += option.Height;
             }
         }
 
@@ -123,8 +155,53 @@ namespace MonODGE.UI.Components {
             if (_manager.Input.isKeyPress(Style.CancelKey) && IsCancelable) {
                 Close();
             }
+            
+            // Handle input.
+            if (_manager.Input.isKeyPress(Style.SubmitKey)) {
+                Options[SelectedIndex].OnSubmit();
+                // this.OnSubmit()? Maybe containers shouldn't have submit.
+            }
 
-            optionPanel.Update();
+            // Move Down.
+            else if (_manager.Input.isKeyPress(Keys.Down) || _manager.Input.isKeyPress(Keys.S)) {
+                Options[SelectedIndex].OnUnselected();
+                if (SelectedIndex + 1 >= Options.Count)
+                    SelectedIndex = 0;
+                else
+                    SelectedIndex++;
+                Options[SelectedIndex].OnSelected();
+            }
+
+            // Move Up!
+            else if (_manager.Input.isKeyPress(Keys.Up) || _manager.Input.isKeyPress(Keys.W)) {
+                Options[SelectedIndex].OnUnselected();
+                if (SelectedIndex - 1 < 0)
+                    SelectedIndex = Options.Count - 1;
+                else
+                    SelectedIndex--;
+                Options[SelectedIndex].OnSelected();
+            }
+
+            else if (_manager.Input.isKeyPress(Style.CancelKey)) {
+                OnCancel();
+            }
+        }
+
+
+        private void DrawToPanel() {
+            _manager.GraphicsDevice.SetRenderTarget(optionPanel);
+            _manager.GraphicsDevice.Clear(Color.TransparentBlack);
+            panelBatch.Begin();
+
+            for (int p = 0; p < Options.Count; p++) {
+                if (p == SelectedIndex)
+                    Options[p].Draw(panelBatch, true);
+                else
+                    Options[p].Draw(panelBatch, false);
+            }
+
+            panelBatch.End();
+            _manager.GraphicsDevice.SetRenderTarget(null);
         }
 
 
@@ -133,201 +210,39 @@ namespace MonODGE.UI.Components {
             DrawBorders(batch);
             if (title != null)
                 batch.DrawString(Style.HeaderFont, title, textPosition, Style.HeaderColor);
-            optionPanel.Draw(batch);
+
+            // Draw option panel.
+            if (optionPanel != null) {
+                DrawToPanel();
+                batch.Draw(optionPanel, panelRect, Color.White);
+            }
         }
+
+
+        private void createOptionPanel() {
+            if (_manager != null) {
+                optionPanel = _manager.CreateRenderTarget(
+                    Width - Style.PaddingLeft - Style.PaddingRight,
+                    Height - (int)textDimensions.Y - Style.PaddingTop - Style.PaddingBottom
+                    );
+
+                panelRect = new Rectangle(
+                    X + Style.PaddingLeft,
+                    Y + (int)textDimensions.Y + Style.PaddingTop,
+                    Width - Style.PaddingLeft - Style.PaddingRight,
+                    Height - (int)textDimensions.Y - Style.PaddingTop - Style.PaddingBottom
+                    );
+            }
+            else {
+                optionPanel = null;
+                panelRect = new Rectangle(0, 0, 0, 0);
+                //throw new NullReferenceException("createOptionPanel must be called in or after Initialize(), so _manager is not null.");
+            }
+        }
+
 
         /// <summary>
-        /// Cascades ListMenu's StyleSheet to ListMenuOptionPanel and all (or some, see forced 
-        /// param) AbstractListMenuOptions in ListMenuOptionPanel.
-        /// 
-        /// It is recommended to call Refresh after CascadeStyle to reposition all elements.
-        /// </summary>
-        /// <param name="forced">
-        /// If true, sets option's StyleSheet even if the option already has one.
-        /// If false (default), only sets option's StyleSheet if it is null.
-        /// </param>
-        public void CascadeStyle(bool forced = false) {
-            optionPanel.Style = Style;
-            optionPanel.CascadeStyle(forced);
-        }
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-
-    /// <summary>
-    /// Internal: A container for AbstractListMenuOption objects for use in a ListMenu.
-    /// </summary>
-    internal class ListMenuOptionPanel : OdgeComponent {
-        private ListMenu parent;
-        private RenderTarget2D panel;
-        private SpriteBatch panelBatch;
-
-        internal List<AbstractMenuOption> Options { get; private set; }
-        private int selectedIndex;
-
-        public AbstractMenuOption SelectedOption { get { return Options[selectedIndex]; } }
-
-        public override StyleSheet Style {
-            get { return base.Style; }
-            set {
-                base.Style = value;
-                CascadeStyle();
-            }
-        }
-
-        public override Rectangle Dimensions {
-            get { return base.Dimensions; }
-            set {
-                int width = value.Width;
-
-                // Set initial option widths.
-                foreach (AbstractMenuOption option in Options) {
-                    option.Dimensions = new Rectangle(
-                        option.Dimensions.X,
-                        option.Dimensions.Y,
-                        width,
-                        option.Dimensions.Height
-                        );
-
-                    if (option.Dimensions.Width > width)
-                        width = option.Dimensions.Width;
-                }
-
-                // Resize options again to full width.
-                foreach (AbstractMenuOption option in Options) {
-                    if (option.Dimensions.Width < width)
-                        option.Dimensions = new Rectangle(
-                            option.Dimensions.X,
-                            option.Dimensions.Y,
-                            width,
-                            option.Dimensions.Height
-                            );
-                }
-
-                base.Dimensions = new Rectangle(value.X, value.Y, width, value.Height);
-
-                if (parent._manager != null)
-                    panel = parent._manager.CreateRenderTarget(Dimensions.Width, Dimensions.Height);
-            }
-        }
-
-
-        internal ListMenuOptionPanel(ListMenu parentMenu, List<AbstractMenuOption> listOptions) {
-            parent = parentMenu;
-            Options = listOptions;
-        }
-
-
-        public override void Initialize() {
-            panel = parent._manager.CreateRenderTarget(Dimensions.Width, Dimensions.Height);
-            panelBatch = new SpriteBatch(parent._manager.GraphicsDevice);
-            foreach (AbstractMenuOption option in Options)
-                option.Initialize();
-        }
-
-
-        public override void OnMove() {
-            // Set the option positions.
-            int ypos = 0;
-            foreach (AbstractMenuOption option in Options) {
-                option.Dimensions = new Rectangle(0, ypos, option.Dimensions.Width, option.Dimensions.Height);
-                ypos += option.Dimensions.Height;
-            }
-        }
-
-
-        public override void Update() {
-            // Handle input.
-            if (parent._manager.Input.isKeyPress(Style.SubmitKey)) {
-                Options[selectedIndex].OnSubmit();
-            }
-
-            // Move Down.
-            else if (parent._manager.Input.isKeyPress(Keys.Down) || parent._manager.Input.isKeyPress(Keys.S)) {
-                Options[selectedIndex].OnUnselected();
-                selectedIndex++;
-                if (selectedIndex >= Options.Count)
-                    selectedIndex = 0;
-                Options[selectedIndex].OnSelected();
-            }
-
-            // Move Up!
-            else if (parent._manager.Input.isKeyPress(Keys.Up) || parent._manager.Input.isKeyPress(Keys.W)) {
-                Options[selectedIndex].OnUnselected();
-                selectedIndex--;
-                if (selectedIndex < 0)
-                    selectedIndex = Options.Count - 1;
-                Options[selectedIndex].OnSelected();
-            }
-
-            else if (parent._manager.Input.isKeyPress(Style.CancelKey)) {
-                parent.OnCancel();
-            }
-
-
-            // Get top option position.
-            //int yPos = Dimensions.Y;
-
-            // Reposition items if they are off screen.            
-            /* FIX
-            if (Options[selectedIndex].Dimensions.Y < yPos) {
-                velocity = -(Options[selectedIndex].Dimensions.Y / 2) + 1;
-                scrollList();
-            }
-            else if (Options[selectedIndex].Dimensions.Y + Options[selectedIndex].Dimensions.Height > _manager.ScreenHeight) {
-                velocity = -(Options[selectedIndex].Dimensions.Y + Options[selectedIndex].Dimensions.Height / 2) - 1;
-                scrollList();
-            }
-            */
-
-            // Update option rects
-            /*foreach (AbstractListMenuOption option in Options) {
-                Rectangle place = option.Dimensions;
-                place.Y = yPos;
-                option.Dimensions = place;
-                yPos += option.Dimensions.Height;
-
-                // option.Update(selected);
-            }*/
-        }
-
-
-        private void DrawToPanel() {
-            parent._manager.GraphicsDevice.SetRenderTarget(panel);
-            parent._manager.GraphicsDevice.Clear(Color.TransparentBlack);
-            panelBatch.Begin();
-
-            for (int p = 0; p < Options.Count; p++) {
-                if (p == selectedIndex)
-                    Options[p].Draw(panelBatch, true);
-                else
-                    Options[p].Draw(panelBatch, false);
-            }
-
-            panelBatch.End();
-            parent._manager.GraphicsDevice.SetRenderTarget(null);
-        }
-
-
-        public override void Draw(SpriteBatch batch) {
-            DrawToPanel();
-            batch.Draw(panel, Dimensions, Color.White);
-        }
-
-
-        /*private void scrollList() {            
-            foreach (AbstractListMenuOption option in Options) {
-                Rectangle dim = option.Dimensions;
-                dim.Y += velocity;
-                option.Dimensions = dim;
-            }          
-        }*/
-
-        /// <summary>
-        /// Cascades ListMenuOptionPanel's StyleSheet to all (or some, see forced param) 
-        /// AbstractListMenuOptions.
-        /// 
-        /// It is recommended to call Refresh after CascadeStyle to reposition all elements.
+        /// Cascades ListMenu's StyleSheet to AbstractListMenuOptions.
         /// </summary>
         /// <param name="forced">
         /// If true, sets option's StyleSheet even if the option already has one.
@@ -338,7 +253,7 @@ namespace MonODGE.UI.Components {
                 foreach (AbstractMenuOption option in Options)
                     if (forced || option.Style == null)
                         option.Style = Style;
-            }                
+            }
         }
     }
 }
