@@ -47,6 +47,7 @@
     <Compile Include="Components\ListMenu.cs" />
     <Compile Include="Components\ListMenuOption.cs" />
     <Compile Include="Components\PopText.cs" />
+    <Compile Include="Components\TextBox.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="Input.cs" />
     <Compile Include="Manager.cs" />
