@@ -38,10 +38,6 @@ namespace MonODGE.UI.Components {
             : base(style) {
             dialog = text;
             dialogIndex = 0;
-            textDimensions = Style.Font?.MeasureString(dialog[dialogIndex]) ?? Vector2.Zero;
-            repositionText();
-            Dimensions = area;
-            IsCancelable = canCancel;
 
             footerStrings = new string[3]{
                 "<< . . .",
@@ -54,6 +50,10 @@ namespace MonODGE.UI.Components {
                 Style.FooterFont?.MeasureString(footerStrings[1]) ?? Vector2.Zero,
                 Style.FooterFont?.MeasureString(footerStrings[2]) ?? Vector2.Zero
             };
+
+            textDimensions = Style.Font?.MeasureString(dialog[dialogIndex]) ?? Vector2.Zero;
+            Dimensions = area;  // This calls repositionText();
+            IsCancelable = canCancel;
         }
 
 
@@ -156,24 +156,26 @@ namespace MonODGE.UI.Components {
 
 
         private void repositionText() {
-            if (Style.TextAlignH == StyleSheet.AlignmentsH.LEFT) {
-                textPosition = new Vector2(
-                    X + Style.PaddingLeft,
-                    Y + Style.PaddingTop
-                );
-            }
-            else if (Style.TextAlignH == StyleSheet.AlignmentsH.CENTER) {
-                textPosition = new Vector2(
-                    (Width - textDimensions.X) / 2 + X,
-                    Y + Style.PaddingTop
-                );
-            }
-            else { // Right
-                textPosition = new Vector2(
-                    Width - textDimensions.X - Style.PaddingRight + X,
-                    Y + Style.PaddingTop
-                );
-            }
+            float nx, ny = 0;
+
+            // Horizontal
+            if (Style.TextAlignH == StyleSheet.AlignmentsH.LEFT)
+                nx = X + Style.PaddingLeft;
+            else if (Style.TextAlignH == StyleSheet.AlignmentsH.CENTER)
+                nx = Dimensions.Center.X - (textDimensions.X / 2);
+            else  // Right
+                nx = Dimensions.Right - textDimensions.X - Style.PaddingRight;
+            
+
+            // Vertical
+            if (Style.TextAlignV == StyleSheet.AlignmentsV.TOP)
+                ny = Y + Style.PaddingTop;
+            else if (Style.TextAlignV == StyleSheet.AlignmentsV.CENTER)
+                ny = Dimensions.Center.Y - (textDimensions.Y / 2);
+            else // Bottom
+                ny = Dimensions.Bottom - textDimensions.Y - footerDimensions[0].Y - Style.PaddingBottom;
+
+            textPosition = new Vector2(nx, ny);
         }
     }
 }

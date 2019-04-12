@@ -116,24 +116,26 @@ namespace MonODGE.UI.Components {
 
 
         private void repositionText() {
-            if (Style.TextAlignH == StyleSheet.AlignmentsH.LEFT) {
-                textPosition = new Vector2(
-                    X + Style.PaddingLeft,
-                    (Height - textDimensions.Y) / 2 + Y
-                );
-            }
-            else if (Style.TextAlignH == StyleSheet.AlignmentsH.CENTER) {
-                textPosition = new Vector2(
-                    (Width - textDimensions.X) / 2 + X,
-                    (Height - textDimensions.Y) / 2 + Y
-                );
-            }
-            else { // Right
-                textPosition = new Vector2(
-                    X + Width - textDimensions.X - Style.PaddingRight,
-                    (Height - textDimensions.Y) / 2 + Y
-                );
-            }
+            float nx, ny = 0;
+
+            // Horizontal
+            if (Style.TextAlignH == StyleSheet.AlignmentsH.LEFT)
+                nx = X + Style.PaddingLeft;
+            else if (Style.TextAlignH == StyleSheet.AlignmentsH.CENTER)
+                nx = Dimensions.Center.X - (textDimensions.X / 2);
+            else  // Right
+                nx = Dimensions.Right - textDimensions.X - Style.PaddingRight;
+
+
+            // Vertical
+            if (Style.TextAlignV == StyleSheet.AlignmentsV.TOP)
+                ny = Y + Style.PaddingTop;
+            else if (Style.TextAlignV == StyleSheet.AlignmentsV.CENTER)
+                ny = Dimensions.Center.Y - (textDimensions.Y / 2);
+            else // Bottom
+                ny = Dimensions.Bottom - textDimensions.Y - Style.PaddingBottom;
+
+            textPosition = new Vector2(nx, ny);
         }
     }
 
@@ -163,6 +165,13 @@ namespace MonODGE.UI.Components {
             }
         }
 
+        public ImageMenuOption(Texture2D image, EventHandler action)
+            : base(action) {
+            texture = image;
+            srcRect = new Rectangle(0, 0, image.Width, image.Height);
+            dstRect = new Rectangle(0, 0, srcRect.Width, srcRect.Height);
+        }
+
         public ImageMenuOption(Texture2D image, Rectangle sourceRect, EventHandler action)
             : base(action) {
             texture = image;
@@ -174,11 +183,17 @@ namespace MonODGE.UI.Components {
         public override void OnStyleSet() {
             // Reset Dimensions by simply setting same values. Property will take care of resizing.
             Dimensions = new Rectangle(X, Y, Width, Height);
+            base.OnStyleSet();
         }
 
 
         public override void OnMove() {
             repositionImage();
+            base.OnMove();
+        }
+        public override void OnResize() {
+            repositionImage();
+            base.OnResize();
         }
 
 
@@ -197,30 +212,21 @@ namespace MonODGE.UI.Components {
 
 
         private void repositionImage() {
-            if (Style.TextAlignH == StyleSheet.AlignmentsH.LEFT) {
-                dstRect = new Rectangle(
-                    X + Style.PaddingLeft,
-                    Y + Style.PaddingTop,
-                    srcRect.Width,
-                    srcRect.Height
-                    );
-            }
-            else if (Style.TextAlignH == StyleSheet.AlignmentsH.CENTER) {
-                dstRect = new Rectangle(
-                    (Width - srcRect.Width) / 2 + X,
-                    Y + Style.PaddingTop,
-                    srcRect.Width,
-                    srcRect.Height
-                    );
-            }
-            else { // Right
-                dstRect = new Rectangle(
-                    X + Width - srcRect.Width - Style.PaddingRight,
-                    Y + Style.PaddingTop,
-                    srcRect.Width,
-                    srcRect.Height
-                    );
-            }
+            // Horizontal
+            if (Style.TextAlignH == StyleSheet.AlignmentsH.LEFT) 
+                dstRect.X = X + Style.PaddingLeft;            
+            else if (Style.TextAlignH == StyleSheet.AlignmentsH.CENTER) 
+                dstRect.X = Dimensions.Center.X - (srcRect.Width / 2);            
+            else // Right
+                dstRect.X = Dimensions.Right - srcRect.Width - Style.PaddingRight;
+
+            // Vertical
+            if (Style.TextAlignV == StyleSheet.AlignmentsV.TOP)
+                dstRect.Y = Y + Style.PaddingTop;
+            else if (Style.TextAlignV == StyleSheet.AlignmentsV.CENTER)
+                dstRect.Y = Dimensions.Center.Y - (srcRect.Height / 2);
+            else // Bottom
+                dstRect.Y = Dimensions.Bottom - srcRect.Height - Style.PaddingBottom;
         }
     }
 

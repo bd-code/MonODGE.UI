@@ -13,24 +13,20 @@ namespace MonODGE.UI {
 
         //// Alignment ////
 
-        public enum AlignmentsH {
-            LEFT, CENTER, RIGHT
-        }
+        public enum AlignmentsH { LEFT, CENTER, RIGHT }
+        public enum AlignmentsV { TOP, CENTER, BOTTOM }
 
         /// <summary>
         /// Horizontal alignment for inner text and elements.
         /// </summary>
         public AlignmentsH TextAlignH { get; set; }
-
-        // FIX: We don't have vertical TextAlignV!
-        /*
-        public enum TextAlignmentsV {
-            TOP, CENTER, BOTTOM
-        }
-        public TextAlignmentsV TextAlignV { get; set; }
-        */
-
-
+        
+        /// <summary>
+        /// Vertical alignment for inner text and elements.
+        /// </summary>
+        public AlignmentsV TextAlignV { get; set; }
+        
+        
         //// Background ////
 
         /// <summary>
@@ -229,7 +225,8 @@ namespace MonODGE.UI {
                           SpriteFont font = null, Color? textColor = default(Color?), 
                           SpriteFont footerfont = null, Color? footercolor = default(Color?),
                           Color? selectedTextColor = default(Color?), Color? unselectedTextColor = default(Color?),
-                          AlignmentsH textAlign = AlignmentsH.LEFT, int padding = 0
+                          AlignmentsH hAlign = AlignmentsH.LEFT, AlignmentsV vAlign = AlignmentsV.TOP,
+                          int padding = 0
                           ) {
 
             Background = background;
@@ -254,7 +251,8 @@ namespace MonODGE.UI {
             SelectedTextColor = selectedTextColor ?? Color.Gold;
             UnselectedTextColor = unselectedTextColor ?? Color.Gray;
             
-            TextAlignH = textAlign;
+            TextAlignH = hAlign;
+            TextAlignV = vAlign;
             _padding = new int[4];
             PaddingAll = padding;
         }
@@ -269,7 +267,8 @@ namespace MonODGE.UI {
                 Font, TextColor, 
                 FooterFont, FooterColor, 
                 SelectedTextColor, UnselectedTextColor,
-                TextAlignH, PaddingAll);
+                TextAlignH, TextAlignV, 
+                PaddingAll);
             clone.SubmitKey = SubmitKey;
             clone.CancelKey = CancelKey;
             return clone;

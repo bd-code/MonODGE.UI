@@ -125,13 +125,13 @@ namespace MonODGE.UI.Components {
             }
             else if (Style.TextAlignH == StyleSheet.AlignmentsH.CENTER) {
                 textPosition = new Vector2(
-                    (Width - textDimensions.X) / 2 + X,
+                    Dimensions.Center.X - (textDimensions.X / 2),
                     Y + Style.PaddingTop
                 );
             }
             else { // Right
                 textPosition = new Vector2(
-                    Width - textDimensions.X - Style.PaddingRight + X,
+                    Dimensions.Right - textDimensions.X - Style.PaddingRight,
                     Y + Style.PaddingTop
                 );
             }
