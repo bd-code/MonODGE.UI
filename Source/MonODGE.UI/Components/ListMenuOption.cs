@@ -116,13 +116,13 @@ namespace MonODGE.UI.Components {
 
 
         private void repositionText() {
-            if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
+            if (Style.TextAlignH == StyleSheet.AlignmentsH.LEFT) {
                 textPosition = new Vector2(
                     X + Style.PaddingLeft,
                     (Height - textDimensions.Y) / 2 + Y
                 );
             }
-            else if (Style.TextAlign == StyleSheet.TextAlignments.CENTER) {
+            else if (Style.TextAlignH == StyleSheet.AlignmentsH.CENTER) {
                 textPosition = new Vector2(
                     (Width - textDimensions.X) / 2 + X,
                     (Height - textDimensions.Y) / 2 + Y
@@ -197,7 +197,7 @@ namespace MonODGE.UI.Components {
 
 
         private void repositionImage() {
-            if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
+            if (Style.TextAlignH == StyleSheet.AlignmentsH.LEFT) {
                 dstRect = new Rectangle(
                     X + Style.PaddingLeft,
                     Y + Style.PaddingTop,
@@ -205,7 +205,7 @@ namespace MonODGE.UI.Components {
                     srcRect.Height
                     );
             }
-            else if (Style.TextAlign == StyleSheet.TextAlignments.CENTER) {
+            else if (Style.TextAlignH == StyleSheet.AlignmentsH.CENTER) {
                 dstRect = new Rectangle(
                     (Width - srcRect.Width) / 2 + X,
                     Y + Style.PaddingTop,

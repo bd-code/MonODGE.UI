@@ -117,13 +117,13 @@ namespace MonODGE.UI.Components {
 
         public override void OnMove() {
             // Text Positioning
-            if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
+            if (Style.TextAlignH == StyleSheet.AlignmentsH.LEFT) {
                 textPosition = new Vector2(
                     X + Style.PaddingLeft,
                     Y + Style.PaddingTop
                 );
             }
-            else if (Style.TextAlign == StyleSheet.TextAlignments.CENTER) {
+            else if (Style.TextAlignH == StyleSheet.AlignmentsH.CENTER) {
                 textPosition = new Vector2(
                     (Width - textDimensions.X) / 2 + X,
                     Y + Style.PaddingTop
