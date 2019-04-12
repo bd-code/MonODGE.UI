@@ -10,19 +10,48 @@ using Microsoft.Xna.Framework.Input;
 
 namespace MonODGE.UI {
     public class StyleSheet {
-        // Inner element alignment
-        public enum TextAlignments {
+
+        //// Alignment ////
+
+        public enum AlignmentsH {
             LEFT, CENTER, RIGHT
         }
 
-        public TextAlignments TextAlign { get; set; }
+        /// <summary>
+        /// Horizontal alignment for inner text and elements.
+        /// </summary>
+        public AlignmentsH TextAlignH { get; set; }
+
+        // FIX: We don't have vertical TextAlignV!
+        /*
+        public enum TextAlignmentsV {
+            TOP, CENTER, BOTTOM
+        }
+        public TextAlignmentsV TextAlignV { get; set; }
+        */
 
 
-        // Background and Borders
+        //// Background ////
+
+        /// <summary>
+        /// Background texture which fills Component dimensions. Can be set to null for no background.
+        /// </summary>
         public Texture2D Background { get; set; }
+
+        /// <summary>
+        /// Border texture color. Set to Color.White to match original image.
+        /// </summary>
         public Color BackgroundColor { get; set; }
         
+
+        //// Borders ////
+
         private Texture2D _borders;
+
+        /// <summary>
+        /// Border texture which, uh, borders Components. Can be set to null for no borders.
+        /// Border textures are split into 3*3 tiles, and thus image dimensions should be divisible by 3.
+        /// </summary>
         public Texture2D Borders {
             get { return _borders; }
             set {
@@ -43,28 +72,79 @@ namespace MonODGE.UI {
             }
         }
 
+        /// <summary>
+        /// 0-UpperLeft, 1-UpperCenter, 2-UpperRight, 
+        /// 3-MiddleLeft, 4-Middle[Unused], 5-MiddleRight,
+        /// 6-LowerLeft, 7-LowerCenter, 8-LowerRight
+        /// </summary>
         public Rectangle[] BorderSourceRects { get; private set; }
+
+        /// <summary>
+        /// Width of each border tile, or 0 if Borders is null.
+        /// </summary>
         public int BorderTileWidth { get { return _borders?.Width / 3 ?? 0; } }
+
+        /// <summary>
+        /// Height of each border tile, or 0 if Borders is null.
+        /// </summary>
         public int BorderTileHeight { get { return _borders?.Height / 3 ?? 0; } }
+
+        /// <summary>
+        /// Border texture color. Set to Color.White to match original image.
+        /// </summary>
         public Color BorderColor { get; set; }
 
 
-        // Fonts and Text Color
+        //// Fonts and Text Color ////
+
+        /// <summary>
+        /// Header text font.
+        /// </summary>
         public SpriteFont HeaderFont { get; set; }
+
+        /// <summary>
+        /// Header text color.
+        /// </summary>
         public Color HeaderColor { get; set; }
 
+        /// <summary>
+        /// Main text font.
+        /// </summary>
         public SpriteFont Font { get; set; }
+
+        /// <summary>
+        /// Main text color.
+        /// </summary>
         public Color TextColor { get; set; }
 
+        /// <summary>
+        /// Footer text font.
+        /// </summary>
         public SpriteFont FooterFont { get; set; }
+
+        /// <summary>
+        /// Footer text color.
+        /// </summary>
         public Color FooterColor { get; set; }
         
+        /// <summary>
+        /// For menus and other controls, selected item text is displayed in this color rather than TextColor.
+        /// </summary>
         public Color SelectedTextColor { get; set; }
+
+        /// <summary>
+        /// For menus and other controls, unselected item text is displayed in this color rather than TextColor.
+        /// </summary>
         public Color UnselectedTextColor { get; set; }
 
 
-        // Padding order: 0-Top, 1-Right, 2-Bottom, 3-Left
+        //// Padding ////
+
         private int[] _padding;
+
+        /// <summary>
+        /// An int[4] array that determines the Component's inner padding. Padding order: 0-Top, 1-Right, 2-Bottom, 3-Left.
+        /// </summary>
         public int[] Padding {
             get { return _padding; }
             set {
@@ -89,33 +169,57 @@ namespace MonODGE.UI {
             }
         }
 
+        /// <summary>
+        /// Use this to set the inner padding on all four sides at once.
+        /// </summary>
         public int PaddingAll {
             get { return _padding[0]; }
             set { _padding[0] = _padding[1] = _padding[2] = _padding[3] = value; }
         }
 
+        /// <summary>
+        /// Sets top inner padding.
+        /// </summary>
         public int PaddingTop {
             get { return _padding[0]; }
             set { _padding[0] = value; }
         }
 
+        /// <summary>
+        /// Sets right inner padding.
+        /// </summary>
         public int PaddingRight {
             get { return _padding[1]; }
             set { _padding[1] = value; }
         }
 
+        /// <summary>
+        /// Sets bottom inner padding.
+        /// </summary>
         public int PaddingBottom {
             get { return _padding[2]; }
             set { _padding[2] = value; }
         }
 
+        /// <summary>
+        /// Sets left inner padding.
+        /// </summary>
         public int PaddingLeft {
             get { return _padding[3]; }
             set { _padding[3] = value; }
         }
         
-        // Input keys
+
+        //// Input Mapping ////
+
+        /// <summary>
+        /// This key triggers the Component's OnSubmit().
+        /// </summary>
         public Keys SubmitKey { get; set; }
+
+        /// <summary>
+        /// This key triggers the Component's OnCancel() For most Components, it also closes it.
+        /// </summary>
         public Keys CancelKey { get; set; }
 
         
@@ -125,7 +229,7 @@ namespace MonODGE.UI {
                           SpriteFont font = null, Color? textColor = default(Color?), 
                           SpriteFont footerfont = null, Color? footercolor = default(Color?),
                           Color? selectedTextColor = default(Color?), Color? unselectedTextColor = default(Color?),
-                          TextAlignments textAlign = TextAlignments.LEFT, int padding = 0
+                          AlignmentsH textAlign = AlignmentsH.LEFT, int padding = 0
                           ) {
 
             Background = background;
@@ -150,12 +254,12 @@ namespace MonODGE.UI {
             SelectedTextColor = selectedTextColor ?? Color.Gold;
             UnselectedTextColor = unselectedTextColor ?? Color.Gray;
             
-            TextAlign = textAlign;
+            TextAlignH = textAlign;
             _padding = new int[4];
             PaddingAll = padding;
         }
         
-        public static StyleSheet Default { get { return new StyleSheet(); } }
+        public static StyleSheet Empty { get { return new StyleSheet(); } }
 
         public StyleSheet Clone() {
             StyleSheet clone = new StyleSheet(
@@ -165,7 +269,7 @@ namespace MonODGE.UI {
                 Font, TextColor, 
                 FooterFont, FooterColor, 
                 SelectedTextColor, UnselectedTextColor,
-                TextAlign, PaddingAll);
+                TextAlignH, PaddingAll);
             clone.SubmitKey = SubmitKey;
             clone.CancelKey = CancelKey;
             return clone;

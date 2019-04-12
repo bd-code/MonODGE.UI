@@ -8,13 +8,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace MonODGE.UI.Components {
-    /*
-    Need:
-    TextBox
-    Boolean Options (yes/no) or OptionButtonList
-    2-column MenuGrid.
-    */
-
     public abstract class OdgeComponent {
         public enum SnapAnchors {
             TOPLEFT, TOPCENTER, TOPRIGHT,
@@ -185,7 +178,8 @@ namespace MonODGE.UI.Components {
                 };
 
                 for (int b = 0; b < 9; b++)
-                    batch.Draw(Style.Borders, dests[b], Style.BorderSourceRects[b], Style.BorderColor);
+                    if (b != 4)
+                        batch.Draw(Style.Borders, dests[b], Style.BorderSourceRects[b], Style.BorderColor);
             }
         }
 
@@ -250,8 +244,6 @@ namespace MonODGE.UI.Components {
                     screenheight - Dimensions.Height,
                     Dimensions.Width, Dimensions.Height);
             }
-
-            OnMove();
         }
     }
 
