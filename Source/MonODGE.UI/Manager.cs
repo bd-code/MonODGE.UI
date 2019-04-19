@@ -163,5 +163,25 @@ namespace MonODGE.UI {
         public RenderTarget2D CreateRenderTarget(int width, int height) {
             return new RenderTarget2D(_graphics, width, height);
         }
+
+
+        public OdgeComponent GetComponentByName(string name) {
+            OdgeComponent odge = GetControlByName(name);
+            if (odge == null)
+                odge = GetPopupByName(name);
+            return odge;
+        }
+        public OdgeControl GetControlByName(string name) {
+            foreach (OdgeControl odge in controlStack)
+                if (odge.Name == name)
+                    return odge;
+            return null;
+        }
+        public OdgePopUp GetPopupByName(string name) {
+            foreach (OdgePopUp pop in popupQ)
+                if (pop.Name == name)
+                    return pop;
+            return null;
+        }
     }
 }
