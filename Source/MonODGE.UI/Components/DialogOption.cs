@@ -9,7 +9,10 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace MonODGE.UI.Components {
-    public class DialogOption : OdgeControl {
+    public class QuestionBox : OdgeControl {
+        public enum AnswerType { Affirmative, Negative, Unanswered }
+        public AnswerType Answer { get; private set; }
+
         private AbstractMenuOption optionYes;
         private AbstractMenuOption optionNo;
         private bool isYesSelected;
@@ -18,8 +21,9 @@ namespace MonODGE.UI.Components {
         private Vector2 textDimensions;
         private Vector2 textPosition;
 
-        public DialogOption(StyleSheet style, Rectangle area, string message, AbstractMenuOption yesOption, AbstractMenuOption noOption)
+        public QuestionBox(StyleSheet style, Rectangle area, string message, AbstractMenuOption yesOption, AbstractMenuOption noOption)
             : base(style) {
+            Answer = AnswerType.Unanswered;
             dialog = message;
             textDimensions = Style.Font?.MeasureString(dialog) ?? Vector2.Zero;
             repositionText();
@@ -67,10 +71,14 @@ namespace MonODGE.UI.Components {
         }
 
         public override void OnSubmit() {
-            if (isYesSelected)
+            if (isYesSelected) {
+                Answer = AnswerType.Affirmative;
                 optionYes.OnSubmit();
-            else
+            }
+            else {
+                Answer = AnswerType.Negative;
                 optionNo.OnSubmit();
+            }
             base.OnSubmit();
         }
 
