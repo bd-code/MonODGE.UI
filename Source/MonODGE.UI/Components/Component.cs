@@ -15,6 +15,8 @@ namespace MonODGE.UI.Components {
             BOTTOMLEFT, BOTTOM, BOTTOMRIGHT
         }
 
+        public string Name { get; set; }
+
 
         private StyleSheet _style;
         public virtual StyleSheet Style {
