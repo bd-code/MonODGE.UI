@@ -22,6 +22,7 @@ namespace MonODGE.UI.Components {
         private Vector2 textDimensions;
 
         public List<AbstractMenuOption> Options { get; private set; }
+
         private int _selectedIndex;
         public int SelectedIndex {
             get { return _selectedIndex; }
@@ -140,7 +141,7 @@ namespace MonODGE.UI.Components {
             int ypos = 0;
             foreach (AbstractMenuOption option in Options) {
                 option.Dimensions = new Rectangle(0, ypos, option.Width, option.Height);
-                ypos += option.Height;
+                ypos += option.Height + option.Style.SpacingV;
             }
         }
 

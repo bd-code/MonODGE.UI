@@ -132,35 +132,35 @@ namespace MonODGE.UI.Components {
             if (_manager != null)
                 bottomspace = _manager.ScreenHeight - (Y + Height);
             
-            if (Y >= bottomspace) { 
-                // Draw on top
+            if (Y >= bottomspace) {
+                // Draw options on top
                 optionYes.Dimensions = new Rectangle(
-                    X + Style.PaddingLeft * 4,
-                    Y - optionYes.Height - Style.PaddingTop,
+                    Dimensions.Center.X - optionYes.Width - Style.SpacingH / 2,
+                    Y - optionYes.Height - Style.SpacingV,
                     optionYes.Width, 
                     optionYes.Height
                     );
 
                 optionNo.Dimensions = new Rectangle(
-                    X + Width - optionNo.Width - Style.PaddingRight * 4,
-                    Y - optionYes.Height - Style.PaddingTop,
+                    Dimensions.Center.X + Style.SpacingH / 2,
+                    Y - optionYes.Height - Style.SpacingV,
                     optionYes.Width,
                     optionYes.Height
                     );
             }
 
             else {
-                // Draw on bottom
+                // Draw options on bottom
                 optionYes.Dimensions = new Rectangle(
-                    X + Style.PaddingLeft * 4,
-                    Y + Height + Style.PaddingBottom,
+                    Dimensions.Center.X - optionYes.Width - Style.SpacingH / 2,
+                    Y + Height + Style.SpacingV,
                     optionYes.Width,
                     optionYes.Height
                     );
 
                 optionNo.Dimensions = new Rectangle(
-                    X + Width - optionNo.Width - Style.PaddingRight * 4,
-                    Y + Height + Style.PaddingBottom,
+                    Dimensions.Center.X + Style.SpacingH / 2,
+                    Y + Height + Style.SpacingV,
                     optionYes.Width,
                     optionYes.Height
                     );

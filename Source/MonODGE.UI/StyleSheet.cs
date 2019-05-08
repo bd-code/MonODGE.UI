@@ -139,7 +139,8 @@ namespace MonODGE.UI {
         private int[] _padding;
 
         /// <summary>
-        /// An int[4] array that determines the Component's inner padding. Padding order: 0-Top, 1-Right, 2-Bottom, 3-Left.
+        /// An int[4] array that determines the Component's inner padding. 
+        /// Padding order: 0-Top, 1-Right, 2-Bottom, 3-Left.
         /// </summary>
         public int[] Padding {
             get { return _padding; }
@@ -169,7 +170,6 @@ namespace MonODGE.UI {
         /// Use this to set the inner padding on all four sides at once.
         /// </summary>
         public int PaddingAll {
-            get { return _padding[0]; }
             set { _padding[0] = _padding[1] = _padding[2] = _padding[3] = value; }
         }
 
@@ -204,7 +204,52 @@ namespace MonODGE.UI {
             get { return _padding[3]; }
             set { _padding[3] = value; }
         }
-        
+
+
+        //// Spacing ////
+
+        private int[] _spacing;
+
+        /// <summary>
+        /// An int[2] array. Determines distance between child Components in OdgeComponents that have them.
+        /// Padding order: 0-Horizontal, 1-Vertical
+        /// </summary>
+        public int[] Spacing {
+            get { return _spacing; }
+            set {
+                if (value.Length >= 2) {
+                    _spacing[0] = value[0];
+                    _spacing[1] = value[1];
+                }
+                else if (value.Length == 1) {
+                    _spacing[0] = _spacing[1] = value[0];
+                }
+            }
+        }
+
+        /// <summary>
+        /// Use this to set both horizontal and vertical spacing at once.
+        /// </summary>
+        public int SpacingAll {
+            set { _spacing[0] = _spacing[1] = value; }
+        }
+
+        /// <summary>
+        /// Sets horizontal spacing.
+        /// </summary>
+        public int SpacingH {
+            get { return _spacing[0]; }
+            set { _spacing[0] = value; }
+        }
+
+        /// <summary>
+        /// Sets vertical spacing.
+        /// </summary>
+        public int SpacingV {
+            get { return _spacing[1]; }
+            set { _spacing[1] = value; }
+        }
+
 
         //// Input Mapping ////
 
@@ -226,7 +271,7 @@ namespace MonODGE.UI {
                           SpriteFont footerfont = null, Color? footercolor = default(Color?),
                           Color? selectedTextColor = default(Color?), Color? unselectedTextColor = default(Color?),
                           AlignmentsH hAlign = AlignmentsH.LEFT, AlignmentsV vAlign = AlignmentsV.TOP,
-                          int padding = 0
+                          int[] padding = null, int[] spacing = null
                           ) {
 
             Background = background;
@@ -253,8 +298,11 @@ namespace MonODGE.UI {
             
             TextAlignH = hAlign;
             TextAlignV = vAlign;
+
             _padding = new int[4];
-            PaddingAll = padding;
+            _spacing = new int[2];
+            Padding = padding ?? new int[4] { 0, 0, 0, 0 };
+            Spacing = spacing ?? new int[2] { 0, 0 };
         }
         
         public static StyleSheet Empty { get { return new StyleSheet(); } }
@@ -268,7 +316,7 @@ namespace MonODGE.UI {
                 FooterFont, FooterColor, 
                 SelectedTextColor, UnselectedTextColor,
                 TextAlignH, TextAlignV, 
-                PaddingAll);
+                Padding, Spacing);
             clone.SubmitKey = SubmitKey;
             clone.CancelKey = CancelKey;
             return clone;
