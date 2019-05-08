@@ -12,12 +12,12 @@ namespace MonODGE.UI.Components {
     /// A lightweight text display intended for, but not limited to, short-lived 
     /// one-line notifications.
     /// </summary>
-    public class NotificationBox : OdgePopUp {
+    public class NoteBox : OdgePopUp {
         private string notification;
         private Vector2 textPosition;
         private Vector2 textDimensions;
 
-        public NotificationBox(StyleSheet style, string text, Vector2 position, int lifetime = 355) : base(style) {
+        public NoteBox(StyleSheet style, string text, Vector2 position, int lifetime = 355) : base(style) {
             notification = text;
             Timeout = lifetime;
 
