@@ -13,10 +13,6 @@ namespace MonODGE.UI.Components {
     /// Vertically displays a list of options extended from AbstractListMenuOption.
     /// </summary>
     public class ListMenu : OdgeControl {
-        /*
-        Needs Add(option) and Remove(option) for dynamic lists (think inventory).
-        Re-design with title and scrolling ListOptionPanel.
-        */
         private string title;
         private Vector2 textPosition;
         private Vector2 textDimensions;
@@ -53,26 +49,31 @@ namespace MonODGE.UI.Components {
         public override Rectangle Dimensions {
             get { return base.Dimensions; }
             set {
-                int optionWidth = value.Width - Style.PaddingLeft - Style.PaddingRight;
-
-                // Set initial option widths.
-                foreach (AbstractMenuOption option in Options) {
-                    option.Width = optionWidth;
-
-                    if (option.Width > optionWidth)
-                        optionWidth = option.Width;
+                if (Options.Count > 0) {
+                    resizeOptions(value.Width - Style.PaddingLeft - Style.PaddingRight);
+                    value.Width = Options[0].Width + Style.PaddingLeft + Style.PaddingRight;
                 }
 
-                // Resize options again to full width.
-                foreach (AbstractMenuOption option in Options) {
-                    if (option.Width < optionWidth)
-                        option.Width = optionWidth;
-                }
-
-                value.Width = optionWidth + Style.PaddingLeft + Style.PaddingRight;
                 base.Dimensions = value;
                 
-                createOptionPanel();
+                if (_manager != null)
+                    createOptionPanel();
+            }
+        }
+
+        public override int Width {
+            get { return base.Width; }
+            set {
+                if (Options.Count > 0) {
+                    resizeOptions(value - Style.PaddingLeft - Style.PaddingRight);
+                    value = Options[0].Width + Style.PaddingLeft + Style.PaddingRight;
+                }
+
+                base.Width = value;
+
+                repositionText();
+                if (_manager != null)
+                    createOptionPanel();
             }
         }
 
@@ -82,7 +83,7 @@ namespace MonODGE.UI.Components {
 
         public ListMenu(StyleSheet style, string heading, List<AbstractMenuOption> listOptions, Rectangle area, bool canCancel = true) 
             : base(style) {
-            // Set local privates first.
+            // Set options and options' style first.
             Options = listOptions;            
             CascadeStyle();
 
@@ -110,54 +111,26 @@ namespace MonODGE.UI.Components {
 
         public override void OnStyleSet() {
             textDimensions = string.IsNullOrEmpty(title) ? Vector2.Zero : (Style.HeaderFont?.MeasureString(title) ?? Vector2.Zero);
-            // Reset Dimensions by simply setting same values. Property will take care of resizing.
-            // BUT this is broken because OnSetStyle is called before Options are a thing.
-            //Dimensions = new Rectangle(X, Y, Width, Height);
+            if (Options != null)
+                Dimensions = new Rectangle(X, Y, Width, Height);
         }
 
 
         public override void OnMove() {
-            // Text Positioning
-            if (Style.TextAlignH == StyleSheet.AlignmentsH.LEFT) {
-                textPosition = new Vector2(
-                    X + Style.PaddingLeft,
-                    Y + Style.PaddingTop
-                );
-            }
-            else if (Style.TextAlignH == StyleSheet.AlignmentsH.CENTER) {
-                textPosition = new Vector2(
-                    Dimensions.Center.X - (textDimensions.X / 2),
-                    Y + Style.PaddingTop
-                );
-            }
-            else { // Right
-                textPosition = new Vector2(
-                    Dimensions.Right - textDimensions.X - Style.PaddingRight,
-                    Y + Style.PaddingTop
-                );
-            }
-
-            // Reposition options. Is this necessary?
-            int ypos = 0;
-            foreach (AbstractMenuOption option in Options) {
-                option.Dimensions = new Rectangle(0, ypos, option.Width, option.Height);
-                ypos += option.Height + option.Style.SpacingV;
-            }
+            repositionText();
+            repositionOptions();
         }
 
 
         public override void OnCancel() {
             if (IsCancelable)
                 Close();
+            base.OnCancel();
         }
 
 
         public override void Update() {
-            if (_manager.Input.isKeyPress(Style.CancelKey) && IsCancelable) {
-                Close();
-            }
-            
-            // Handle input.
+            // Submit.
             if (_manager.Input.isKeyPress(Style.SubmitKey)) {
                 Options[SelectedIndex].OnSubmit();
                 // this.OnSubmit()? Maybe containers shouldn't have submit.
@@ -183,11 +156,25 @@ namespace MonODGE.UI.Components {
                 Options[SelectedIndex].OnSelected();
             }
 
+            // Cancel.
             else if (_manager.Input.isKeyPress(Style.CancelKey)) {
                 OnCancel();
             }
         }
 
+
+        public override void Draw(SpriteBatch batch) {
+            DrawCanvas(batch);
+            DrawBorders(batch);
+            if (title != null)
+                batch.DrawString(Style.HeaderFont, title, textPosition, Style.HeaderColor);
+
+            // Draw option panel.
+            if (optionPanel != null) {
+                DrawToPanel();
+                batch.Draw(optionPanel, panelRect, Color.White);
+            }
+        }
 
         private void DrawToPanel() {
             _manager.GraphicsDevice.SetRenderTarget(optionPanel);
@@ -206,16 +193,34 @@ namespace MonODGE.UI.Components {
         }
 
 
-        public override void Draw(SpriteBatch batch) {
-            DrawCanvas(batch);
-            DrawBorders(batch);
-            if (title != null)
-                batch.DrawString(Style.HeaderFont, title, textPosition, Style.HeaderColor);
+        public void AddOption(AbstractMenuOption option) {
+            option.Style = Style;
+            Options.Add(option);
+            Dimensions = new Rectangle(X, Y, Width, Height);
+            repositionOptions();
+        }
 
-            // Draw option panel.
-            if (optionPanel != null) {
-                DrawToPanel();
-                batch.Draw(optionPanel, panelRect, Color.White);
+        public void RemoveOption(AbstractMenuOption option) {
+            if (SelectedOption == option)
+                SelectedIndex--;
+            
+            Options.Remove(option);
+            repositionOptions();
+        }
+
+
+        /// <summary>
+        /// Cascades ListMenu's StyleSheet to AbstractListMenuOptions.
+        /// </summary>
+        /// <param name="forced">
+        /// If true, sets option's StyleSheet even if the option already has one.
+        /// If false (default), only sets option's StyleSheet if it is null.
+        /// </param>
+        public void CascadeStyle(bool forced = false) {
+            if (Options != null) {
+                foreach (AbstractMenuOption option in Options)
+                    if (forced || option.Style == null)
+                        option.Style = Style;
             }
         }
 
@@ -237,23 +242,55 @@ namespace MonODGE.UI.Components {
             else {
                 optionPanel = null;
                 panelRect = new Rectangle(0, 0, 0, 0);
-                //throw new NullReferenceException("createOptionPanel must be called in or after Initialize(), so _manager is not null.");
+                throw new NullReferenceException("createOptionPanel must be called in or after Initialize(), so _manager is not null.");
             }
         }
 
+        private void repositionText() {
+            if (Style.TextAlignH == StyleSheet.AlignmentsH.LEFT) {
+                textPosition = new Vector2(
+                    X + Style.PaddingLeft,
+                    Y + Style.PaddingTop
+                );
+            }
+            else if (Style.TextAlignH == StyleSheet.AlignmentsH.CENTER) {
+                textPosition = new Vector2(
+                    Dimensions.Center.X - (textDimensions.X / 2),
+                    Y + Style.PaddingTop
+                );
+            }
+            else { // Right
+                textPosition = new Vector2(
+                    Dimensions.Right - textDimensions.X - Style.PaddingRight,
+                    Y + Style.PaddingTop
+                );
+            }
 
-        /// <summary>
-        /// Cascades ListMenu's StyleSheet to AbstractListMenuOptions.
-        /// </summary>
-        /// <param name="forced">
-        /// If true, sets option's StyleSheet even if the option already has one.
-        /// If false (default), only sets option's StyleSheet if it is null.
-        /// </param>
-        public void CascadeStyle(bool forced = false) {
-            if (Options != null) {
-                foreach (AbstractMenuOption option in Options)
-                    if (forced || option.Style == null)
-                        option.Style = Style;
+        }
+
+        private void repositionOptions() {
+            int ypos = 0;
+            foreach (AbstractMenuOption option in Options) {
+                option.Dimensions = new Rectangle(0, ypos, option.Width, option.Height);
+                ypos += option.Height + option.Style.SpacingV;
+            }
+        }
+
+        private void resizeOptions(int minwidth = 0) {
+            int optionWidth = minwidth;
+
+            // Set initial option widths.
+            foreach (AbstractMenuOption option in Options) {
+                option.Width = optionWidth;
+
+                if (option.Width > optionWidth)
+                    optionWidth = option.Width;
+            }
+
+            // Resize options again to full width.
+            foreach (AbstractMenuOption option in Options) {
+                if (option.Width < optionWidth)
+                    option.Width = optionWidth;
             }
         }
     }
