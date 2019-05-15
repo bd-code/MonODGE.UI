@@ -156,10 +156,34 @@ namespace MonODGE.UI.Components {
                 Options[SelectedIndex].OnSelected();
             }
 
+            // Jump Down.
+            else if (_manager.Input.isKeyPress(Keys.Right) || _manager.Input.isKeyPress(Keys.D)) {
+                int x = SelectedIndex;
+                SelectedIndex += 8;
+                if (x != SelectedIndex) {
+                    Options[x].OnUnselected();
+                    Options[SelectedIndex].OnSelected();
+                }
+            }
+
+            // Jump Up!
+            else if (_manager.Input.isKeyPress(Keys.Left) || _manager.Input.isKeyPress(Keys.A)) {
+                int x = SelectedIndex;
+                SelectedIndex -= 8;
+                if (x != SelectedIndex) {
+                    Options[x].OnUnselected();
+                    Options[SelectedIndex].OnSelected();
+                }
+            }
+
             // Cancel.
             else if (_manager.Input.isKeyPress(Style.CancelKey)) {
                 OnCancel();
             }
+
+
+            // Scroll if Selection Offscreen
+            scrollOptions();
         }
 
 
@@ -291,6 +315,22 @@ namespace MonODGE.UI.Components {
             foreach (AbstractMenuOption option in Options) {
                 if (option.Width < optionWidth)
                     option.Width = optionWidth;
+            }
+        }
+
+        private void scrollOptions() {
+            // SelectedOption too high
+            if (SelectedOption.Y < 0) {
+                int y = -SelectedOption.Y;
+                foreach (AbstractMenuOption op in Options)
+                    op.Y += (y / 2) + 1;
+            }
+
+            // SelectedOption too low
+            else if ((SelectedOption.Y+SelectedOption.Height) > (panelRect.Height)) {
+                int y = SelectedOption.Y + SelectedOption.Height - panelRect.Height;
+                foreach (AbstractMenuOption op in Options)
+                    op.Y -= (y / 2) + 1;
             }
         }
     }
