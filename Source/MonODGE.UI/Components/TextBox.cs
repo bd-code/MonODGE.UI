@@ -52,8 +52,9 @@ namespace MonODGE.UI.Components {
         }
 
 
-        public override void Initialize() {
+        public override void OnOpened() {
             initFrame();
+            base.OnOpened();
         }
 
 

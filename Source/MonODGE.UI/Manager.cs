@@ -123,7 +123,7 @@ namespace MonODGE.UI {
         }
 
 
-        public void Add(OdgeControl control) {
+        public void Open(OdgeControl control) {
             if (control._manager != null && control._manager != this)
                 throw new OdgeComponentUsedException("CityControl added to CityUIManager has already been added to another CityUIManager.");
             control._manager = this;
@@ -132,11 +132,11 @@ namespace MonODGE.UI {
                 control.Style = GlobalStyle;
 
             controlStack.Push(control);
-            control.Initialize();
+            control.OnOpened();
         }
 
 
-        public void Add(OdgePopUp popup) {
+        public void Open(OdgePopUp popup) {
             if (popup._manager != null && popup._manager != this)
                 throw new OdgeComponentUsedException("CityPopUp added to CityUIManager has already been added to another CityUIManager");
             popup._manager = this;
@@ -145,11 +145,11 @@ namespace MonODGE.UI {
                 popup.Style = GlobalStyle;
 
             popupQ.Enqueue(popup);
-            popup.Initialize();
+            popup.OnOpened();
         }
 
 
-        public void CloseControl(OdgeControl control) {
+        public void Close(OdgeControl control) {
             Stack<OdgeControl> temp = new Stack<OdgeControl>();
 
             while (controlStack.Count > 0) {
@@ -165,7 +165,7 @@ namespace MonODGE.UI {
         }
 
 
-        public void ClosePopUp(OdgePopUp popup) {
+        public void Close(OdgePopUp popup) {
             int c = popupQ.Count;
             for (int p = 0; p < c; p++) {
                 OdgePopUp pop = popupQ.Dequeue();

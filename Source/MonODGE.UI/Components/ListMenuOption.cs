@@ -81,6 +81,7 @@ namespace MonODGE.UI.Components {
 
                 repositionText();
             }
+            base.OnStyleSet();
         }
 
 
