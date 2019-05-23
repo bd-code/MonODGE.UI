@@ -47,8 +47,9 @@ namespace MonODGE.UI.Components {
         }
 
 
-        public override void Initialize() {
+        public override void OnOpened() {
             repositionOptions();
+            base.OnOpened();
         }
 
 
@@ -63,10 +64,12 @@ namespace MonODGE.UI.Components {
 
         public override void OnMove() {
             repositionOptions();
+            repositionText();
             base.OnMove();
         }
         public override void OnResize() {
             repositionOptions();
+            repositionText();
             base.OnResize();
         }
 

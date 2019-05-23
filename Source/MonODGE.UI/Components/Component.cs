@@ -70,7 +70,8 @@ namespace MonODGE.UI.Components {
         /// Initialize is intended to be overriden when the user needs to perform 
         /// any Component initialization after it is certain to be assigned a manager.
         /// </summary>
-        public virtual void Initialize() { }
+        public virtual void OnOpened() { Opened?.Invoke(this, EventArgs.Empty); }
+        public event EventHandler Opened;
 
         /// <summary>
         /// This is called when the OdgeComponent.Style property is set to a new StyleSheet
@@ -105,8 +106,8 @@ namespace MonODGE.UI.Components {
         /// <summary>
         /// This is called when the OdgeComponent is closed.
         /// </summary>
-        public virtual void OnExit() { Exit?.Invoke(this, EventArgs.Empty); }
-        public event EventHandler Exit;
+        public virtual void OnClosed() { Closed?.Invoke(this, EventArgs.Empty); }
+        public event EventHandler Closed;
 
         /// <summary>
         /// Refresh should be called every time changes are made to the StyleSheet or Dimensions 
@@ -272,8 +273,10 @@ namespace MonODGE.UI.Components {
         public event EventHandler Cancel;
 
         public void Close() {
-            _manager?.CloseControl(this);
-            OnExit();
+            if (_manager != null) {
+                _manager.Close(this);
+                OnClosed();
+            }
         }
     }
 
@@ -287,8 +290,10 @@ namespace MonODGE.UI.Components {
         }
 
         public void Close() {
-            _manager?.ClosePopUp(this);
-            OnExit();
+            if (_manager != null) {
+                _manager.Close(this);
+                OnClosed();
+            }
         }
     }
 }

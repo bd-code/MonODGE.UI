@@ -82,12 +82,14 @@ namespace MonODGE.UI.Components {
         }
 
 
-        public override void Initialize() {
+        public override void OnOpened() {
             createOptionPanel();
 
             panelBatch = new SpriteBatch(_manager.GraphicsDevice);
             foreach (AbstractMenuOption option in Options)
-                option.Initialize();
+                option.OnOpened();
+
+            base.OnOpened();
         }
 
 
@@ -101,13 +103,8 @@ namespace MonODGE.UI.Components {
 
 
         public override void OnMove() {
-            panelRect = new Rectangle(
-                X + Style.PaddingLeft,
-                Y + Style.PaddingTop,
-                Width - Style.PaddingLeft - Style.PaddingRight,
-                Height - Style.PaddingTop - Style.PaddingBottom
-                );
-
+            panelRect.X = X + Style.PaddingLeft;
+            panelRect.Y = Y + Style.PaddingTop;
             base.OnMove();
         }
 
@@ -168,10 +165,13 @@ namespace MonODGE.UI.Components {
             // Scroll if Selection Offscreen
             scrollOptions();
 
-
-            /*foreach (AbstractMenuOption option in Options)
-                option.Update();
-            base.Update();*/
+            // Update each option.
+            for (int p = 0; p < Options.Count; p++) {
+                if (p == SelectedIndex)
+                    Options[p].Update(true);
+                else
+                    Options[p].Update(false);
+            }
         }
 
 
