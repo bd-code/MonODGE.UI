@@ -33,9 +33,21 @@ namespace MonODGE.UI {
         public int ControlCount { get { return controlStack.Count; } }
         public int PopUpCount { get { return popupQ.Count; } }
 
-        // Config settings
+        //// Config settings ////
+
+        /// <summary>
+        /// Toggles whether to draw all open OdgeControls or just the active one.
+        /// </summary>
         public bool DrawAllControls { get; set; }
+
+        /// <summary>
+        /// Toggles whether to draw a mask over inactive OdgeControls when DrawAllControls == true.
+        /// </summary>
         public bool DrawInactiveMask { get; set; }
+
+        /// <summary>
+        /// Toggles whether to update all open OdgePopUps together or just the current one.
+        /// </summary>
         public bool RunAllPopUps { get; set; }
         
         public OdgeUI(GraphicsDevice graphics, StyleSheet stylesheet) {
@@ -49,7 +61,10 @@ namespace MonODGE.UI {
             GlobalStyle = stylesheet;
             Input = new OdgeInput();
 
+            // Config options.
+            DrawAllControls = false;
             DrawInactiveMask = true;
+            RunAllPopUps = false;
         }
 
 
@@ -160,11 +175,23 @@ namespace MonODGE.UI {
         }
 
 
+        /// <summary>
+        /// Creates a RenderTarget2D with given dimensions. Required for certain scrollable components.
+        /// </summary>
+        /// <param name="width">int width of RenderTarget2D.</param>
+        /// <param name="height">int height of RenderTarget2D.</param>
+        /// <returns></returns>
         public RenderTarget2D CreateRenderTarget(int width, int height) {
             return new RenderTarget2D(_graphics, width, height);
         }
 
 
+        /// <summary>
+        /// Find an open OdgeComponent by its Name property. Searches both OdgeControls and OdgePopUps.
+        /// Note the return value will be an OdgeComponent, and must be cast to the appropriate subtype.
+        /// </summary>
+        /// <param name="name">string name of OdgeComponent.</param>
+        /// <returns></returns>
         public OdgeComponent GetComponentByName(string name) {
             OdgeComponent odge = GetControlByName(name);
             if (odge == null)

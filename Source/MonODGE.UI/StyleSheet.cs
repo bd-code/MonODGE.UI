@@ -263,7 +263,12 @@ namespace MonODGE.UI {
         /// </summary>
         public Keys CancelKey { get; set; }
 
-        
+        /// <summary>
+        /// If true, component is closed upon upon pressing CancelKey.
+        /// </summary>
+        public bool CloseOnCancel { get; set; }
+
+
         public StyleSheet(Texture2D background = null, Color? bgcolor = default(Color?),
                           Texture2D borders = null, Color? bordercolor = default(Color?),
                           SpriteFont headerfont = null, Color? headercolor = default(Color?),
@@ -305,8 +310,15 @@ namespace MonODGE.UI {
             Spacing = spacing ?? new int[2] { 0, 0 };
         }
         
+        /// <summary>
+        /// Creates an empty StyleSheet.
+        /// </summary>
         public static StyleSheet Empty { get { return new StyleSheet(); } }
 
+        /// <summary>
+        /// Creates a clone of this StyleSheet.
+        /// </summary>
+        /// <returns>A new StyleSheet object with this StyleSheet's values.</returns>
         public StyleSheet Clone() {
             StyleSheet clone = new StyleSheet(
                 Background, BackgroundColor, 
