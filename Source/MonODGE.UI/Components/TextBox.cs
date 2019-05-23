@@ -38,6 +38,7 @@ namespace MonODGE.UI.Components {
             CharsAllowed allowed = CharsAllowed.Any, string text = "", int maxLength = 255) : base(style) {
 
             // Adjust init height
+            // FIX: Dimensions should also check for MinHeight.
             int height2 = style.PaddingBottom + style.PaddingTop + (int)(style.Font?.MeasureString("T").Y ?? 16);
             area.Height = MathHelper.Max(area.Height, height2);
             Dimensions = area;

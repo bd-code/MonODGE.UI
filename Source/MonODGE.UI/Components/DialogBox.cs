@@ -121,26 +121,31 @@ namespace MonODGE.UI.Components {
             if (dialogIndex < dialog.Length) {
                 batch.DrawString(Style.Font, dialog[dialogIndex], textPosition, Style.TextColor);
 
+                // << . . .
                 if (dialogIndex > 0)
                     batch.DrawString(Style.FooterFont, "<< . . .",
                         new Vector2(
                             Dimensions.X + Style.PaddingLeft, 
-                            Dimensions.Y + Dimensions.Height - footerDimensions[0].Y - Style.PaddingBottom),
+                            Dimensions.Bottom - footerDimensions[0].Y - Style.PaddingBottom),
                         Style.FooterColor);
 
-                int pageIndex = dialogIndex + 1;
-                footerStrings[1] = "[Page " + pageIndex + " of " + dialog.Length + "]";
-                batch.DrawString(Style.FooterFont, footerStrings[1],
-                    new Vector2(
-                        Dimensions.Center.X - (footerDimensions[1].X / 2), 
-                        Dimensions.Y + Dimensions.Height - footerDimensions[1].Y - Style.PaddingBottom),
-                    Style.FooterColor);
+                // [Page i of n]
+                if (dialog.Length > 1) {
+                    int pageIndex = dialogIndex + 1;
+                    footerStrings[1] = "[Page " + pageIndex + " of " + dialog.Length + "]";
+                    batch.DrawString(Style.FooterFont, footerStrings[1],
+                        new Vector2(
+                            Dimensions.Center.X - (footerDimensions[1].X / 2),
+                            Dimensions.Bottom - footerDimensions[1].Y - Style.PaddingBottom),
+                        Style.FooterColor);
+                }
 
+                // . . . >>
                 if (dialogIndex < dialog.Length - 1)
                     batch.DrawString(Style.FooterFont, ". . . >>",
                         new Vector2(
-                            Dimensions.X + Dimensions.Width - footerDimensions[2].X - Style.PaddingRight, 
-                            Dimensions.Y + Dimensions.Height - footerDimensions[2].Y - Style.PaddingBottom
+                            Dimensions.Right - footerDimensions[2].X - Style.PaddingRight,
+                            Dimensions.Bottom - footerDimensions[2].Y - Style.PaddingBottom
                             ),
                         Style.FooterColor);
             }
