@@ -31,10 +31,10 @@ namespace MonODGE.UI.Components {
             }
         }
 
-        public DialogBox(StyleSheet style, Rectangle area, string line, bool canCancel = false) :
-            this(style, area, new string[] { line }, canCancel) { }
+        public DialogBox(StyleSheet style, Rectangle area, string line) :
+            this(style, area, new string[] { line }) { }
 
-        public DialogBox(StyleSheet style, Rectangle area, string[] text, bool canCancel = false) 
+        public DialogBox(StyleSheet style, Rectangle area, string[] text) 
             : base(style) {
             dialog = text;
             dialogIndex = 0;
@@ -53,7 +53,6 @@ namespace MonODGE.UI.Components {
 
             textDimensions = Style.Font?.MeasureString(dialog[dialogIndex]) ?? Vector2.Zero;
             Dimensions = area;  // This calls repositionText();
-            IsCancelable = canCancel;
         }
 
 
@@ -77,13 +76,6 @@ namespace MonODGE.UI.Components {
             if (dialogIndex >= dialog.Length) 
                 Close();
             base.OnSubmit();
-        }
-
-
-        public override void OnCancel() {
-            if (IsCancelable)
-                Close();
-            base.OnCancel();
         }
 
         /// <summary>

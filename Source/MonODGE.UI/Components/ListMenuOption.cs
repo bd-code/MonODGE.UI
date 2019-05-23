@@ -9,13 +9,6 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace MonODGE.UI.Components {
     public abstract class AbstractMenuOption : OdgeComponent {
-        protected ListMenu parent;
-
-        public override int Width {
-            get { return base.Width; }
-            set { Dimensions = new Rectangle(X, Y, value, Height); }
-        }
-
         public AbstractMenuOption(EventHandler action) {
             Submit += action;
         }
@@ -151,10 +144,11 @@ namespace MonODGE.UI.Components {
 
             set {
                 // Make sure it's at least as big as the texture.
-                int minWidth = 0, minHeight = 0;
+                int minWidth = srcRect.Width;
+                int minHeight = srcRect.Height;
                 if (Style != null) {
-                    minWidth = srcRect.Width + Style.PaddingLeft + Style.PaddingRight;
-                    minHeight = srcRect.Height + Style.PaddingTop + Style.PaddingBottom;
+                    minWidth += Style.PaddingLeft + Style.PaddingRight;
+                    minHeight += Style.PaddingTop + Style.PaddingBottom;
                 }
 
                 base.Dimensions = new Rectangle(

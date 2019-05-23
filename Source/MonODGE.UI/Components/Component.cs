@@ -15,6 +15,8 @@ namespace MonODGE.UI.Components {
             BOTTOMLEFT, BOTTOM, BOTTOMRIGHT
         }
 
+        internal OdgeUI _manager;
+
         public string Name { get; set; }
 
 
@@ -45,44 +47,21 @@ namespace MonODGE.UI.Components {
 
         public virtual int X {
             get { return _dimensions.X; }
-            set {
-                if (_dimensions.X != value) {
-                    _dimensions.X = value;
-                    OnMove();
-                }
-            }
+            set { Dimensions = new Rectangle(value, Y, Width, Height); }
         }
         public virtual int Y {
             get { return _dimensions.Y; }
-            set {
-                if (_dimensions.Y != value) {
-                    _dimensions.Y = value;
-                    OnMove();
-                }
-            }
+            set { Dimensions = new Rectangle(X, value, Width, Height); }
         }
         public virtual int Width {
             get { return _dimensions.Width; }
-            set {
-                if (_dimensions.Width != value){
-                    _dimensions.Width = value;
-                    OnResize();
-                }
-            }
+            set { Dimensions = new Rectangle(X, Y, value, Height); }
         }
         public virtual int Height {
             get { return _dimensions.Height; }
-            set {
-                if (_dimensions.Height != value) {
-                    _dimensions.Height = value;
-                    OnResize();
-                }
-            }
+            set { Dimensions = new Rectangle(X, Y, Width, value); }
         }
 
-        public bool IsCancelable { get; set; }
-
-        internal OdgeUI _manager;
 
         /// <summary>
         /// Initialize is called when the OdgeComponent is added to the UI Manager,
@@ -141,7 +120,7 @@ namespace MonODGE.UI.Components {
 
         /// <summary>
         /// Draws the Texture2D saved in Style.Background in color Style.BackgroundColor
-        /// to Dimensions.
+        /// to the position and area saved in Dimensions.
         /// </summary>
         /// <param name="batch">SpriteBatch</param>
         protected void DrawCanvas(SpriteBatch batch) {
@@ -150,19 +129,32 @@ namespace MonODGE.UI.Components {
         }
 
 
+        /// <summary>
+        /// Draws only the corner tiles of Style.Borders to the four corners saved in Dimensions.
+        /// </summary>
+        /// <param name="batch">SpriteBatch</param>
         protected void DrawCorners(SpriteBatch batch) {
             if (Style.Borders != null) {
-                int width = Style.BorderTileWidth;
-                int height = Style.BorderTileHeight;
-
-                batch.Draw(Style.Borders, new Vector2(Dimensions.X, Dimensions.Y), Style.BorderSourceRects[0], Style.BorderColor);
-                batch.Draw(Style.Borders, new Vector2(Dimensions.X + Dimensions.Width - width, Dimensions.Y), Style.BorderSourceRects[2], Style.BorderColor);
-                batch.Draw(Style.Borders, new Vector2(Dimensions.X, Dimensions.Y + Dimensions.Height - height), Style.BorderSourceRects[6], Style.BorderColor);
-                batch.Draw(Style.Borders, new Vector2(Dimensions.X + Dimensions.Width - width, Dimensions.Y + Dimensions.Height - height), Style.BorderSourceRects[8], Style.BorderColor);
+                batch.Draw(Style.Borders, 
+                    new Vector2(Dimensions.X, Dimensions.Y), 
+                    Style.BorderSourceRects[0], Style.BorderColor);
+                batch.Draw(Style.Borders, 
+                    new Vector2(Dimensions.X + Dimensions.Width - Style.BorderTileWidth, Dimensions.Y), 
+                    Style.BorderSourceRects[2], Style.BorderColor);
+                batch.Draw(Style.Borders, 
+                    new Vector2(Dimensions.X, Dimensions.Y + Dimensions.Height - Style.BorderTileHeight), 
+                    Style.BorderSourceRects[6], Style.BorderColor);
+                batch.Draw(Style.Borders, 
+                    new Vector2(Dimensions.X + Dimensions.Width - Style.BorderTileWidth, Dimensions.Y + Dimensions.Height - Style.BorderTileHeight), 
+                    Style.BorderSourceRects[8], Style.BorderColor);
             }
         }
 
 
+        /// <summary>
+        /// Draws the Texture2D saved in Style.Borders around the OdgeComponent.
+        /// </summary>
+        /// <param name="batch">SpriteBatch</param>
         protected void DrawBorders(SpriteBatch batch) {
             if (Style.Borders != null) {
                 Rectangle[] dests = new Rectangle[] {
@@ -186,6 +178,12 @@ namespace MonODGE.UI.Components {
         }
 
 
+        /// <summary>
+        /// Snaps the OdgeComponent to a screen position specified in SnapAnchors.
+        /// </summary>
+        /// <param name="anchor">A SnapAnchors enum value.</param>
+        /// <param name="screenwidth">Screen width.</param>
+        /// <param name="screenheight">Screen height.</param>
         public virtual void SnapTo(SnapAnchors anchor, int screenwidth, int screenheight) {
             if (anchor == SnapAnchors.TOPLEFT) {
                 Dimensions = new Rectangle(0, 0, Dimensions.Width, Dimensions.Height);
@@ -265,7 +263,12 @@ namespace MonODGE.UI.Components {
         /// <summary>
         /// This is called when the user presses the key assigned in Style.CancelKey.
         /// </summary>
-        public virtual void OnCancel() { Cancel?.Invoke(this, EventArgs.Empty); }
+        public virtual void OnCancel() {
+            if (Style.CloseOnCancel)
+                Close();
+            else
+                Cancel?.Invoke(this, EventArgs.Empty);
+        }
         public event EventHandler Cancel;
 
         public void Close() {
