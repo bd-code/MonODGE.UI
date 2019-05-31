@@ -35,6 +35,8 @@ namespace MonODGE.UI.Components {
             get { return _dimensions; }
             set {
                 Rectangle old = _dimensions;
+                value.Width = MathHelper.Max(value.Width, MinWidth);
+                value.Height = MathHelper.Max(value.Height, MinHeight);
                 _dimensions = value;
 
                 if (value.Width != old.Width || value.Height != old.Height)
@@ -61,6 +63,9 @@ namespace MonODGE.UI.Components {
             get { return _dimensions.Height; }
             set { Dimensions = new Rectangle(X, Y, Width, value); }
         }
+
+        protected virtual int MinWidth { get { return 0; } }
+        protected virtual int MinHeight { get { return 0; } }
 
 
         /// <summary>

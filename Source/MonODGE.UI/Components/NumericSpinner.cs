@@ -20,6 +20,12 @@ namespace MonODGE.UI.Components {
         public int MinValue { get; set; }
         public int MaxValue { get; set; }
 
+        protected override int MinHeight {
+            get {
+                return Style.PaddingBottom + Style.PaddingTop + (int)(textDimensions[0].Y);
+            }
+        }
+
         private Vector2[] textPositions;
         private Vector2[] textDimensions;
 
@@ -36,10 +42,7 @@ namespace MonODGE.UI.Components {
                 Style.Font?.MeasureString(initval.ToString()) ?? Vector2.Zero,
                 Style.Font?.MeasureString(">>") ?? Vector2.Zero
             };
-
-            // FIX: Dimensions should also check for MinHeight.
-            int height2 = style.PaddingBottom + style.PaddingTop + (int)(textDimensions[0].Y);
-            area.Height = MathHelper.Max(area.Height, height2);
+            
             Dimensions = area;
         }
 
