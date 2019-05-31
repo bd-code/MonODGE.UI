@@ -28,7 +28,14 @@ namespace MonODGE.UI.Components {
             }
         }
 
-        public AbstractMenuOption SelectedOption { get { return Options[SelectedIndex]; } }
+        public AbstractMenuOption SelectedOption {
+            get {
+                if (Options != null && Options.Count > 0)
+                    return Options[SelectedIndex];
+                else
+                    return null;
+            }
+        }
 
         private RenderTarget2D optionPanel;
         private Rectangle panelRect;
@@ -108,69 +115,38 @@ namespace MonODGE.UI.Components {
             base.OnMove();
         }
 
+        /// <summary>
+        /// This is called in Update when Options.Count == 0.
+        /// </summary>
+        public virtual void OnEmpty() { Emptied?.Invoke(this, EventArgs.Empty); }
+        public event EventHandler Emptied;
+
 
         public override void Update() {
-            // Submit.
-            if (_manager.Input.isKeyPress(Style.SubmitKey)) {
-                Options[SelectedIndex].OnSubmit();
-                // this.OnSubmit()? Maybe containers shouldn't have submit.
-            }
+            if (Options.Count > 0) {
+                handleInput();
 
-            // Right Button.
-            else if (_manager.Input.isKeyPress(Keys.Right) || _manager.Input.isKeyPress(Keys.D)) {
-                Options[SelectedIndex].OnUnselected();
-                if (SelectedIndex + 1 >= Options.Count)
-                    SelectedIndex = 0;
-                else
-                    SelectedIndex++;
-                Options[SelectedIndex].OnSelected();
-            }
+                // Scroll if Selection Offscreen
+                scrollOptions();
 
-            // Left Button.
-            else if (_manager.Input.isKeyPress(Keys.Left) || _manager.Input.isKeyPress(Keys.A)) {
-                Options[SelectedIndex].OnUnselected();
-                if (SelectedIndex - 1 < 0)
-                    SelectedIndex = Options.Count - 1;
-                else
-                    SelectedIndex--;
-                Options[SelectedIndex].OnSelected();
-            }
-
-            // Down Button.
-            else if (_manager.Input.isKeyPress(Keys.Down) || _manager.Input.isKeyPress(Keys.S)) {
-                int x = SelectedIndex;
-                SelectedIndex += Columns;
-                if (x != SelectedIndex) {
-                    Options[x].OnUnselected();
-                    Options[SelectedIndex].OnSelected();
+                // Update each option.
+                for (int p = 0; p < Options.Count; p++) {
+                    if (p == SelectedIndex)
+                        Options[p].Update(true);
+                    else
+                        Options[p].Update(false);
                 }
             }
 
-            // Up Button.
-            else if (_manager.Input.isKeyPress(Keys.Up) || _manager.Input.isKeyPress(Keys.W)) {
-                int x = SelectedIndex;
-                SelectedIndex -= Columns;
-                if (x != SelectedIndex) {
-                    Options[x].OnUnselected();
-                    Options[SelectedIndex].OnSelected();
+            else {
+                // Cancel.
+                if (_manager.Input.isKeyPress(Style.CancelKey)) {
+                    OnCancel();
+                    return;
                 }
-            }
-
-            // Cancel.
-            else if (_manager.Input.isKeyPress(Style.CancelKey)) {
-                OnCancel();
-            }
-
-
-            // Scroll if Selection Offscreen
-            scrollOptions();
-
-            // Update each option.
-            for (int p = 0; p < Options.Count; p++) {
-                if (p == SelectedIndex)
-                    Options[p].Update(true);
-                else
-                    Options[p].Update(false);
+                else {
+                    OnEmpty();
+                }
             }
         }
 
@@ -180,7 +156,7 @@ namespace MonODGE.UI.Components {
             DrawBorders(batch);
 
             // Draw option panel.
-            if (optionPanel != null) {
+            if (Options.Count > 0 && optionPanel != null) {
                 DrawToPanel();
                 batch.Draw(optionPanel, panelRect, Color.White);
             }
@@ -292,6 +268,60 @@ namespace MonODGE.UI.Components {
                 optionPanel = null;
                 panelRect = new Rectangle(0, 0, 0, 0);
                 throw new NullReferenceException("createOptionPanel must be called in or after Initialize(), so _manager is not null.");
+            }
+        }
+
+
+        private void handleInput() {            
+            // Submit.
+            if (_manager.Input.isKeyPress(Style.SubmitKey)) {
+                Options[SelectedIndex].OnSubmit();
+                // this.OnSubmit()? Maybe containers shouldn't have submit.
+            }
+
+            // Right Button.
+            else if (_manager.Input.isKeyPress(Keys.Right) || _manager.Input.isKeyPress(Keys.D)) {
+                Options[SelectedIndex].OnUnselected();
+                if (SelectedIndex + 1 >= Options.Count)
+                    SelectedIndex = 0;
+                else
+                    SelectedIndex++;
+                Options[SelectedIndex].OnSelected();
+            }
+
+            // Left Button.
+            else if (_manager.Input.isKeyPress(Keys.Left) || _manager.Input.isKeyPress(Keys.A)) {
+                Options[SelectedIndex].OnUnselected();
+                if (SelectedIndex - 1 < 0)
+                    SelectedIndex = Options.Count - 1;
+                else
+                    SelectedIndex--;
+                Options[SelectedIndex].OnSelected();
+            }
+
+            // Down Button.
+            else if (_manager.Input.isKeyPress(Keys.Down) || _manager.Input.isKeyPress(Keys.S)) {
+                int x = SelectedIndex;
+                SelectedIndex += Columns;
+                if (x != SelectedIndex) {
+                    Options[x].OnUnselected();
+                    Options[SelectedIndex].OnSelected();
+                }
+            }
+
+            // Up Button.
+            else if (_manager.Input.isKeyPress(Keys.Up) || _manager.Input.isKeyPress(Keys.W)) {
+                int x = SelectedIndex;
+                SelectedIndex -= Columns;
+                if (x != SelectedIndex) {
+                    Options[x].OnUnselected();
+                    Options[SelectedIndex].OnSelected();
+                }
+            }
+
+            // Cancel.
+            else if (_manager.Input.isKeyPress(Style.CancelKey)) {
+                OnCancel();
             }
         }
 
