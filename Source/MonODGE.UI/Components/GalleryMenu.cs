@@ -63,16 +63,34 @@ namespace MonODGE.UI.Components {
 
         public override Rectangle Dimensions {
             get { return base.Dimensions; }
-
             set {
-                int minWidth = getMinWidth();
-                if (minWidth > value.Width)
-                    value.Width = minWidth;
-
                 base.Dimensions = value;
 
                 if (_manager != null)
                     createOptionPanel();
+            }
+        }
+
+
+        protected override int MinWidth {
+            get {
+                int colcount = 0;
+                int tempW = 0;
+                int W = 0;
+
+                foreach (AbstractMenuOption option in Options) {
+                    tempW += option.Width;
+                    colcount++;
+
+                    if (colcount >= Columns) {
+                        if (tempW > W)
+                            W = tempW;
+                        tempW = 0;
+                        colcount = 0;
+                    }
+                }
+
+                return W + Style.PaddingLeft + Style.PaddingRight + (Style.SpacingH * (Columns - 1));
             }
         }
 
@@ -252,22 +270,19 @@ namespace MonODGE.UI.Components {
 
         private void createOptionPanel() {
             if (_manager != null) {
-                optionPanel = _manager.CreateRenderTarget(
-                    Width - Style.PaddingLeft - Style.PaddingRight,
-                    Height - Style.PaddingTop - Style.PaddingBottom
-                    );
-
                 panelRect = new Rectangle(
                     X + Style.PaddingLeft,
                     Y + Style.PaddingTop,
                     Width - Style.PaddingLeft - Style.PaddingRight,
                     Height - Style.PaddingTop - Style.PaddingBottom
                     );
+                
+                optionPanel = _manager.CreateRenderTarget(panelRect.Width, panelRect.Height);
             }
             else {
                 optionPanel = null;
                 panelRect = new Rectangle(0, 0, 0, 0);
-                throw new NullReferenceException("createOptionPanel must be called in or after Initialize(), so _manager is not null.");
+                throw new NullReferenceException("createOptionPanel must be called in or after OnOpened(), so _manager is not null.");
             }
         }
 
@@ -346,27 +361,6 @@ namespace MonODGE.UI.Components {
                     count = 0;
                 }
             }
-        }
-
-
-        private int getMinWidth() {
-            int colcount = 0;
-            int tempW = 0;
-            int W = 0;
-
-            foreach (AbstractMenuOption option in Options) {
-                tempW += option.Width;
-                colcount++;
-
-                if (colcount >= Columns) {
-                    if (tempW > W)
-                        W = tempW;
-                    tempW = 0;
-                    colcount = 0;
-                }
-            }
-
-            return W + Style.PaddingLeft + Style.PaddingRight + (Style.SpacingH * (Columns - 1));
         }
 
 

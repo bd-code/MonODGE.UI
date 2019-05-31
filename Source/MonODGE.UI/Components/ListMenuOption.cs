@@ -49,21 +49,18 @@ namespace MonODGE.UI.Components {
         private Vector2 textPosition;
         private Vector2 textDimensions;
 
-        public override Rectangle Dimensions {
-            get { return base.Dimensions; }
-            set {
-                // First check if value is too small for the text, and if so, resize.
-                int minWidth = 0, minHeight = 0;
-                if (Style != null) {
-                    minWidth = (int)textDimensions.X + Style.PaddingLeft + Style.PaddingRight;
-                    minHeight = (int)textDimensions.Y + (Style.PaddingTop + Style.PaddingBottom) * 2;
-                }
-
-                base.Dimensions = new Rectangle(
-                    value.X, value.Y, 
-                    MathHelper.Max(value.Width, minWidth), 
-                    MathHelper.Max(value.Height, minHeight)
-                    );
+        protected override int MinWidth {
+            get {
+                if (Style != null)
+                    return (int)textDimensions.X + Style.PaddingLeft + Style.PaddingRight;
+                else return 0;
+            }
+        }
+        protected override int MinHeight {
+            get {
+                if (Style != null)
+                    return (int)textDimensions.Y + (Style.PaddingTop + Style.PaddingBottom) * 2;
+                else return 0;
             }
         }
 
@@ -140,23 +137,18 @@ namespace MonODGE.UI.Components {
         private Rectangle dstRect;
         private Rectangle srcRect;
 
-        public override Rectangle Dimensions {
-            get { return base.Dimensions; }
-
-            set {
-                // Make sure it's at least as big as the texture.
-                int minWidth = srcRect.Width;
-                int minHeight = srcRect.Height;
-                if (Style != null) {
-                    minWidth += Style.PaddingLeft + Style.PaddingRight;
-                    minHeight += Style.PaddingTop + Style.PaddingBottom;
-                }
-
-                base.Dimensions = new Rectangle(
-                    value.X, value.Y,
-                    MathHelper.Max(value.Width, minWidth),
-                    MathHelper.Max(value.Height, minHeight)
-                    );
+        protected override int MinWidth {
+            get {
+                if (Style != null)
+                    return srcRect.Width + Style.PaddingLeft + Style.PaddingRight;
+                else return srcRect.Width;
+            }
+        }
+        protected override int MinHeight {
+            get {
+                if (Style != null)
+                    return srcRect.Height + Style.PaddingTop + Style.PaddingBottom;
+                else return srcRect.Height;
             }
         }
 

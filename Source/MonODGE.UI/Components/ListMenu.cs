@@ -53,18 +53,24 @@ namespace MonODGE.UI.Components {
             }
         }
 
+
         public override Rectangle Dimensions {
             get { return base.Dimensions; }
             set {
-                if (Options.Count > 0) {
-                    resizeOptions(value.Width - Style.PaddingLeft - Style.PaddingRight);
-                    value.Width = Options[0].Width + Style.PaddingLeft + Style.PaddingRight;
-                }
-
                 base.Dimensions = value;
                 
                 if (_manager != null)
                     createOptionPanel();
+            }
+        }
+
+
+        protected override int MinWidth {
+            get {
+                int mw = Style.PaddingLeft + Style.PaddingRight;
+                if (Options.Count > 0)
+                    mw += Options[0].Width;
+                return mw;
             }
         }
 
@@ -83,6 +89,7 @@ namespace MonODGE.UI.Components {
             textDimensions = string.IsNullOrEmpty(title) ? Vector2.Zero : (Style.HeaderFont?.MeasureString(title) ?? Vector2.Zero);
 
             // Initialize option dimensions, then cascade real Dimension down.
+            resizeOptions(area.Width - Style.PaddingLeft - Style.PaddingRight);
             repositionOptions();
             Dimensions = area;
         }
@@ -183,7 +190,7 @@ namespace MonODGE.UI.Components {
         public void AddOption(AbstractMenuOption option) {
             option.Style = Style;
             Options.Add(option);
-            Dimensions = new Rectangle(X, Y, Width, Height);
+            resizeOptions(Options[0].Width);
             repositionOptions();
         }
 
@@ -214,22 +221,19 @@ namespace MonODGE.UI.Components {
 
         private void createOptionPanel() {
             if (_manager != null) {
-                optionPanel = _manager.CreateRenderTarget(
-                    Width - Style.PaddingLeft - Style.PaddingRight,
-                    Height - (int)textDimensions.Y - Style.PaddingTop - Style.PaddingBottom
-                    );
-
                 panelRect = new Rectangle(
                     X + Style.PaddingLeft,
                     Y + (int)textDimensions.Y + Style.PaddingTop,
                     Width - Style.PaddingLeft - Style.PaddingRight,
                     Height - (int)textDimensions.Y - Style.PaddingTop - Style.PaddingBottom
                     );
+
+                optionPanel = _manager.CreateRenderTarget(panelRect.Width, panelRect.Height);
             }
             else {
                 optionPanel = null;
                 panelRect = new Rectangle(0, 0, 0, 0);
-                throw new NullReferenceException("createOptionPanel must be called in or after Initialize(), so _manager is not null.");
+                throw new NullReferenceException("createOptionPanel must be called in or after OnOpened(), so _manager is not null.");
             }
         }
 

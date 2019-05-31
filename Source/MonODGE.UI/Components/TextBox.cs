@@ -31,16 +31,17 @@ namespace MonODGE.UI.Components {
         public int MaxLength { get; private set; }
         public CharsAllowed InputRules { get; private set; }
 
+        protected override int MinHeight {
+            get {
+                return Style.PaddingBottom + Style.PaddingTop + (int)(Style.Font?.MeasureString("T").Y ?? 16);
+            }
+        }
+
         private Texture2D[] _frame;
         private Vector2 textPosition;
 
         public TextBox(StyleSheet style, Rectangle area, 
             CharsAllowed allowed = CharsAllowed.Any, string text = "", int maxLength = 255) : base(style) {
-
-            // Adjust init height
-            // FIX: Dimensions should also check for MinHeight.
-            int height2 = style.PaddingBottom + style.PaddingTop + (int)(style.Font?.MeasureString("T").Y ?? 16);
-            area.Height = MathHelper.Max(area.Height, height2);
             Dimensions = area;
 
             Text = text ?? string.Empty;

@@ -13,22 +13,22 @@ namespace MonODGE.UI.Components {
     /// one-line notifications.
     /// </summary>
     public class NoteBox : OdgePopUp {
-        private string notification;
+        private string note;
         private Vector2 textPosition;
         private Vector2 textDimensions;
 
-        public NoteBox(StyleSheet style, string text, Vector2 position, int lifetime = 355) : base(style) {
-            notification = text;
+        protected override int MinWidth {
+            get { return (int)textDimensions.X + Style.PaddingLeft + Style.PaddingRight; }
+        }
+        protected override int MinHeight {
+            get { return (int)textDimensions.Y + Style.PaddingTop + Style.PaddingBottom; }
+        }
+
+        public NoteBox(StyleSheet style, string text, Rectangle area, int lifetime = 355) : base(style) {
+            note = text;
             Timeout = lifetime;
-
-            textDimensions = Style.Font?.MeasureString(notification) ?? Vector2.Zero;
-
-            Dimensions = new Rectangle(
-                (int)position.X,
-                (int)position.Y,
-                (int)textDimensions.X + Style.PaddingLeft + Style.PaddingRight,
-                (int)textDimensions.Y + Style.PaddingTop + Style.PaddingBottom
-                );
+            textDimensions = Style.Font?.MeasureString(note) ?? Vector2.Zero;
+            Dimensions = area;
         }
 
 
@@ -71,7 +71,7 @@ namespace MonODGE.UI.Components {
         public override void Draw(SpriteBatch batch) {
             DrawCanvas(batch);
             DrawBorders(batch);
-            batch.DrawString(Style.Font, notification, textPosition, Style.TextColor);
+            batch.DrawString(Style.Font, note, textPosition, Style.TextColor);
         }
 
 
