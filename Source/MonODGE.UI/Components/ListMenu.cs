@@ -8,6 +8,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
+using MonODGE.UI.Utilities;
+
 namespace MonODGE.UI.Components {
     /// <summary>
     /// Displays a scrollable list of options extended from AbstractListMenuOption.
@@ -146,7 +148,7 @@ namespace MonODGE.UI.Components {
             
             else {
                 // Cancel.
-                if (_manager.Input.isKeyPress(Style.CancelKey)) {
+                if (CheckCancel) {
                     OnCancel();
                     return;
                 }
@@ -240,13 +242,13 @@ namespace MonODGE.UI.Components {
 
         private void handleInput() {
             // Submit.
-            if (_manager.Input.isKeyPress(Style.SubmitKey)) {
+            if (CheckSubmit) {
                 Options[SelectedIndex].OnSubmit();
                 // this.OnSubmit()? Maybe containers shouldn't have submit.
             }
 
             // Move Down.
-            else if (_manager.Input.isKeyPress(Keys.Down) || _manager.Input.isKeyPress(Keys.S)) {
+            else if (OdgeInput.DOWN) {
                 Options[SelectedIndex].OnUnselected();
                 if (SelectedIndex + 1 >= Options.Count)
                     SelectedIndex = 0;
@@ -256,7 +258,7 @@ namespace MonODGE.UI.Components {
             }
 
             // Move Up!
-            else if (_manager.Input.isKeyPress(Keys.Up) || _manager.Input.isKeyPress(Keys.W)) {
+            else if (OdgeInput.UP) {
                 Options[SelectedIndex].OnUnselected();
                 if (SelectedIndex - 1 < 0)
                     SelectedIndex = Options.Count - 1;
@@ -266,7 +268,7 @@ namespace MonODGE.UI.Components {
             }
 
             // Jump Down.
-            else if (_manager.Input.isKeyPress(Keys.Right) || _manager.Input.isKeyPress(Keys.D)) {
+            else if (OdgeInput.RIGHT) {
                 int x = SelectedIndex;
                 SelectedIndex += 8;
                 if (x != SelectedIndex) {
@@ -276,7 +278,7 @@ namespace MonODGE.UI.Components {
             }
 
             // Jump Up!
-            else if (_manager.Input.isKeyPress(Keys.Left) || _manager.Input.isKeyPress(Keys.A)) {
+            else if (OdgeInput.LEFT) {
                 int x = SelectedIndex;
                 SelectedIndex -= 8;
                 if (x != SelectedIndex) {
@@ -286,7 +288,7 @@ namespace MonODGE.UI.Components {
             }
 
             // Cancel.
-            else if (_manager.Input.isKeyPress(Style.CancelKey)) {
+            else if (CheckCancel) {
                 OnCancel();
             }
         }

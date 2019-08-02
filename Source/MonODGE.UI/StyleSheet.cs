@@ -254,17 +254,29 @@ namespace MonODGE.UI {
         //// Input Mapping ////
 
         /// <summary>
-        /// This key triggers the Component's OnSubmit().
+        /// This Keyboard Key triggers the Component's OnSubmit().
         /// </summary>
         public Keys SubmitKey { get; set; }
 
         /// <summary>
-        /// This key triggers the Component's OnCancel() For most Components, it also closes it.
+        /// This GamePad Button triggers the Component's OnSubmit().
+        /// </summary>
+        public Buttons SubmitButton { get; set; }
+
+        /// <summary>
+        /// This Keyboard Key triggers the Component's OnCancel(). 
+        /// For most Controls, it also closes it.
         /// </summary>
         public Keys CancelKey { get; set; }
 
         /// <summary>
-        /// If true, component is closed upon upon pressing CancelKey.
+        /// This GamePad Button triggers the Component's OnCancel(). 
+        /// For most Controls, it also closes it.
+        /// </summary>
+        public Buttons CancelButton { get; set; }
+
+        /// <summary>
+        /// If true, Control is closed upon upon pressing CancelKey.
         /// </summary>
         public bool CloseOnCancel { get; set; }
 

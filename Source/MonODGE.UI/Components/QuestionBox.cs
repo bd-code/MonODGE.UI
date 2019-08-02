@@ -8,6 +8,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
+using MonODGE.UI.Utilities;
+
 namespace MonODGE.UI.Components {
     public class QuestionBox : OdgeControl {
         public enum AnswerType { Affirmative, Negative, Unanswered }
@@ -97,23 +99,23 @@ namespace MonODGE.UI.Components {
 
 
         public override void Update() {
-            if (_manager.Input.isKeyPress(Style.SubmitKey)) {
+            if (CheckSubmit) {
                 OnSubmit();
             }
 
-            else if (!isYesSelected && _manager.Input.isKeyPress(Keys.Left)) {
+            else if (!isYesSelected && OdgeInput.LEFT) {
                 optionNo.OnUnselected();
                 isYesSelected = true;
                 optionYes.OnSelected();
             }
 
-            else if (isYesSelected && _manager.Input.isKeyPress(Keys.Right)) {
+            else if (isYesSelected && OdgeInput.RIGHT) {
                 optionYes.OnUnselected();
                 isYesSelected = false;
                 optionNo.OnSelected();
             }
 
-            else if (_manager.Input.isKeyPress(Style.CancelKey)) {
+            else if (CheckCancel) {
                 OnCancel();
             }
         }
