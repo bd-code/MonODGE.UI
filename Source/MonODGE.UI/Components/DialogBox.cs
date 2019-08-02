@@ -8,6 +8,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
 
+using MonODGE.UI.Utilities;
+
 namespace MonODGE.UI.Components {
     /// <summary>
     /// A multi-page text display box, intended for NPC dialog.
@@ -92,23 +94,21 @@ namespace MonODGE.UI.Components {
 
 
         public override void Update() {
-            if (_manager.Input.isKeyPress(Style.SubmitKey)) {
+            if (CheckSubmit) {
                 OnSubmit();
             }
 
-            else if (dialogIndex > 0
-                && (_manager.Input.isKeyPress(Keys.Left) || _manager.Input.isKeyDown(Keys.A))) {
+            else if (dialogIndex > 0 && OdgeInput.LEFT) {
                 dialogIndex--;
                 OnTextChanged();
             }
 
-            else if (dialogIndex < dialog.Length - 1
-                && (_manager.Input.isKeyPress(Keys.Right) || _manager.Input.isKeyDown(Keys.D))) {
+            else if (dialogIndex < dialog.Length - 1 && OdgeInput.RIGHT) {
                 dialogIndex++;
                 OnTextChanged();
             }
 
-            else if (_manager.Input.isKeyPress(Style.CancelKey)) {
+            else if (CheckCancel) {
                 OnCancel();
             }
         }

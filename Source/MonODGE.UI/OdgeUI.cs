@@ -6,11 +6,16 @@ using System.Threading.Tasks;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 using MonODGE.UI.Components;
 
 namespace MonODGE.UI {
+    /// <summary>
+    /// <para>The core engine of the MonODGE.UI library.</para>
+    /// 
+    /// <para>It is comparable to a top-level Window, Screen, or Application 
+    /// object found in other UI libraries.</para>
+    /// </summary>
     public class OdgeUI {
         private GraphicsDevice _graphics;
         public GraphicsDevice GraphicsDevice { get { return _graphics; } }
@@ -25,8 +30,6 @@ namespace MonODGE.UI {
             get { return _style; }
             set { _style = value; }
         }
-
-        internal OdgeInput Input { get; private set; }
         
         public int ScreenWidth { get { return _graphics.Viewport.Width; } }
         public int ScreenHeight { get { return _graphics.Viewport.Height; } }
@@ -59,17 +62,11 @@ namespace MonODGE.UI {
             popupQ = new Queue<OdgePopUp>();
 
             GlobalStyle = stylesheet;
-            Input = new OdgeInput();
 
             // Config options.
             DrawAllControls = false;
             DrawInactiveMask = true;
             RunAllPopUps = false;
-        }
-
-
-        public void Update(KeyboardState keystate) {
-            Input.Update(keystate);
         }
 
 

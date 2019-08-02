@@ -30,7 +30,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MonoGame.Framework, Version=3.7.1.189, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="MonoGame.Framework, Version=3.6.0.1625, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\MonoGame\v3.0\Assemblies\DesktopGL\MonoGame.Framework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -44,15 +47,16 @@
     <Compile Include="Components\Component.cs" />
     <Compile Include="Components\DialogBox.cs" />
     <Compile Include="Components\GalleryMenu.cs" />
-    <Compile Include="Components\NumericSpinner.cs" />
+    <Compile Include="Components\DigitSpinner.cs" />
     <Compile Include="Components\QuestionBox.cs" />
     <Compile Include="Components\ListMenu.cs" />
     <Compile Include="Components\ListMenuOption.cs" />
     <Compile Include="Components\PopText.cs" />
     <Compile Include="Components\TextBox.cs" />
     <Compile Include="Exceptions.cs" />
-    <Compile Include="Input.cs" />
-    <Compile Include="Manager.cs" />
+    <Compile Include="Utilities\InputHandlers.cs" />
+    <Compile Include="Utilities\OdgeInput.cs" />
+    <Compile Include="OdgeUI.cs" />
     <Compile Include="Components\NoteBox.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StyleSheet.cs" />

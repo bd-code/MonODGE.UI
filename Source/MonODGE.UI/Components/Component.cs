@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
+using MonODGE.UI.Utilities;
+
 namespace MonODGE.UI.Components {
     public abstract class OdgeComponent {
         public enum SnapAnchors {
@@ -261,19 +263,20 @@ namespace MonODGE.UI.Components {
         }
 
         /// <summary>
-        /// This is called when the user presses the key assigned in Style.SubmitKey.
+        /// This is called when the user presses the Key assigned in Style.SubmitKey,
+        /// or the GamePad Button assigned in Style.SubmitButton.
         /// </summary>
         public virtual void OnSubmit() { Submit?.Invoke(this, EventArgs.Empty); }
         public event EventHandler Submit;
 
         /// <summary>
-        /// This is called when the user presses the key assigned in Style.CancelKey.
+        /// This is called when the user presses the key assigned in Style.CancelKey,
+        /// or the GamePad Button assigned in Style.CancelButton.
         /// </summary>
         public virtual void OnCancel() {
+            Cancel?.Invoke(this, EventArgs.Empty);
             if (Style.CloseOnCancel)
                 Close();
-            else
-                Cancel?.Invoke(this, EventArgs.Empty);
         }
         public event EventHandler Cancel;
 
@@ -282,6 +285,14 @@ namespace MonODGE.UI.Components {
                 _manager.Close(this);
                 OnClosed();
             }
+        }
+
+        protected bool CheckSubmit {
+            get { return OdgeInput.KB.isKeyTap(Style.SubmitKey) || OdgeInput.GP.isButtonTap(Style.SubmitButton); }
+        }
+
+        protected bool CheckCancel {
+            get { return OdgeInput.KB.isKeyTap(Style.CancelKey) || OdgeInput.GP.isButtonTap(Style.CancelButton); }
         }
     }
 

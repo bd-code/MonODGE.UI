@@ -8,8 +8,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
+using MonODGE.UI.Utilities;
+
 namespace MonODGE.UI.Components {
-    public class NumericSpinner : OdgeControl {
+    public class DigitSpinner : OdgeControl {
         private int _value;
         public int Value {
             get { return _value; }
@@ -29,7 +31,7 @@ namespace MonODGE.UI.Components {
         private Vector2[] textPositions;
         private Vector2[] textDimensions;
 
-        public NumericSpinner(StyleSheet style, Rectangle area, 
+        public DigitSpinner(StyleSheet style, Rectangle area, 
         int minVal = 0, int maxVal = int.MaxValue, int step = 1, int initval = 0) : base(style) {
             MinValue = minVal;
             MaxValue = maxVal;
@@ -70,25 +72,21 @@ namespace MonODGE.UI.Components {
 
 
         public override void Update() {
-            if (_manager.Input.isKeyPress(Style.SubmitKey)) {
+            if (CheckSubmit) {
                 OnSubmit();
             }
 
-            if ((_manager.Input.isKeyPress(Keys.Left) || _manager.Input.isKeyDown(Keys.A))
-            && Value > MinValue) {
+            if ((OdgeInput.LEFT || OdgeInput.DOWN) && Value > MinValue) {
                 DecrementByStep();
             }
 
-            else if ((_manager.Input.isKeyPress(Keys.Right) || _manager.Input.isKeyDown(Keys.D))
-            && Value < MaxValue) {
+            else if ((OdgeInput.RIGHT || OdgeInput.UP) && Value < MaxValue) {
                 IncrementByStep();
             }
 
-            else if (_manager.Input.isKeyPress(Style.CancelKey)) {
+            else if (CheckCancel) {
                 OnCancel();
             }
-
-            // Up, Down?
         }
 
 
