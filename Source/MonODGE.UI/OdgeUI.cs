@@ -88,8 +88,12 @@ namespace MonODGE.UI {
                         }
                     }
                 }
-                else
-                    popupQ.Peek().Update();
+                else {
+                    if (popupQ.Peek().Timeout > 0)
+                        popupQ.Peek().Update();
+                    else
+                        popupQ.Dequeue();
+                }
             }
         }
 

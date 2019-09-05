@@ -94,6 +94,8 @@ namespace MonODGE.UI.Components {
             resizeOptions(area.Width - Style.PaddingLeft - Style.PaddingRight);
             repositionOptions();
             Dimensions = area;
+            if (area.Location == Point.Zero)
+                repositionText();
         }
 
 
@@ -225,7 +227,7 @@ namespace MonODGE.UI.Components {
             if (_manager != null) {
                 panelRect = new Rectangle(
                     X + Style.PaddingLeft,
-                    Y + (int)textDimensions.Y + Style.PaddingTop,
+                    Y + (int)textDimensions.Y + Style.PaddingTop + Style.PaddingBottom,
                     Width - Style.PaddingLeft - Style.PaddingRight,
                     Height - (int)textDimensions.Y - Style.PaddingTop - Style.PaddingBottom
                     );
