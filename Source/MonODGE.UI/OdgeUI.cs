@@ -176,15 +176,18 @@ namespace MonODGE.UI {
         }
 
 
+        /*
         /// <summary>
         /// Creates a RenderTarget2D with given dimensions. Required for certain scrollable components.
         /// </summary>
         /// <param name="width">int width of RenderTarget2D.</param>
         /// <param name="height">int height of RenderTarget2D.</param>
-        /// <returns></returns>
+        /// <returns></returns>        
         public RenderTarget2D CreateRenderTarget(int width, int height) {
             return new RenderTarget2D(_graphics, width, height);
         }
+        // Removed since Menus no longer require RenderTargets
+        */
 
 
         /// <summary>
