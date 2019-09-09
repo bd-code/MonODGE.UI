@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("MonODGE.UI")]
-[assembly: AssemblyDescription("A stylesheet-based, keyboard-input UI for MonoGame projects.")]
+[assembly: AssemblyDescription("A stylesheet-based, event-driven player interface library for 2D MonoGame projects.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("MonODGE.UI")]

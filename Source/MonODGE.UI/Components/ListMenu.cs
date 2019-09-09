@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 using MonODGE.UI.Utilities;
 
@@ -43,26 +42,11 @@ namespace MonODGE.UI.Components {
             }
         }
 
-        private RenderTarget2D optionPanel;
-        private Rectangle panelRect;
-        private SpriteBatch panelBatch;
-
         public override StyleSheet Style {
             get { return base.Style; }
             set {
                 base.Style = value;
                 CascadeStyle();
-            }
-        }
-
-
-        public override Rectangle Dimensions {
-            get { return base.Dimensions; }
-            set {
-                base.Dimensions = value;
-                
-                if (_manager != null)
-                    createOptionPanel();
             }
         }
 
@@ -75,6 +59,10 @@ namespace MonODGE.UI.Components {
                 return mw;
             }
         }
+        
+
+        protected int OptionTopBound { get { return Y + Style.PaddingTop + (int)textDimensions.Y + Style.PaddingBottom; } }
+        protected int OptionLowBound { get { return Dimensions.Bottom - Style.PaddingBottom; } }
 
 
         public ListMenu(StyleSheet style, string heading, Rectangle area) : 
@@ -100,9 +88,6 @@ namespace MonODGE.UI.Components {
 
 
         public override void OnOpened() {
-            createOptionPanel();
-
-            panelBatch = new SpriteBatch(_manager.GraphicsDevice);
             foreach (AbstractMenuOption option in Options)
                 option.OnOpened();
 
@@ -120,8 +105,7 @@ namespace MonODGE.UI.Components {
 
         public override void OnMove() {
             repositionText();
-            panelRect.X = X + Style.PaddingLeft;
-            panelRect.Y = Y + (int)textDimensions.Y + Style.PaddingTop;
+            repositionOptions();
             base.OnMove();
         }
 
@@ -167,27 +151,15 @@ namespace MonODGE.UI.Components {
             if (title != null)
                 batch.DrawString(Style.HeaderFont, title, textPosition, Style.HeaderColor);
 
-            // Draw option panel.
-            if (Options.Count > 0 && optionPanel != null) {
-                DrawToPanel();
-                batch.Draw(optionPanel, panelRect, Color.White);
-            }
-        }
-
-        private void DrawToPanel() {
-            _manager.GraphicsDevice.SetRenderTarget(optionPanel);
-            _manager.GraphicsDevice.Clear(Color.TransparentBlack);
-            panelBatch.Begin();
-
+            // Draw Options
             for (int p = 0; p < Options.Count; p++) {
-                if (p == SelectedIndex)
-                    Options[p].Draw(panelBatch, true);
-                else
-                    Options[p].Draw(panelBatch, false);
+                if (Options[p].Y >= OptionTopBound && Options[p].Dimensions.Bottom <= OptionLowBound) {
+                    if (p == SelectedIndex)
+                        Options[p].Draw(batch, true);
+                    else
+                        Options[p].Draw(batch, false);
+                }
             }
-
-            panelBatch.End();
-            _manager.GraphicsDevice.SetRenderTarget(null);
         }
 
 
@@ -219,25 +191,6 @@ namespace MonODGE.UI.Components {
                 foreach (AbstractMenuOption option in Options)
                     if (forced || option.Style == null)
                         option.Style = Style;
-            }
-        }
-
-
-        private void createOptionPanel() {
-            if (_manager != null) {
-                panelRect = new Rectangle(
-                    X + Style.PaddingLeft,
-                    Y + (int)textDimensions.Y + Style.PaddingTop + Style.PaddingBottom,
-                    Width - Style.PaddingLeft - Style.PaddingRight,
-                    Height - (int)textDimensions.Y - Style.PaddingTop - Style.PaddingBottom
-                    );
-
-                optionPanel = _manager.CreateRenderTarget(panelRect.Width, panelRect.Height);
-            }
-            else {
-                optionPanel = null;
-                panelRect = new Rectangle(0, 0, 0, 0);
-                throw new NullReferenceException("createOptionPanel must be called in or after OnOpened(), so _manager is not null.");
             }
         }
 
@@ -315,14 +268,14 @@ namespace MonODGE.UI.Components {
                     Y + Style.PaddingTop
                 );
             }
-
         }
 
 
         private void repositionOptions() {
-            int ypos = 0;
+            int xpos = X + Style.PaddingLeft;
+            int ypos = OptionTopBound;
             foreach (AbstractMenuOption option in Options) {
-                option.Dimensions = new Rectangle(0, ypos, option.Width, option.Height);
+                option.Dimensions = new Rectangle(xpos, ypos, option.Width, option.Height);
                 ypos += option.Height + option.Style.SpacingV;
             }
         }
@@ -346,18 +299,21 @@ namespace MonODGE.UI.Components {
 
 
         private void scrollOptions() {
+            int topBound = OptionTopBound;
+            int lowBound = OptionLowBound;
+
             // SelectedOption too high
-            if (SelectedOption.Y < 0) {
-                int y = -SelectedOption.Y;
+            if (SelectedOption.Y < topBound) {
+                int dy = -(SelectedOption.Y - topBound);
                 foreach (AbstractMenuOption op in Options)
-                    op.Y += (y / 2) + 1;
+                    op.Y += (dy / 2) + 1;
             }
 
             // SelectedOption too low
-            else if ((SelectedOption.Y + SelectedOption.Height) > (panelRect.Height)) {
-                int y = SelectedOption.Y + SelectedOption.Height - panelRect.Height;
+            else if (SelectedOption.Dimensions.Bottom > lowBound) {
+                int dy = SelectedOption.Dimensions.Bottom - lowBound;
                 foreach (AbstractMenuOption op in Options)
-                    op.Y -= (y / 2) + 1;
+                    op.Y -= (dy / 2) + 1;
             }
         }
     }
