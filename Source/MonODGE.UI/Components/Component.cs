@@ -26,7 +26,7 @@ namespace MonODGE.UI.Components {
         public virtual StyleSheet Style {
             get { return _style; }
             set {
-                _style = value;
+                _style = value.Clone();
                 OnStyleSet();
             }
         }
@@ -259,7 +259,7 @@ namespace MonODGE.UI.Components {
 
     public abstract class OdgeControl : OdgeComponent {
         public OdgeControl(StyleSheet style) {
-            Style = style;
+            Style = style.Clone();
         }
 
         /// <summary>
@@ -302,7 +302,7 @@ namespace MonODGE.UI.Components {
         public int Timeout { get; set; }
 
         public OdgePopUp(StyleSheet style) {
-            Style = style;
+            Style = style.Clone();
         }
 
         public void Close() {

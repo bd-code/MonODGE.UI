@@ -342,7 +342,10 @@ namespace MonODGE.UI {
                 TextAlignH, TextAlignV, 
                 Padding, Spacing);
             clone.SubmitKey = SubmitKey;
+            clone.SubmitButton = SubmitButton;
             clone.CancelKey = CancelKey;
+            clone.CancelButton = CancelButton;
+            clone.CloseOnCancel = CloseOnCancel;
             return clone;
         }
     }
