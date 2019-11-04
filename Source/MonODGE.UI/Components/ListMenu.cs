@@ -171,7 +171,7 @@ namespace MonODGE.UI.Components {
         }
 
         public void RemoveOption(AbstractMenuOption option) {
-            if (SelectedOption == option)
+            if (SelectedIndex == Options.Count-1)
                 SelectedIndex--;
             
             Options.Remove(option);

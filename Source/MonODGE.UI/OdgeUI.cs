@@ -176,20 +176,6 @@ namespace MonODGE.UI {
         }
 
 
-        /*
-        /// <summary>
-        /// Creates a RenderTarget2D with given dimensions. Required for certain scrollable components.
-        /// </summary>
-        /// <param name="width">int width of RenderTarget2D.</param>
-        /// <param name="height">int height of RenderTarget2D.</param>
-        /// <returns></returns>        
-        public RenderTarget2D CreateRenderTarget(int width, int height) {
-            return new RenderTarget2D(_graphics, width, height);
-        }
-        // Removed since Menus no longer require RenderTargets
-        */
-
-
         /// <summary>
         /// Find an open OdgeComponent by its Name property. Searches both OdgeControls and OdgePopUps.
         /// Note the return value will be an OdgeComponent, and must be cast to the appropriate subtype.
@@ -213,6 +199,20 @@ namespace MonODGE.UI {
                 if (pop.Name == name)
                     return pop;
             return null;
+        }
+
+
+        public void SetAllComponentStyle() {
+            foreach (OdgeControl control in controlStack)
+                control.Style = GlobalStyle;
+            foreach (OdgePopUp pop in popupQ)
+                pop.Style = GlobalStyle;
+        }
+        public void SetAllComponentStyle(StyleSheet style) {
+            foreach (OdgeControl control in controlStack)
+                control.Style = style;
+            foreach (OdgePopUp pop in popupQ)
+                pop.Style = style;
         }
     }
 }
