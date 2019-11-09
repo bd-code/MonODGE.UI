@@ -111,18 +111,17 @@ namespace MonODGE.UI.Components {
 
             bool isShiftDown = (!_keystate.CapsLock && (_keystate.IsKeyDown(Keys.LeftShift) || _keystate.IsKeyDown(Keys.RightShift)))
                             || (_keystate.CapsLock && !(_keystate.IsKeyDown(Keys.LeftShift) || _keystate.IsKeyDown(Keys.RightShift)));
-
-            // Use enter to submit, as Style.SubmitButton might be a valid char.
-            // No need to do anything here except close, as Text value can be retrieved via property.
-            if (isKeyPress(Keys.Enter)) {
+            
+            // StyleSheet.SubmitKey should choose a non-AlphaNumeric key, like Keys.Enter, 
+            // otherwise that key cannot output a printable char.
+            // Do NOT close on submit, as this kills validation scripts.
+            if (CheckSubmit) {
                 OnSubmit();
-                Close();
             }
 
             // Only control char we need is Backspace, as we don't allow cursor movement.
-            if (isKeyPress(Keys.Back)) {
-                if (TextLength > 0)
-                    Text = Text.Remove(TextLength - 1, 1);
+            if (isKeyPress(Keys.Back) && TextLength > 0) {
+                Text = Text.Remove(TextLength - 1, 1);
             }
 
             else {

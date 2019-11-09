@@ -54,6 +54,7 @@
     <Compile Include="Components\PopText.cs" />
     <Compile Include="Components\TextBox.cs" />
     <Compile Include="Exceptions.cs" />
+    <Compile Include="Utilities\AlignedText.cs" />
     <Compile Include="Utilities\InputHandlers.cs" />
     <Compile Include="Utilities\OdgeInput.cs" />
     <Compile Include="OdgeUI.cs" />
