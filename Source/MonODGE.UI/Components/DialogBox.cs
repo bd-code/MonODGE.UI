@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
 
 using MonODGE.UI.Utilities;
@@ -15,19 +10,19 @@ namespace MonODGE.UI.Components {
     /// A multi-page text display box, intended for NPC dialog.
     /// </summary>
     public class DialogBox : OdgeControl {
-        protected string[] dialog;
-        protected int dialogIndex;
+        protected string[] messages;
+        protected int messageIndex;
 
+        protected AlignedText display;
         protected Vector2 textPosition;
-        protected Vector2 textDimensions;
 
         protected string[] footerStrings;
         protected Vector2[] footerDimensions;
 
         public string Text {
             get {
-                if (dialog != null && dialogIndex < dialog.Length)
-                    return dialog[dialogIndex];
+                if (messages != null && messageIndex < messages.Length)
+                    return messages[messageIndex];
                 else
                     return string.Empty;
             }
@@ -38,8 +33,8 @@ namespace MonODGE.UI.Components {
 
         public DialogBox(StyleSheet style, Rectangle area, string[] text) 
             : base(style) {
-            dialog = text;
-            dialogIndex = 0;
+            messages = text;
+            messageIndex = 0;
 
             footerStrings = new string[3]{
                 "<< . . .",
@@ -52,15 +47,14 @@ namespace MonODGE.UI.Components {
                 Style.FooterFont?.MeasureString(footerStrings[1]) ?? Vector2.Zero,
                 Style.FooterFont?.MeasureString(footerStrings[2]) ?? Vector2.Zero
             };
-
-            textDimensions = Style.Font?.MeasureString(dialog[dialogIndex]) ?? Vector2.Zero;
+            
+            display = new AlignedText(Style.Font, messages[messageIndex], Style.TextAlignH, 0);
             Dimensions = area;  // This calls repositionText();
         }
 
 
         public override void OnStyleSet() {
-            if (dialog != null && !string.IsNullOrEmpty(dialog[dialogIndex])) {
-                textDimensions = Style.Font?.MeasureString(dialog[dialogIndex]) ?? Vector2.Zero;
+            if (messages != null && !string.IsNullOrEmpty(messages[messageIndex])) {
                 repositionText();
             }
             base.OnStyleSet();
@@ -74,8 +68,8 @@ namespace MonODGE.UI.Components {
 
 
         public override void OnSubmit() {
-            dialogIndex++;
-            if (dialogIndex >= dialog.Length) 
+            messageIndex++;
+            if (messageIndex >= messages.Length) 
                 Close();
             base.OnSubmit();
         }
@@ -86,7 +80,7 @@ namespace MonODGE.UI.Components {
         /// completely new string displays.
         /// </summary>
         public void OnTextChanged() {
-            textDimensions = Style.Font?.MeasureString(dialog[dialogIndex]) ?? Vector2.Zero;
+            display = new AlignedText(Style.Font, messages[messageIndex], Style.TextAlignH, 0);
             repositionText();
             TextChanged?.Invoke(this, EventArgs.Empty);
         }
@@ -98,13 +92,13 @@ namespace MonODGE.UI.Components {
                 OnSubmit();
             }
 
-            else if (dialogIndex > 0 && OdgeInput.LEFT) {
-                dialogIndex--;
+            else if (messageIndex > 0 && OdgeInput.LEFT) {
+                messageIndex--;
                 OnTextChanged();
             }
 
-            else if (dialogIndex < dialog.Length - 1 && OdgeInput.RIGHT) {
-                dialogIndex++;
+            else if (messageIndex < messages.Length - 1 && OdgeInput.RIGHT) {
+                messageIndex++;
                 OnTextChanged();
             }
 
@@ -118,11 +112,11 @@ namespace MonODGE.UI.Components {
             DrawCanvas(batch);
             DrawBorders(batch);
 
-            if (dialogIndex < dialog.Length) {
-                batch.DrawString(Style.Font, dialog[dialogIndex], textPosition, Style.TextColor);
+            if (messageIndex < messages.Length) {
+                display.Draw(batch, textPosition, Style.TextColor);
 
                 // << . . .
-                if (dialogIndex > 0)
+                if (messageIndex > 0)
                     batch.DrawString(Style.FooterFont, "<< . . .",
                         new Vector2(
                             Dimensions.X + Style.PaddingLeft, 
@@ -130,9 +124,9 @@ namespace MonODGE.UI.Components {
                         Style.FooterColor);
 
                 // [Page i of n]
-                if (dialog.Length > 1) {
-                    int pageIndex = dialogIndex + 1;
-                    footerStrings[1] = "[Page " + pageIndex + " of " + dialog.Length + "]";
+                if (messages.Length > 1) {
+                    int pageIndex = messageIndex + 1;
+                    footerStrings[1] = "[Page " + pageIndex + " of " + messages.Length + "]";
                     batch.DrawString(Style.FooterFont, footerStrings[1],
                         new Vector2(
                             Dimensions.Center.X - (footerDimensions[1].X / 2),
@@ -141,7 +135,7 @@ namespace MonODGE.UI.Components {
                 }
 
                 // . . . >>
-                if (dialogIndex < dialog.Length - 1)
+                if (messageIndex < messages.Length - 1)
                     batch.DrawString(Style.FooterFont, ". . . >>",
                         new Vector2(
                             Dimensions.Right - footerDimensions[2].X - Style.PaddingRight,
@@ -159,18 +153,18 @@ namespace MonODGE.UI.Components {
             if (Style.TextAlignH == StyleSheet.AlignmentsH.LEFT)
                 nx = X + Style.PaddingLeft;
             else if (Style.TextAlignH == StyleSheet.AlignmentsH.CENTER)
-                nx = Dimensions.Center.X - (textDimensions.X / 2);
+                nx = Dimensions.Center.X - (display.Width / 2);
             else  // Right
-                nx = Dimensions.Right - textDimensions.X - Style.PaddingRight;
-            
+                nx = Dimensions.Right - display.Width - Style.PaddingRight;
+
 
             // Vertical
             if (Style.TextAlignV == StyleSheet.AlignmentsV.TOP)
                 ny = Y + Style.PaddingTop;
             else if (Style.TextAlignV == StyleSheet.AlignmentsV.CENTER)
-                ny = Dimensions.Center.Y - (textDimensions.Y / 2);
+                ny = Dimensions.Center.Y - (display.Height / 2);
             else // Bottom
-                ny = Dimensions.Bottom - textDimensions.Y - footerDimensions[0].Y - Style.PaddingBottom;
+                ny = Dimensions.Bottom - display.Height - footerDimensions[0].Y - Style.PaddingBottom;
 
             textPosition = new Vector2(nx, ny);
         }

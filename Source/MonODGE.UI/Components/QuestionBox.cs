@@ -18,15 +18,17 @@ namespace MonODGE.UI.Components {
         private AbstractMenuOption optionNo;
         private bool isYesSelected;
 
-        private string dialog;
-        private Vector2 textDimensions;
+        //private string dialog0;
+        private AlignedText text;
+        //private Vector2 textDimensions;
         private Vector2 textPosition;
 
         public QuestionBox(StyleSheet style, Rectangle area, string message, AbstractMenuOption yesOption, AbstractMenuOption noOption)
             : base(style) {
             Answer = AnswerType.Unanswered;
-            dialog = message;
-            textDimensions = Style.Font?.MeasureString(dialog) ?? Vector2.Zero;
+            //dialog0 = message;
+            text = new AlignedText(Style.Font, message, Style.TextAlignH, 0);
+            //textDimensions = Style.Font?.MeasureString(dialog0) ?? Vector2.Zero;
             repositionText();
 
             // Options need style first.
@@ -55,8 +57,8 @@ namespace MonODGE.UI.Components {
 
 
         public override void OnStyleSet() {
-            if (!string.IsNullOrEmpty(dialog)) {
-                textDimensions = Style.Font?.MeasureString(dialog) ?? Vector2.Zero;
+            if (text != null) {
+                //textDimensions = Style.Font?.MeasureString(dialog0) ?? Vector2.Zero;
                 repositionText();
             }
             base.OnStyleSet();
@@ -123,9 +125,9 @@ namespace MonODGE.UI.Components {
         public override void Draw(SpriteBatch batch) {
             DrawCanvas(batch);
             DrawBorders(batch);
-            if (!string.IsNullOrEmpty(dialog))
-                batch.DrawString(Style.Font, dialog, textPosition, Style.TextColor);
-
+            //if (!string.IsNullOrEmpty(dialog0))
+            //    batch.DrawString(Style.Font, dialog0, textPosition, Style.TextColor);
+            text.Draw(batch, textPosition, Style.TextColor);
             optionYes.Draw(batch, isYesSelected);
             optionNo.Draw(batch, !isYesSelected);
         }
@@ -180,18 +182,18 @@ namespace MonODGE.UI.Components {
             if (Style.TextAlignH == StyleSheet.AlignmentsH.LEFT)
                 nx = X + Style.PaddingLeft;
             else if (Style.TextAlignH == StyleSheet.AlignmentsH.CENTER)
-                nx = Dimensions.Center.X - (textDimensions.X / 2);
+                nx = Dimensions.Center.X - (text.Width / 2);
             else  // Right
-                nx = Dimensions.Right - textDimensions.X - Style.PaddingRight;
+                nx = Dimensions.Right - text.Width - Style.PaddingRight;
 
 
             // Vertical
             if (Style.TextAlignV == StyleSheet.AlignmentsV.TOP)
                 ny = Y + Style.PaddingTop;
             else if (Style.TextAlignV == StyleSheet.AlignmentsV.CENTER)
-                ny = Dimensions.Center.Y - (textDimensions.Y / 2);
+                ny = Dimensions.Center.Y - (text.Height / 2);
             else // Bottom
-                ny = Dimensions.Bottom - textDimensions.Y - Style.PaddingBottom;
+                ny = Dimensions.Bottom - text.Height - Style.PaddingBottom;
 
             textPosition = new Vector2(nx, ny);
         }

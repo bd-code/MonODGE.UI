@@ -36,6 +36,7 @@ namespace MonODGE.UI.Utilities {
             return fullBuilder.ToString();
         }
 
+
         /// <summary>
         /// Wraps a string to a specified screenwidth using an XNA/MonoGame SpriteFont.
         /// </summary>
@@ -62,6 +63,27 @@ namespace MonODGE.UI.Utilities {
             return fullBuilder.ToString();
         }
 
+
+        public static string[] SplitByCharCount(string text, int maxLength) {
+            List<string> textList = new List<string>();
+            StringBuilder lineBuilder = new StringBuilder();
+            string[] splitz = text.Split(' ');
+
+            foreach (string str in splitz) {
+                string lineSoFar = lineBuilder.ToString();
+                if (lineSoFar.Length + str.Length >= maxLength && lineBuilder.Length > 0) {
+                    textList.Add(lineSoFar);
+                    lineBuilder.Clear();
+                }
+
+                lineBuilder.Append(str + " ");
+            }
+
+            textList.Add(lineBuilder.ToString());
+            return textList.ToArray<string>();
+        }
+
+
         /// <summary>
         /// Splits a string into an array of strings, each of specified screenwidth, using an XNA/MonoGame SpriteFont.
         /// </summary>
@@ -69,7 +91,7 @@ namespace MonODGE.UI.Utilities {
         /// <param name="font">An XNA/MonoGame SpriteFont to measure the string.</param>
         /// <param name="maxWidth">The maximum screenwidth of the wrapped strings.</param>
         /// <returns>An array of strings of length not greater than maxWidth.</returns>
-        public static string[] WrapToArray(string text, SpriteFont font, float maxWidth) {
+        public static string[] SplitByWidth(string text, SpriteFont font, float maxWidth) {
             List<string> textList = new List<string>();
             StringBuilder lineBuilder = new StringBuilder();
             string[] splitz = text.Split(' ');
@@ -86,6 +108,20 @@ namespace MonODGE.UI.Utilities {
 
             textList.Add(lineBuilder.ToString());
             return textList.ToArray<string>();
+        }
+
+
+        /// <summary>
+        /// Trims whitespace from each line of a multi-line text block.
+        /// </summary>
+        /// <param name="block"></param>
+        /// <returns></returns>
+        public static string TrimStringBlock(string block) {
+            string[] lines = block.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            for (int s = 0; s < lines.Length; s++) {
+                lines[s] = lines[s].Trim();
+            }
+            return string.Join(Environment.NewLine, lines);
         }
     }
 }

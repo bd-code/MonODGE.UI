@@ -71,11 +71,7 @@ namespace MonODGE.UI.Components {
 
 
         /// <summary>
-        /// Initialize is called when the OdgeComponent is added to the UI Manager,
-        /// and should not be called manually.
-        /// 
-        /// Initialize is intended to be overriden when the user needs to perform 
-        /// any Component initialization after it is certain to be assigned a manager.
+        /// This is called when the OdgeComponent is added to the UI Manager.
         /// </summary>
         public virtual void OnOpened() { Opened?.Invoke(this, EventArgs.Empty); }
         public event EventHandler Opened;
