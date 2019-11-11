@@ -9,7 +9,6 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace MonODGE.UI.Utilities {
     public class AlignedText {
-        //public enum Alignments { LEFT, CENTER, RIGHT }
         public int Width { get; private set; }
         public int Height {
             get {
