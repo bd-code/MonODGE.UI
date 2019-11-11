@@ -17,18 +17,14 @@ namespace MonODGE.UI.Components {
         private AbstractMenuOption optionYes;
         private AbstractMenuOption optionNo;
         private bool isYesSelected;
-
-        //private string dialog0;
+        
         private AlignedText text;
-        //private Vector2 textDimensions;
         private Vector2 textPosition;
 
         public QuestionBox(StyleSheet style, Rectangle area, string message, AbstractMenuOption yesOption, AbstractMenuOption noOption)
             : base(style) {
             Answer = AnswerType.Unanswered;
-            //dialog0 = message;
             text = new AlignedText(Style.Font, message, Style.TextAlignH, 0);
-            //textDimensions = Style.Font?.MeasureString(dialog0) ?? Vector2.Zero;
             repositionText();
 
             // Options need style first.
@@ -58,7 +54,6 @@ namespace MonODGE.UI.Components {
 
         public override void OnStyleSet() {
             if (text != null) {
-                //textDimensions = Style.Font?.MeasureString(dialog0) ?? Vector2.Zero;
                 repositionText();
             }
             base.OnStyleSet();
@@ -125,8 +120,6 @@ namespace MonODGE.UI.Components {
         public override void Draw(SpriteBatch batch) {
             DrawCanvas(batch);
             DrawBorders(batch);
-            //if (!string.IsNullOrEmpty(dialog0))
-            //    batch.DrawString(Style.Font, dialog0, textPosition, Style.TextColor);
             text.Draw(batch, textPosition, Style.TextColor);
             optionYes.Draw(batch, isYesSelected);
             optionNo.Draw(batch, !isYesSelected);
