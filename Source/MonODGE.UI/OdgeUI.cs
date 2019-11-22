@@ -126,7 +126,7 @@ namespace MonODGE.UI {
 
         public void Open(OdgeControl control) {
             if (control._manager != null && control._manager != this)
-                throw new OdgeComponentUsedException("CityControl added to CityUIManager has already been added to another CityUIManager.");
+                throw new OdgeComponentUsedException("OdgeControl has already been added to another OdgeUI manager.");
             control._manager = this;
 
             if (control.Style == null)
@@ -139,7 +139,7 @@ namespace MonODGE.UI {
 
         public void Open(OdgePopUp popup) {
             if (popup._manager != null && popup._manager != this)
-                throw new OdgeComponentUsedException("CityPopUp added to CityUIManager has already been added to another CityUIManager");
+                throw new OdgeComponentUsedException("OdgePopUp has already been added to another OdgeUI manager.");
             popup._manager = this;
 
             if (popup.Style == null)
