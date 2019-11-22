@@ -45,26 +45,11 @@ namespace MonODGE.UI.Components {
         public override void Update() {
             Timeout--;
 
-            // Reduce background opacity.
-            Color bgcolor = Style.BackgroundColor;
-            bgcolor.A = (byte)MathHelper.Max(0, bgcolor.A - 1);
-            Style.BackgroundColor = bgcolor;
-
-            // Darken text color.
-            Color textcolor = Style.TextColor;
-            textcolor.R = (byte)MathHelper.Max(0, textcolor.R - 1);
-            textcolor.G = (byte)MathHelper.Max(0, textcolor.G - 1);
-            textcolor.B = (byte)MathHelper.Max(0, textcolor.B - 1);
-            textcolor.A = (byte)MathHelper.Max(0, textcolor.A - 1);
-            Style.TextColor = textcolor;
-
-            // Darken border color.
-            Color bordercolor = Style.BorderColor;
-            bordercolor.R = (byte)MathHelper.Max(0, bordercolor.R - 1);
-            bordercolor.G = (byte)MathHelper.Max(0, bordercolor.G - 1);
-            bordercolor.B = (byte)MathHelper.Max(0, bordercolor.B - 1);
-            bordercolor.A = (byte)MathHelper.Max(0, bordercolor.A - 1);
-            Style.BorderColor = bordercolor;
+            if (Timeout < 64) {
+                Style.BackgroundColor *= 1.0f - (1.0f / (Timeout+1.0f));
+                Style.TextColor *= 1.0f - (1.0f / (Timeout+1.0f));
+                Style.BorderColor *= 1.0f - (1.0f / (Timeout+1.0f));
+            }
         }
 
 
