@@ -18,13 +18,13 @@ namespace MonODGE.UI.Components {
         private AbstractMenuOption optionNo;
         private bool isYesSelected;
         
-        private AlignedText text;
+        private AlignedText _text;
         private Vector2 textPosition;
 
         public QuestionBox(StyleSheet style, Rectangle area, string message, AbstractMenuOption yesOption, AbstractMenuOption noOption)
             : base(style) {
             Answer = AnswerType.Unanswered;
-            text = new AlignedText(Style.Font, message, Style.TextAlignH, 0);
+            _text = new AlignedText(Style.Font, message, Style.TextAlignH, 0);
             repositionText();
 
             // Options need style first.
@@ -52,11 +52,12 @@ namespace MonODGE.UI.Components {
         }
 
 
-        public override void OnStyleSet() {
-            if (text != null) {
+        public override void OnStyleChanged() {
+            if (_text != null) {
+                _text.AlignText(Style.TextAlignH);
                 repositionText();
             }
-            base.OnStyleSet();
+            base.OnStyleChanged();
         }
 
 
@@ -120,7 +121,7 @@ namespace MonODGE.UI.Components {
         public override void Draw(SpriteBatch batch) {
             DrawCanvas(batch);
             DrawBorders(batch);
-            text.Draw(batch, textPosition, Style.TextColor);
+            _text.Draw(batch, textPosition, Style.TextColor);
             optionYes.Draw(batch, isYesSelected);
             optionNo.Draw(batch, !isYesSelected);
         }
@@ -175,18 +176,18 @@ namespace MonODGE.UI.Components {
             if (Style.TextAlignH == StyleSheet.AlignmentsH.LEFT)
                 nx = X + Style.PaddingLeft;
             else if (Style.TextAlignH == StyleSheet.AlignmentsH.CENTER)
-                nx = Dimensions.Center.X - (text.Width / 2);
+                nx = Dimensions.Center.X - (_text.Width / 2);
             else  // Right
-                nx = Dimensions.Right - text.Width - Style.PaddingRight;
+                nx = Dimensions.Right - _text.Width - Style.PaddingRight;
 
 
             // Vertical
             if (Style.TextAlignV == StyleSheet.AlignmentsV.TOP)
                 ny = Y + Style.PaddingTop;
             else if (Style.TextAlignV == StyleSheet.AlignmentsV.CENTER)
-                ny = Dimensions.Center.Y - (text.Height / 2);
+                ny = Dimensions.Center.Y - (_text.Height / 2);
             else // Bottom
-                ny = Dimensions.Bottom - text.Height - Style.PaddingBottom;
+                ny = Dimensions.Bottom - _text.Height - Style.PaddingBottom;
 
             textPosition = new Vector2(nx, ny);
         }

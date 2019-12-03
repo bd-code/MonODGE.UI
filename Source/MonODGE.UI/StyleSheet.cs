@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace MonODGE.UI {
-    public class StyleSheet {
+    public class StyleSheet : IChangeTracking {
+        public bool IsChanged { get; private set; }
 
         //// Alignment ////
 
@@ -19,12 +21,26 @@ namespace MonODGE.UI {
         /// <summary>
         /// Horizontal alignment for inner text and elements.
         /// </summary>
-        public AlignmentsH TextAlignH { get; set; }
+        public AlignmentsH TextAlignH {
+            get { return _textAlignH; }
+            set {
+                _textAlignH = value;
+                IsChanged = true;
+            }
+        }
+        private AlignmentsH _textAlignH;
         
         /// <summary>
         /// Vertical alignment for inner text and elements.
         /// </summary>
-        public AlignmentsV TextAlignV { get; set; }
+        public AlignmentsV TextAlignV {
+            get { return _textAlignV; }
+            set {
+                _textAlignV = value;
+                IsChanged = true;
+            }
+        }
+        private AlignmentsV _textAlignV;
         
         
         //// Background ////
@@ -32,12 +48,26 @@ namespace MonODGE.UI {
         /// <summary>
         /// Background texture which fills Component dimensions. Can be set to null for no background.
         /// </summary>
-        public Texture2D Background { get; set; }
+        public Texture2D Background {
+            get { return _background; }
+            set {
+                _background = value;
+                IsChanged = true;
+            }
+        }
+        private Texture2D _background;
 
         /// <summary>
         /// Border texture color. Set to Color.White to match original image.
         /// </summary>
-        public Color BackgroundColor { get; set; }
+        public Color BackgroundColor {
+            get { return _bgColor; }
+            set {
+                _bgColor = value;
+                IsChanged = true;
+            }
+        }
+        private Color _bgColor;
         
 
         //// Borders ////
@@ -65,6 +95,7 @@ namespace MonODGE.UI {
                     new Rectangle(BorderTileWidth, BorderTileHeight*2, BorderTileWidth, BorderTileHeight),
                     new Rectangle(BorderTileWidth*2, BorderTileHeight*2, BorderTileWidth, BorderTileHeight)
                 };
+                IsChanged = true;
             }
         }
 
@@ -88,7 +119,14 @@ namespace MonODGE.UI {
         /// <summary>
         /// Border texture color. Set to Color.White to match original image.
         /// </summary>
-        public Color BorderColor { get; set; }
+        public Color BorderColor {
+            get { return _borderColor; }
+            set {
+                _borderColor = value;
+                IsChanged = true;
+            }
+        }
+        private Color _borderColor;
 
 
         //// Fonts and Text Color ////
@@ -96,42 +134,98 @@ namespace MonODGE.UI {
         /// <summary>
         /// Header text font.
         /// </summary>
-        public SpriteFont HeaderFont { get; set; }
+        public SpriteFont HeaderFont {
+            get { return _headerFont; }
+            set {
+                _headerFont = value;
+                IsChanged = true;
+            }
+        }
+        private SpriteFont _headerFont;
 
         /// <summary>
         /// Header text color.
         /// </summary>
-        public Color HeaderColor { get; set; }
+        public Color HeaderColor {
+            get { return _headerColor; }
+            set {
+                _headerColor = value;
+                IsChanged = true;
+            }
+        }
+        private Color _headerColor;
 
         /// <summary>
         /// Main text font.
         /// </summary>
-        public SpriteFont Font { get; set; }
+        public SpriteFont Font {
+            get { return _font; }
+            set {
+                _font = value;
+                IsChanged = true;
+            }
+        }
+        private SpriteFont _font;
 
         /// <summary>
         /// Main text color.
         /// </summary>
-        public Color TextColor { get; set; }
+        public Color TextColor {
+            get { return _textColor; }
+            set {
+                _textColor = value;
+                IsChanged = true;
+            }
+        }
+        private Color _textColor;
 
         /// <summary>
         /// Footer text font.
         /// </summary>
-        public SpriteFont FooterFont { get; set; }
+        public SpriteFont FooterFont {
+            get { return _footerFont; }
+            set {
+                _footerFont = value;
+                IsChanged = true;
+            }
+        }
+        private SpriteFont _footerFont;
 
         /// <summary>
         /// Footer text color.
         /// </summary>
-        public Color FooterColor { get; set; }
+        public Color FooterColor {
+            get { return _footerColor; }
+            set {
+                _footerColor = value;
+                IsChanged = true;
+            }
+        }
+        private Color _footerColor;
         
         /// <summary>
         /// For menus and other controls, selected item text is displayed in this color rather than TextColor.
         /// </summary>
-        public Color SelectedTextColor { get; set; }
+        public Color SelectedTextColor {
+            get { return _selectedColor; }
+            set {
+                _selectedColor = value;
+                IsChanged = true;
+            }
+        }
+        private Color _selectedColor;
 
         /// <summary>
         /// For menus and other controls, unselected item text is displayed in this color rather than TextColor.
         /// </summary>
-        public Color UnselectedTextColor { get; set; }
+        public Color UnselectedTextColor {
+            get { return _unselectedColor; }
+            set {
+                _unselectedColor = value;
+                IsChanged = true;
+            }
+        }
+        private Color _unselectedColor;
 
 
         //// Padding ////
@@ -163,6 +257,7 @@ namespace MonODGE.UI {
                 else if (value.Length == 1) {
                     _padding[0] = _padding[1] = _padding[2] = _padding[3] = value[0];
                 }
+                IsChanged = true;
             }
         }
 
@@ -170,7 +265,10 @@ namespace MonODGE.UI {
         /// Use this to set the inner padding on all four sides at once.
         /// </summary>
         public int PaddingAll {
-            set { _padding[0] = _padding[1] = _padding[2] = _padding[3] = value; }
+            set {
+                _padding[0] = _padding[1] = _padding[2] = _padding[3] = value;
+                IsChanged = true;
+            }
         }
 
         /// <summary>
@@ -178,7 +276,10 @@ namespace MonODGE.UI {
         /// </summary>
         public int PaddingTop {
             get { return _padding[0]; }
-            set { _padding[0] = value; }
+            set {
+                _padding[0] = value;
+                IsChanged = true;
+            }
         }
 
         /// <summary>
@@ -186,7 +287,10 @@ namespace MonODGE.UI {
         /// </summary>
         public int PaddingRight {
             get { return _padding[1]; }
-            set { _padding[1] = value; }
+            set {
+                _padding[1] = value;
+                IsChanged = true;
+            }
         }
 
         /// <summary>
@@ -194,7 +298,10 @@ namespace MonODGE.UI {
         /// </summary>
         public int PaddingBottom {
             get { return _padding[2]; }
-            set { _padding[2] = value; }
+            set {
+                _padding[2] = value;
+                IsChanged = true;
+            }
         }
 
         /// <summary>
@@ -202,7 +309,10 @@ namespace MonODGE.UI {
         /// </summary>
         public int PaddingLeft {
             get { return _padding[3]; }
-            set { _padding[3] = value; }
+            set {
+                _padding[3] = value;
+                IsChanged = true;
+            }
         }
 
 
@@ -224,6 +334,7 @@ namespace MonODGE.UI {
                 else if (value.Length == 1) {
                     _spacing[0] = _spacing[1] = value[0];
                 }
+                IsChanged = true;
             }
         }
 
@@ -231,7 +342,10 @@ namespace MonODGE.UI {
         /// Use this to set both horizontal and vertical spacing at once.
         /// </summary>
         public int SpacingAll {
-            set { _spacing[0] = _spacing[1] = value; }
+            set {
+                _spacing[0] = _spacing[1] = value;
+                IsChanged = true;
+            }
         }
 
         /// <summary>
@@ -239,7 +353,10 @@ namespace MonODGE.UI {
         /// </summary>
         public int SpacingH {
             get { return _spacing[0]; }
-            set { _spacing[0] = value; }
+            set {
+                _spacing[0] = value;
+                IsChanged = true;
+            }
         }
 
         /// <summary>
@@ -247,7 +364,10 @@ namespace MonODGE.UI {
         /// </summary>
         public int SpacingV {
             get { return _spacing[1]; }
-            set { _spacing[1] = value; }
+            set {
+                _spacing[1] = value;
+                IsChanged = true;
+            }
         }
 
 
@@ -256,29 +376,57 @@ namespace MonODGE.UI {
         /// <summary>
         /// This Keyboard Key triggers the Component's OnSubmit().
         /// </summary>
-        public Keys SubmitKey { get; set; }
+        public Keys SubmitKey {
+            get { return _submitKey; }
+            set {
+                _submitKey = value;
+                IsChanged = true;
+            }
+        }
+        private Keys _submitKey;
 
         /// <summary>
         /// This GamePad Button triggers the Component's OnSubmit().
         /// </summary>
-        public Buttons SubmitButton { get; set; }
+        public Buttons SubmitButton {
+            get { return _submitButton; }
+            set {
+                _submitButton = value;
+                IsChanged = true;
+            }
+        }
+        private Buttons _submitButton;
 
         /// <summary>
         /// This Keyboard Key triggers the Component's OnCancel(). 
         /// For most Controls, it also closes it.
         /// </summary>
-        public Keys CancelKey { get; set; }
+        public Keys CancelKey {
+            get { return _cancelKey; }
+            set {
+                _cancelKey = value;
+                IsChanged = true;
+            }
+        }
+        private Keys _cancelKey;
 
         /// <summary>
         /// This GamePad Button triggers the Component's OnCancel(). 
         /// For most Controls, it also closes it.
         /// </summary>
-        public Buttons CancelButton { get; set; }
+        public Buttons CancelButton {
+            get { return _cancelButton; }
+            set {
+                _cancelButton = value;
+                IsChanged = true;
+            }
+        }
+        private Buttons _cancelButton;
 
         /// <summary>
         /// If true, Control is closed upon upon pressing CancelKey.
         /// </summary>
-        public bool CloseOnCancel { get; set; }
+        public bool CloseOnCancel { get; set; } // No IsChanged necessary.
 
 
         public StyleSheet(Texture2D background = null, Color? bgcolor = default(Color?),
@@ -290,7 +438,6 @@ namespace MonODGE.UI {
                           AlignmentsH hAlign = AlignmentsH.LEFT, AlignmentsV vAlign = AlignmentsV.TOP,
                           int[] padding = null, int[] spacing = null
                           ) {
-
             Background = background;
             BackgroundColor = bgcolor ?? Color.TransparentBlack;
 
@@ -320,6 +467,8 @@ namespace MonODGE.UI {
             _spacing = new int[2];
             Padding = padding ?? new int[4] { 0, 0, 0, 0 };
             Spacing = spacing ?? new int[2] { 0, 0 };
+
+            IsChanged = false;
         }
         
         /// <summary>
@@ -346,7 +495,11 @@ namespace MonODGE.UI {
             clone.CancelKey = CancelKey;
             clone.CancelButton = CancelButton;
             clone.CloseOnCancel = CloseOnCancel;
+            clone.IsChanged = false;
             return clone;
         }
+
+        public void RegisterChanges() { IsChanged = true; }
+        public void AcceptChanges() { IsChanged = false; }
     }
 }

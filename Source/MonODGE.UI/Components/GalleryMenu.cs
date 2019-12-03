@@ -105,12 +105,12 @@ namespace MonODGE.UI.Components {
         }
 
 
-        public override void OnStyleSet() {
+        public override void OnStyleChanged() {
             if (Options != null) {
                 repositionOptions();
-                Width = Width;
+                Dimensions = new Rectangle(X, Y, Width, Height);
             }
-            base.OnStyleSet();
+            base.OnStyleChanged();
         }
 
 

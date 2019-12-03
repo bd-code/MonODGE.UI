@@ -28,6 +28,8 @@ namespace MonODGE.UI.Utilities {
         private SpriteFont _font;
         private int _spacing;
 
+        public StyleSheet.AlignmentsH Alignment { get; private set; }
+
         public AlignedText(SpriteFont font, string textblock, StyleSheet.AlignmentsH alignment, int lineSpacing = 0) {
             _font = font;
             _lines = textblock.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
@@ -45,6 +47,7 @@ namespace MonODGE.UI.Utilities {
         }
 
         public void AlignText(StyleSheet.AlignmentsH alignment) {
+            Alignment = alignment;
             float lasty = 0;
             float maxWidth = 0;
 

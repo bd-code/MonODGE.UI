@@ -71,13 +71,43 @@ namespace MonODGE.UI {
 
 
         public void UpdateControl() {
-            if (controlStack.Count > 0)
+            if (controlStack.Count > 0) {
+                // Check for style changes.
+                foreach (OdgeControl odge in controlStack) {
+                    if (odge.Style.IsChanged) {
+                        odge.OnStyleChanged();
+                    }
+                }
+
+                // Reset Style.IsChanged flag separately, to avoid skips.
+                foreach (OdgeControl odge in controlStack) {
+                    if (odge.Style.IsChanged)
+                        odge.Style.AcceptChanges();
+                }
+
                 controlStack.Peek().Update();
+            }
         }
 
 
         public void UpdatePopup() {
             if (popupQ.Count > 0) {
+                // Check for style changes.
+                foreach (OdgePopUp odge in popupQ) {
+                    if (odge.Style.IsChanged) {
+                        odge.OnStyleChanged();
+                        odge.Style.AcceptChanges();
+                    }
+                }
+
+                // Reset Style.IsChanged flag separately, to avoid skips.
+                foreach (OdgePopUp odge in popupQ) {
+                    if (odge.Style.IsChanged)
+                        odge.Style.AcceptChanges();
+                }
+
+
+
                 if (RunAllPopUps) {
                     int c = popupQ.Count;
                     for (int p = 0; p < c; p++) {
