@@ -69,7 +69,7 @@ namespace MonODGE.UI.Components {
         }
 
 
-        public override void OnStyleSet() {
+        public override void OnStyleChanged() {
             if (!string.IsNullOrEmpty(Text)) {
                 textDimensions = Style.Font?.MeasureString(Text) ?? new Vector2(1, 8);
 
@@ -78,7 +78,7 @@ namespace MonODGE.UI.Components {
 
                 repositionText();
             }
-            base.OnStyleSet();
+            base.OnStyleChanged();
         }
 
 
@@ -167,10 +167,10 @@ namespace MonODGE.UI.Components {
         }
 
 
-        public override void OnStyleSet() {
+        public override void OnStyleChanged() {
             // Reset Dimensions by simply setting same values. Property will take care of resizing.
             Dimensions = new Rectangle(X, Y, Width, Height);
-            base.OnStyleSet();
+            base.OnStyleChanged();
         }
 
 

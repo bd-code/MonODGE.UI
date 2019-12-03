@@ -13,7 +13,7 @@ namespace MonODGE.UI.Components {
         protected string[] messages;
         protected int messageIndex;
 
-        protected AlignedText display;
+        protected AlignedText _text;
         protected Vector2 textPosition;
 
         protected string[] footerStrings;
@@ -48,16 +48,17 @@ namespace MonODGE.UI.Components {
                 Style.FooterFont?.MeasureString(footerStrings[2]) ?? Vector2.Zero
             };
             
-            display = new AlignedText(Style.Font, messages[messageIndex], Style.TextAlignH, 0);
+            _text = new AlignedText(Style.Font, messages[messageIndex], Style.TextAlignH, 0);
             Dimensions = area;  // This calls repositionText();
         }
 
 
-        public override void OnStyleSet() {
+        public override void OnStyleChanged() {
             if (messages != null && !string.IsNullOrEmpty(messages[messageIndex])) {
+                _text.AlignText(Style.TextAlignH);
                 repositionText();
             }
-            base.OnStyleSet();
+            base.OnStyleChanged();
         }
 
 
@@ -71,6 +72,8 @@ namespace MonODGE.UI.Components {
             messageIndex++;
             if (messageIndex >= messages.Length) 
                 Close();
+            else
+                OnTextChanged();
             base.OnSubmit();
         }
 
@@ -80,7 +83,7 @@ namespace MonODGE.UI.Components {
         /// completely new string displays.
         /// </summary>
         public void OnTextChanged() {
-            display = new AlignedText(Style.Font, messages[messageIndex], Style.TextAlignH, 0);
+            _text = new AlignedText(Style.Font, messages[messageIndex], Style.TextAlignH, 0);
             repositionText();
             TextChanged?.Invoke(this, EventArgs.Empty);
         }
@@ -113,7 +116,7 @@ namespace MonODGE.UI.Components {
             DrawBorders(batch);
 
             if (messageIndex < messages.Length) {
-                display.Draw(batch, textPosition, Style.TextColor);
+                _text.Draw(batch, textPosition, Style.TextColor);
 
                 // << . . .
                 if (messageIndex > 0)
@@ -153,18 +156,18 @@ namespace MonODGE.UI.Components {
             if (Style.TextAlignH == StyleSheet.AlignmentsH.LEFT)
                 nx = X + Style.PaddingLeft;
             else if (Style.TextAlignH == StyleSheet.AlignmentsH.CENTER)
-                nx = Dimensions.Center.X - (display.Width / 2);
+                nx = Dimensions.Center.X - (_text.Width / 2);
             else  // Right
-                nx = Dimensions.Right - display.Width - Style.PaddingRight;
+                nx = Dimensions.Right - _text.Width - Style.PaddingRight;
 
 
             // Vertical
             if (Style.TextAlignV == StyleSheet.AlignmentsV.TOP)
                 ny = Y + Style.PaddingTop;
             else if (Style.TextAlignV == StyleSheet.AlignmentsV.CENTER)
-                ny = Dimensions.Center.Y - (display.Height / 2);
+                ny = Dimensions.Center.Y - (_text.Height / 2);
             else // Bottom
-                ny = Dimensions.Bottom - display.Height - footerDimensions[0].Y - Style.PaddingBottom;
+                ny = Dimensions.Bottom - _text.Height - footerDimensions[0].Y - Style.PaddingBottom;
 
             textPosition = new Vector2(nx, ny);
         }

@@ -116,7 +116,7 @@ namespace MonODGE.UI.Utilities {
         /// </summary>
         /// <param name="block"></param>
         /// <returns></returns>
-        public static string TrimStringBlock(string block) {
+        public static string TrimLines(string block) {
             string[] lines = block.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
             for (int s = 0; s < lines.Length; s++) {
                 lines[s] = lines[s].Trim();

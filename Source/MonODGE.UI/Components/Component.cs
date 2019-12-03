@@ -27,7 +27,7 @@ namespace MonODGE.UI.Components {
             get { return _style; }
             set {
                 _style = value.Clone();
-                OnStyleSet();
+                _style.RegisterChanges();
             }
         }
 
@@ -77,14 +77,11 @@ namespace MonODGE.UI.Components {
         public event EventHandler Opened;
 
         /// <summary>
-        /// This is called when the OdgeComponent.Style property is set to a new StyleSheet
-        /// object. 
-        /// 
-        /// This method is NOT called when elements of the existing StyleSheet are changed.
-        /// For style changes that must take place immediately, override the Refresh method.
+        /// This is called when a property changes in the OdgeComponent's StyleSheet,
+        /// or when setting OdgeComponent.Style to a new StyleSheet.
         /// </summary>
-        public virtual void OnStyleSet() { StyleSet?.Invoke(this, EventArgs.Empty); }
-        public event EventHandler StyleSet;
+        public virtual void OnStyleChanged() { StyleChanged?.Invoke(this, EventArgs.Empty); }
+        public event EventHandler StyleChanged;
 
         /// <summary>
         /// This is called when the OdgeComponent's Dimensions.X or Dimensions.Y positions change.

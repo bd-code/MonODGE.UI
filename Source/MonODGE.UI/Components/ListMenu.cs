@@ -95,11 +95,24 @@ namespace MonODGE.UI.Components {
         }
 
 
-        public override void OnStyleSet() {
-            textDimensions = string.IsNullOrEmpty(title) ? Vector2.Zero : (Style.HeaderFont?.MeasureString(title) ?? Vector2.Zero);
-            if (Options != null)
+        public override void OnStyleChanged() {
+            if ((Options?.Count ?? 0) != 0) {
+                foreach (AbstractMenuOption option in Options) {
+                    if (option.Style.IsChanged) {
+                        option.OnStyleChanged();
+                        option.Style.AcceptChanges();
+                    }
+                }
+
+                resizeOptions(Width - Style.PaddingLeft - Style.PaddingRight);
+                repositionOptions();
                 Dimensions = new Rectangle(X, Y, Width, Height);
-            base.OnStyleSet();
+            }
+
+            textDimensions = string.IsNullOrEmpty(title) ? Vector2.Zero : (Style.HeaderFont?.MeasureString(title) ?? Vector2.Zero);
+            repositionText();
+
+            base.OnStyleChanged();
         }
 
 
@@ -189,8 +202,10 @@ namespace MonODGE.UI.Components {
         public void CascadeStyle(bool forced = false) {
             if (Options != null) {
                 foreach (AbstractMenuOption option in Options)
-                    if (forced || option.Style == null)
+                    if (forced || option.Style == null) {
                         option.Style = Style;
+                        option.Style.RegisterChanges();
+                    }
             }
         }
 
