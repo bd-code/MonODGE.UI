@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -17,30 +13,27 @@ namespace MonODGE.UI.Components {
             Static, Rising, Falling, Bouncing
         };
 
-        private string text;
-
-        private Vector2 textPosition;
-        private Vector2 shadowPosition;
-
+        private StyledText _text;
         private MoveType movetype;
-        private float bounceVelocity;
+        private int bounce_c;
+        private float bounce_y;
+        private float bounce_vy;
+        private float bounce_ay;
+
 
         public PopText(StyleSheet style, string message, Vector2 position, int lifetime = 80, MoveType motion = MoveType.Static)
             : base(style){
-            text = message;
-
-            if (motion == MoveType.Bouncing)
-                Timeout = 90;
-            else
-                Timeout = lifetime;
-
+            _text = new StyledText(style, message);
             Dimensions = new Rectangle((int)position.X, (int)position.Y, 0, 0);
+            Timeout = lifetime;
 
-            textPosition = position;
-            shadowPosition = new Vector2(position.X + 1, position.Y + 1);
-
-            bounceVelocity = 0.0f;
             movetype = motion;
+            if (movetype == MoveType.Bouncing) {
+                bounce_c = 1;
+                bounce_y = 0.0f;
+                bounce_vy = -3.9f;
+                bounce_ay = 0.26f;
+            }
         }
 
 
@@ -59,69 +52,49 @@ namespace MonODGE.UI.Components {
 
 
         private void UpdateRising() {
-            if (Timeout > 0) {
-                textPosition.Y -= 0.5f;
-                shadowPosition.Y -= 0.5f;
-                Rectangle d = Dimensions;
-                d.Y = (int)textPosition.Y;
-                Dimensions = d;
-                Timeout -= 1;
-            }
+            if (Timeout >= 0 && Timeout % 3 == 0)
+                Y -= 1;
+            Timeout -= 1;
         }
-
-
         private void UpdateFalling() {
-            if (Timeout > 0) {
-                textPosition.Y += 0.5f;
-                shadowPosition.Y += 0.5f;
-                Rectangle d = Dimensions;
-                d.Y = (int)textPosition.Y;
-                Dimensions = d;
-                Timeout -= 1;
-            }
+            if (Timeout >= 0 && Timeout % 3 == 0)
+                Y += 1;
+            Timeout -= 1;
         }
-
-
         private void UpdateBouncing() {
-            /* 
-            We will need to set timeout to a static value, say 90 frames, in
-            constructor if motion == Bouncing. 
-            Then hard code velocities at certain intervals, like:
-            drop 2px/frame for first 10 frames, then jump 4px/frame next 5 frames,
-            then drop .. for next .., then jump back up, then fall to rest.
-            Should jump first, like FF6.
-            Redirects at:
-            40, 20, 20, 5, end at last 5.
-            */
-            if (Timeout > 60) {
-                // First 30 frames. Initial fall.
-                textPosition.Y += bounceVelocity;
-                shadowPosition.Y += bounceVelocity;
-                Timeout -= 1;
-                bounceVelocity += 0.05f;
-                if (Timeout == 60)
-                    bounceVelocity = -1.5f;
+            bounce_y += bounce_vy;
+            bounce_vy += bounce_ay;
+            _text.Y = (int)Math.Round(bounce_y);
+
+            if (_text.Y >= 0) {
+                if (bounce_c == 1) {
+                    bounce_c++;
+                    bounce_y = 0.0f;
+                    bounce_vy = -3.6f;
+                    bounce_ay = 0.36f;
+                }
+                else if (bounce_c == 2) {
+                    bounce_c++;
+                    bounce_y = 0.0f;
+                    bounce_vy = -3.5f;
+                    bounce_ay = 0.70f;
+                }
+                else {
+                    movetype = MoveType.Static;
+                }
             }
 
-            else if (Timeout > 0) {
-                // Next 50 frames. Covers both "bounces".
-                bounceVelocity += 0.1f;
-                textPosition.Y += bounceVelocity;
-                shadowPosition.Y += bounceVelocity;
-                Timeout -= 1;
-
-                // End of the first bounce, setup velocity for 2nd bounce.
-                if (Timeout == 30)
-                    bounceVelocity = -1.0f;
-            }
+            if (Timeout > 1) // Do NOT hit zero while bouncing!
+                Timeout--;
         }
-
 
         public override void Draw(SpriteBatch batch) {
-            if (Timeout > 0) {
-                batch.DrawString(Style.Font, text, shadowPosition, Style.FooterColor);
-                batch.DrawString(Style.Font, text, textPosition, Style.TextColor);
-            }
+            if (Timeout > 0) 
+                _text.Draw(batch, Dimensions);
+        }
+        public override void Draw(SpriteBatch batch, Rectangle parentRect) {
+            if (Timeout > 0)
+                _text.Draw(batch, new Rectangle(Dimensions.Location + parentRect.Location, Dimensions.Size));
         }
     }
 }

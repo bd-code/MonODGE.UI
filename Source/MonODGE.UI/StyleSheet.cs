@@ -1,9 +1,5 @@
-﻿using System;
+﻿
 using System.ComponentModel;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -162,6 +158,10 @@ namespace MonODGE.UI {
             get { return _font; }
             set {
                 _font = value;
+                if (_headerFont == null)
+                    _headerFont = value;
+                if (_footerFont == null)
+                    _footerFont = value;
                 IsChanged = true;
             }
         }
@@ -174,6 +174,10 @@ namespace MonODGE.UI {
             get { return _textColor; }
             set {
                 _textColor = value;
+                if (_headerColor == null)
+                    _headerColor = value;
+                if (_footerColor == null)
+                    _footerColor = value;
                 IsChanged = true;
             }
         }
@@ -228,9 +232,116 @@ namespace MonODGE.UI {
         private Color _unselectedColor;
 
 
-        //// Padding ////
+        //// Text Shadows ////
 
-        private int[] _padding;
+        /*/// <summary>
+        /// Pixel size of shadow/outline around text.
+        /// </summary>
+        public int TextShadowSize {
+            get { return _textShadowSize; }
+            set {
+                _textShadowSize = value;
+                IsChanged = true;
+            }
+        }
+        private int _textShadowSize;*/
+
+
+        /// <summary>
+        /// A Vector[4] array that determines the position of the four text shadows. 
+        /// Padding order: 0-TopLeft, 1-TopRight, 2-BottomLeft, 3-BottomRight.
+        /// </summary>
+        public Vector2[] TextShadows {
+            get { return _textShadows; }
+            set {
+                if (value.Length >= 4) {
+                    _textShadows[0] = value[0];
+                    _textShadows[1] = value[1];
+                    _textShadows[2] = value[2];
+                    _textShadows[3] = value[3];
+                }
+                else if (value.Length == 3) {
+                    _textShadows[0] = value[0];
+                    _textShadows[1] = _textShadows[3] = value[1];
+                    _textShadows[2] = value[2];
+                }
+                else if (value.Length == 2) {
+                    _textShadows[0] = _textShadows[2] = value[0];
+                    _textShadows[1] = _textShadows[3] = value[1];
+                }
+                else if (value.Length == 1) {
+                    _textShadows[0] = _textShadows[1] = _textShadows[2] = _textShadows[3] = value[0];
+                }
+                IsChanged = true;
+            }
+        }
+        private Vector2[] _textShadows;
+
+        /// <summary>
+        /// Sets top-left text shadow position.
+        /// </summary>
+        public Vector2 TextShadowTopLeft {
+            get { return _textShadows[0]; }
+            set {
+                _textShadows[0] = value;
+                IsChanged = true;
+            }
+        }
+
+        /// <summary>
+        /// Sets top-right text shadow position.
+        /// </summary>
+        public Vector2 TextShadowTopRight {
+            get { return _textShadows[1]; }
+            set {
+                _textShadows[1] = value;
+                IsChanged = true;
+            }
+        }
+
+        /// <summary>
+        /// Sets bottom-left text shadow position.
+        /// </summary>
+        public Vector2 TextShadowBottomLeft {
+            get { return _textShadows[2]; }
+            set {
+                _textShadows[2] = value;
+                IsChanged = true;
+            }
+        }
+
+        /// <summary>
+        /// Sets bottom-right text shadow position.
+        /// </summary>
+        public Vector2 TextShadowBottomRight {
+            get { return _textShadows[3]; }
+            set {
+                _textShadows[3] = value;
+                IsChanged = true;
+            }
+        }
+
+        /// <summary>
+        /// Text outline color.
+        /// </summary>
+        public Color TextShadowColor {
+            get { return _textShadowColor; }
+            set {
+                _textShadowColor = value;
+                IsChanged = true;
+            }
+        }
+        private Color _textShadowColor;
+
+        /// <summary>
+        /// TextShadow Preset: Adds a 1px "glow" around text. Great for readability.
+        /// </summary>
+        public static Vector2[] TextShadow_1pxGlow {
+            get { return new[] { new Vector2(-1, -1), new Vector2(1, -1), new Vector2(-1, 1), new Vector2(1, 1) }; }
+        }
+
+
+        //// Padding ////
 
         /// <summary>
         /// An int[4] array that determines the Component's inner padding. 
@@ -260,6 +371,7 @@ namespace MonODGE.UI {
                 IsChanged = true;
             }
         }
+        private int[] _padding;
 
         /// <summary>
         /// Use this to set the inner padding on all four sides at once.
@@ -318,8 +430,6 @@ namespace MonODGE.UI {
 
         //// Spacing ////
 
-        private int[] _spacing;
-
         /// <summary>
         /// An int[2] array. Determines distance between child Components in OdgeComponents that have them.
         /// Padding order: 0-Horizontal, 1-Vertical
@@ -337,6 +447,7 @@ namespace MonODGE.UI {
                 IsChanged = true;
             }
         }
+        private int[] _spacing;
 
         /// <summary>
         /// Use this to set both horizontal and vertical spacing at once.
@@ -429,44 +540,22 @@ namespace MonODGE.UI {
         public bool CloseOnCancel { get; set; } // No IsChanged necessary.
 
 
-        public StyleSheet(Texture2D background = null, Color? bgcolor = default(Color?),
-                          Texture2D borders = null, Color? bordercolor = default(Color?),
-                          SpriteFont headerfont = null, Color? headercolor = default(Color?),
-                          SpriteFont font = null, Color? textColor = default(Color?), 
-                          SpriteFont footerfont = null, Color? footercolor = default(Color?),
-                          Color? selectedTextColor = default(Color?), Color? unselectedTextColor = default(Color?),
-                          AlignmentsH hAlign = AlignmentsH.LEFT, AlignmentsV vAlign = AlignmentsV.TOP,
-                          int[] padding = null, int[] spacing = null
-                          ) {
-            Background = background;
-            BackgroundColor = bgcolor ?? Color.TransparentBlack;
+        public StyleSheet() {
+            BackgroundColor = Color.TransparentBlack;            
+            BorderColor = Color.White;
 
-            Borders = borders;
-            BorderColor = bordercolor ?? Color.White;
-
-            HeaderFont = headerfont;
-            if (HeaderFont == null)
-                HeaderFont = font;
-
-            Font = font;
-
-            FooterFont = footerfont;
-            if (FooterFont == null)
-                FooterFont = font;
-
-            TextColor = textColor ?? Color.White;
-            HeaderColor = headercolor ?? Color.White;
-            FooterColor = footercolor ?? Color.White;
-            SelectedTextColor = selectedTextColor ?? Color.Gold;
-            UnselectedTextColor = unselectedTextColor ?? Color.Gray;
+            TextColor = Color.White;
+            SelectedTextColor = Color.Gold;
+            UnselectedTextColor = Color.Gray;
             
-            TextAlignH = hAlign;
-            TextAlignV = vAlign;
+            TextAlignH = AlignmentsH.LEFT;
+            TextAlignV = AlignmentsV.TOP;
 
-            _padding = new int[4];
-            _spacing = new int[2];
-            Padding = padding ?? new int[4] { 0, 0, 0, 0 };
-            Spacing = spacing ?? new int[2] { 0, 0 };
+            _padding = new int[4] { 0, 0, 0, 0 };
+            _spacing = new int[2] { 0, 0 };
+            _textShadows = new Vector2[4] {
+                Vector2.Zero, Vector2.Zero, Vector2.Zero, Vector2.Zero
+            };
 
             IsChanged = false;
         }
@@ -481,20 +570,22 @@ namespace MonODGE.UI {
         /// </summary>
         /// <returns>A new StyleSheet object with this StyleSheet's values.</returns>
         public StyleSheet Clone() {
-            StyleSheet clone = new StyleSheet(
-                Background, BackgroundColor, 
-                Borders, BorderColor, 
-                HeaderFont, HeaderColor, 
-                Font, TextColor, 
-                FooterFont, FooterColor, 
-                SelectedTextColor, UnselectedTextColor,
-                TextAlignH, TextAlignV, 
-                Padding, Spacing);
-            clone.SubmitKey = SubmitKey;
-            clone.SubmitButton = SubmitButton;
-            clone.CancelKey = CancelKey;
-            clone.CancelButton = CancelButton;
+            StyleSheet clone = new StyleSheet();
+            clone.Background = Background;              clone.BackgroundColor = BackgroundColor;
+            clone.BorderColor = BorderColor;            clone.Borders = Borders;
+            clone.BorderSourceRects = BorderSourceRects;
+            clone.CancelButton = CancelButton;          clone.CancelKey = CancelKey;
             clone.CloseOnCancel = CloseOnCancel;
+            clone.Font = Font;
+            clone.FooterColor = FooterColor;            clone.FooterFont = FooterFont;
+            clone.HeaderColor = HeaderColor;            clone.HeaderFont = HeaderFont;
+            clone.Padding = Padding;
+            clone.SelectedTextColor = SelectedTextColor;    clone.UnselectedTextColor = UnselectedTextColor;
+            clone.Spacing = Spacing;
+            clone.SubmitButton = SubmitButton;          clone.SubmitKey = SubmitKey;
+            clone.TextAlignH = TextAlignH;              clone.TextAlignV = TextAlignV;
+            clone.TextColor = TextColor;
+            clone.TextShadowColor = TextShadowColor;    clone.TextShadows = TextShadows;
             clone.IsChanged = false;
             return clone;
         }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 using Microsoft.Xna.Framework.Input;
 
 namespace MonODGE.UI.Utilities {
@@ -13,19 +8,19 @@ namespace MonODGE.UI.Utilities {
     /// </para>
     /// 
     /// <para>
-    /// OdgeInput is provided as a stand-alone utility and can be used without
-    /// the rest of MonODGE.UI. However, MonODGE.UI is dependent on OdgeInput.
-    /// An external input manager can be used for the rest of your game, but 
-    /// MonODGE.UI components require an instance of OdgeInput to be updated 
-    /// every frame.</para>
+    /// OdgeUIInput is provided as a stand-alone utility and can be used 
+    /// without the rest of MonODGE.UI. However, MonODGE.UI is dependent on
+    /// OdgeUIInput. An external input manager can be used for the rest of your
+    /// game, but MonODGE.UI components require an instance of OdgeUIInput to 
+    /// be updated every frame.</para>
     /// </summary>
-    public class OdgeInput {
-        private static OdgeInput _input = null;
+    public class OdgeUIInput {
+        private static OdgeUIInput _input = null;
 
-        public static OdgeInput Input {
+        public static OdgeUIInput Input {
             get {
                 if (_input == null)
-                    _input = new OdgeInput();
+                    _input = new OdgeUIInput();
                 return _input;
             }
         }
@@ -36,7 +31,7 @@ namespace MonODGE.UI.Utilities {
         private GamePadHandler _gamepads;
         public static GamePadHandler GP { get { return Input._gamepads; } }
 
-        private OdgeInput() {
+        private OdgeUIInput() {
             _keyboard = new KeyboardHandler();
             _gamepads = new GamePadHandler();
         }

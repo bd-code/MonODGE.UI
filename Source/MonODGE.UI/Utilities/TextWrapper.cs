@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 using Microsoft.Xna.Framework.Graphics;
 
@@ -15,7 +14,7 @@ namespace MonODGE.UI.Utilities {
         /// Wraps a string to a specified char count length.
         /// </summary>
         /// <param name="text">The string to wrap.</param>
-        /// <param name="maxLength">The maximum string.length of the wrapped string.</param>
+        /// <param name="maxLength">The maximum string.Length of the wrapped string.</param>
         /// <returns>A new multiline string wrapped at maxLength chars.</returns>
         public static string WrapToCharCount(string text, int maxLength) {
             StringBuilder fullBuilder = new StringBuilder();
@@ -64,6 +63,12 @@ namespace MonODGE.UI.Utilities {
         }
 
 
+        /// <summary>
+        /// Splits a string into an array of strings, each of specified char count length.
+        /// </summary>
+        /// <param name="text">The string to wrap.</param>
+        /// <param name="maxLength">The maximum string.Length of the wrapped string.</param>
+        /// <returns>An array of strings of length not greater than maxLength.</returns>
         public static string[] SplitByCharCount(string text, int maxLength) {
             List<string> textList = new List<string>();
             StringBuilder lineBuilder = new StringBuilder();
@@ -90,7 +95,7 @@ namespace MonODGE.UI.Utilities {
         /// <param name="text">The string to wrap.</param>
         /// <param name="font">An XNA/MonoGame SpriteFont to measure the string.</param>
         /// <param name="maxWidth">The maximum screenwidth of the wrapped strings.</param>
-        /// <returns>An array of strings of length not greater than maxWidth.</returns>
+        /// <returns>An array of strings of screenwidth not greater than maxWidth.</returns>
         public static string[] SplitByWidth(string text, SpriteFont font, float maxWidth) {
             List<string> textList = new List<string>();
             StringBuilder lineBuilder = new StringBuilder();

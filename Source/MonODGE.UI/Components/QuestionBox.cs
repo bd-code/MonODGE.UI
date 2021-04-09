@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -14,82 +9,91 @@ namespace MonODGE.UI.Components {
         public enum AnswerType { Affirmative, Negative, Unanswered }
         public AnswerType Answer { get; private set; }
 
-        private AbstractMenuOption optionYes;
-        private AbstractMenuOption optionNo;
-        private bool isYesSelected;
+        private OdgeButton btnYes;
+        private OdgeButton btnNo;
         
-        private AlignedText _text;
-        private Vector2 textPosition;
+        private DialogBox dialog;
+        protected Point textPoint;
 
-        public QuestionBox(StyleSheet style, Rectangle area, string message, AbstractMenuOption yesOption, AbstractMenuOption noOption)
-            : base(style) {
-            Answer = AnswerType.Unanswered;
-            _text = new AlignedText(Style.Font, message, Style.TextAlignH, 0);
-            repositionText();
-
-            // Options need style first.
-            optionYes = yesOption;
-            if (optionYes.Style == null)
-                optionYes.Style = style;
-
-            optionNo = noOption;
-            if (optionNo.Style == null)
-                optionNo.Style = Style;
-
-            // Init Dimensions on these options.
-            optionYes.Dimensions = new Rectangle(0, 0, 1, 1);
-            optionNo.Dimensions = new Rectangle(0, 0, 1, 1);
-            Dimensions = area;
-
-            // bool isYesSelected is false; optionNo should be selected.
-            optionNo.OnSelected();
+        private bool _btnInText;
+        public bool ButtonsInText {
+            get { return _btnInText; }
+            set {
+                _btnInText = value;
+                calcBtnPoints();
+            }
         }
 
+        private bool _btnOnTop;
+        public bool ButtonsOnTop {
+            get { return _btnOnTop; }
+            set {
+                _btnOnTop = value;
+                calcBtnPoints();
+            }
+        }
 
-        public override void OnOpened() {
-            repositionOptions();
-            base.OnOpened();
+        public QuestionBox(StyleSheet style, Rectangle area, string message, OdgeButton yesBtn, OdgeButton noBtn)
+            : base(style) {
+            Answer = AnswerType.Unanswered;
+            _btnInText = true;
+            _btnOnTop = false;
+            dialog = new DialogBox(Style, new Rectangle(Point.Zero, area.Size), message);
+            dialog.ShowMultiPageFooter = false;
+
+            // Options need style first.
+            btnYes = yesBtn;
+            if (btnYes.Style == null)
+                btnYes.Style = style;
+
+            btnNo = noBtn;
+            if (btnNo.Style == null)
+                btnNo.Style = style;
+
+            // Init Dimensions on these options.
+            btnYes.Dimensions = new Rectangle(0, 0, 1, 1);
+            btnNo.Dimensions = new Rectangle(0, 0, 1, 1);
+            Dimensions = area;
+            calcBtnPoints();
+
+            // At first optionNo should be selected.
+            btnNo.OnSelected();
         }
 
 
         public override void OnStyleChanged() {
-            if (_text != null) {
-                _text.AlignText(Style.TextAlignH);
-                repositionText();
-            }
+            dialog.OnStyleChanged();
+            btnYes.OnStyleChanged();
+            btnNo.OnStyleChanged();
+            calcBtnPoints();
             base.OnStyleChanged();
         }
 
 
-        public override void OnMove() {
-            repositionOptions();
-            repositionText();
-            base.OnMove();
-        }
         public override void OnResize() {
-            repositionOptions();
-            repositionText();
+            dialog.Dimensions = new Rectangle(Point.Zero, Dimensions.Size);
+            calcBtnPoints();
             base.OnResize();
         }
 
+
         public override void OnSubmit() {
-            if (isYesSelected) {
+            if (btnYes.IsSelected) {
                 Answer = AnswerType.Affirmative;
-                optionYes.OnSubmit();
+                btnYes.OnSubmit();
             }
             else {
                 Answer = AnswerType.Negative;
-                optionNo.OnSubmit();
+                btnNo.OnSubmit();
             }
             base.OnSubmit();
         }
 
 
         public override void OnCancel() {
-            if (isYesSelected) {
-                optionYes.OnUnselected();
-                isYesSelected = false;
-                optionNo.OnSelected();
+            if (btnYes.IsSelected) {
+                btnYes.OnUnselected();
+                btnNo.OnSelected();
             }
             base.OnCancel();
         }
@@ -100,16 +104,14 @@ namespace MonODGE.UI.Components {
                 OnSubmit();
             }
 
-            else if (!isYesSelected && OdgeInput.LEFT) {
-                optionNo.OnUnselected();
-                isYesSelected = true;
-                optionYes.OnSelected();
+            else if (!btnYes.IsSelected && OdgeUIInput.LEFT) {
+                btnNo.OnUnselected();
+                btnYes.OnSelected();
             }
 
-            else if (isYesSelected && OdgeInput.RIGHT) {
-                optionYes.OnUnselected();
-                isYesSelected = false;
-                optionNo.OnSelected();
+            else if (btnYes.IsSelected && OdgeUIInput.RIGHT) {
+                btnYes.OnUnselected();
+                btnNo.OnSelected();
             }
 
             else if (CheckCancel) {
@@ -119,77 +121,67 @@ namespace MonODGE.UI.Components {
 
 
         public override void Draw(SpriteBatch batch) {
-            DrawCanvas(batch);
-            DrawBorders(batch);
-            _text.Draw(batch, textPosition, Style.TextColor);
-            optionYes.Draw(batch, isYesSelected);
-            optionNo.Draw(batch, !isYesSelected);
+            dialog.Draw(batch, Dimensions);
+            btnYes.Draw(batch, Dimensions);
+            btnNo.Draw(batch, Dimensions);
         }
 
 
-        private void repositionOptions() {
-            int bottomspace = 0;
-            if (_manager != null)
-                bottomspace = _manager.ScreenHeight - (Y + Height);
-            
-            if (Y >= bottomspace) {
-                // Draw options on top
-                optionYes.Dimensions = new Rectangle(
-                    Dimensions.Center.X - optionYes.Width - Style.SpacingH / 2,
-                    Y - optionYes.Height - Style.SpacingV,
-                    optionYes.Width, 
-                    optionYes.Height
-                    );
+        public override void Draw(SpriteBatch batch, Rectangle parentRect) {
+            Rectangle where = new Rectangle(parentRect.Location + Dimensions.Location, Dimensions.Location);
+            dialog.Draw(batch, where);
+            btnYes.Draw(batch, where);
+            btnNo.Draw(batch, where);
+        }
 
-                optionNo.Dimensions = new Rectangle(
-                    Dimensions.Center.X + Style.SpacingH / 2,
-                    Y - optionYes.Height - Style.SpacingV,
-                    optionYes.Width,
-                    optionYes.Height
-                    );
+
+        private void calcBtnPoints() {
+            if (ButtonsInText)
+                calcBtnInPoints();
+            else
+                calcBtnOutPoints();
+        }
+
+
+        private void calcBtnInPoints() {
+            // Inside DialogBox uses Padding to anchor.
+            int by = 0;
+            if (ButtonsOnTop) {
+                by = Style.PaddingTop;
             }
-
             else {
-                // Draw options on bottom
-                optionYes.Dimensions = new Rectangle(
-                    Dimensions.Center.X - optionYes.Width - Style.SpacingH / 2,
-                    Y + Height + Style.SpacingV,
-                    optionYes.Width,
-                    optionYes.Height
-                    );
-
-                optionNo.Dimensions = new Rectangle(
-                    Dimensions.Center.X + Style.SpacingH / 2,
-                    Y + Height + Style.SpacingV,
-                    optionYes.Width,
-                    optionYes.Height
-                    );
+                by = Height - btnYes.Height - Style.PaddingBottom;
             }
 
-            repositionText();
+            btnYes.Dimensions = new Rectangle(
+                Style.PaddingLeft,
+                by, btnYes.Width, btnYes.Height
+                );
+
+            btnNo.Dimensions = new Rectangle(
+                Width - btnNo.Width - Style.PaddingRight,
+                by, btnYes.Width, btnYes.Height
+                );
         }
 
-        private void repositionText() {
-            float nx, ny = 0;
 
-            // Horizontal
-            if (Style.TextAlignH == StyleSheet.AlignmentsH.LEFT)
-                nx = X + Style.PaddingLeft;
-            else if (Style.TextAlignH == StyleSheet.AlignmentsH.CENTER)
-                nx = Dimensions.Center.X - (_text.Width / 2);
-            else  // Right
-                nx = Dimensions.Right - _text.Width - Style.PaddingRight;
+        private void calcBtnOutPoints() {
+            // Outside DialogBox uses Spacing to float.  
+            int by = 0;            
+            if (ButtonsOnTop) 
+                by = 0 - btnYes.Height - Style.SpacingV;
+            else
+                by = Height + Style.SpacingV;
 
+            btnYes.Dimensions = new Rectangle(
+                (Width - Style.SpacingH) / 2 - btnYes.Width,
+                by, btnYes.Width, btnYes.Height
+                );
 
-            // Vertical
-            if (Style.TextAlignV == StyleSheet.AlignmentsV.TOP)
-                ny = Y + Style.PaddingTop;
-            else if (Style.TextAlignV == StyleSheet.AlignmentsV.CENTER)
-                ny = Dimensions.Center.Y - (_text.Height / 2);
-            else // Bottom
-                ny = Dimensions.Bottom - _text.Height - Style.PaddingBottom;
-
-            textPosition = new Vector2(nx, ny);
+            btnNo.Dimensions = new Rectangle(
+                (Width + Style.SpacingH) / 2,
+                by, btnYes.Width, btnYes.Height
+                );
         }
     }
 }

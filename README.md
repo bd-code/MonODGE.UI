@@ -14,21 +14,27 @@ MonODGE.UI was developed with classic turn-based RPGs in mind, but can be used f
 Customize your game's look and feel to fit your style, and even change it on the fly!
 - Event-driven functionality.
 
-##### Components
+#### Components
 
+- StyleSheet - A dependency of every OdgeComponent, StyleSheets define components' visual presentation and layout, including color, background and border textures, text styles, and much more. 
+- StyledText - A formatted text component that uses a StyleSheet to automate layout and presentation, alignment, text shadowing, and more.
 - Controls
   - DialogBox - A multi-page text display box for game messages and character dialog.
   - DigitSpinner - A ranged numeric input.
   - GalleryMenu - Both an image gallery and a menu!
-  - ListMenu - Scrollable option list, for main menus, item and spell lists, etc.
+  - ListMenu - Scrollable option list, for main menus, inventory screens, etc.
   - QuestionBox - A "yes/no" input form with configurable options, similar to a Windows MessageBox.
-  - TextBox - A simple text input with alpha and numeric filters.
+  - EntryBox - A simple text input with alpha and numeric filters.
 - Pop-Ups
-  - NoteBox - A lightweight text line meant for short, temporary messages.
+  - NoteBox - A lightweight text box for short, temporary messages.
   - PopText - A quick flash of moving text. Good for damage numbers, alerts, etc.
   - ProgressBar - Also good for health bars!
+- Utilities
+  - A lightweight keyboard/gamepad input helper. (Required for use with MonODGE.UI components)
+  - A TextWrapper class with methods for wrapping, splitting, and trimming multi-line strings.
 
 ---
 
 #### Screenshots
+
 Coming soon.

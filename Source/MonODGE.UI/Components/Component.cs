@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -26,7 +22,7 @@ namespace MonODGE.UI.Components {
         public virtual StyleSheet Style {
             get { return _style; }
             set {
-                _style = value.Clone();
+                _style = value;
                 _style.RegisterChanges();
             }
         }
@@ -109,14 +105,17 @@ namespace MonODGE.UI.Components {
         public virtual void OnClosed() { Closed?.Invoke(this, EventArgs.Empty); }
         public event EventHandler Closed;
 
+        /*
         /// <summary>
         /// Refresh should be called every time changes are made to the StyleSheet or Dimensions 
         /// that result in a repositioning of text or other sub-elements.
         /// </summary>
-        //public virtual void Refresh() { }
+        public virtual void Refresh() { }
+        */
 
         public virtual void Update() { }
         public virtual void Draw(SpriteBatch batch) { }
+        public virtual void Draw(SpriteBatch batch, Rectangle parentRect) { }
 
 
         /// <summary>
@@ -124,9 +123,21 @@ namespace MonODGE.UI.Components {
         /// to the position and area saved in Dimensions.
         /// </summary>
         /// <param name="batch">SpriteBatch</param>
-        protected void DrawCanvas(SpriteBatch batch) {
+        protected void DrawBG(SpriteBatch batch) {
             if (Style.Background != null)
                 batch.Draw(Style.Background, Dimensions, Style.BackgroundColor);
+        }
+
+
+        /// <summary>
+        /// Draws the Texture2D saved in Style.Background in color Style.BackgroundColor
+        /// to the position and area saved in Rectangle 'where'.
+        /// </summary>
+        /// <param name="batch">SpriteBatch</param>
+        /// <param name="where">Rectangle area to draw.</param>
+        protected void DrawBG(SpriteBatch batch, Rectangle where) {
+            if (Style.Background != null)
+                batch.Draw(Style.Background, where, Style.BackgroundColor);
         }
 
 
@@ -153,6 +164,30 @@ namespace MonODGE.UI.Components {
 
 
         /// <summary>
+        /// Draws only the corner tiles of Style.Borders to the four corners saved in 
+        /// Rectangle 'where'.
+        /// </summary>
+        /// <param name="batch">SpriteBatch</param>
+        /// <param name="where">Rectangle area to draw.</param>
+        protected void DrawCorners(SpriteBatch batch, Rectangle where) {
+            if (Style.Borders != null) {
+                batch.Draw(Style.Borders,
+                    new Vector2(where.X, where.Y),
+                    Style.BorderSourceRects[0], Style.BorderColor);
+                batch.Draw(Style.Borders,
+                    new Vector2(where.X + where.Width - Style.BorderTileWidth, where.Y),
+                    Style.BorderSourceRects[2], Style.BorderColor);
+                batch.Draw(Style.Borders,
+                    new Vector2(where.X, where.Y + where.Height - Style.BorderTileHeight),
+                    Style.BorderSourceRects[6], Style.BorderColor);
+                batch.Draw(Style.Borders,
+                    new Vector2(where.X + where.Width - Style.BorderTileWidth, where.Y + where.Height - Style.BorderTileHeight),
+                    Style.BorderSourceRects[8], Style.BorderColor);
+            }
+        }
+
+
+        /// <summary>
         /// Draws the Texture2D saved in Style.Borders around the OdgeComponent.
         /// </summary>
         /// <param name="batch">SpriteBatch</param>
@@ -170,6 +205,34 @@ namespace MonODGE.UI.Components {
                     new Rectangle(Dimensions.X, Dimensions.Y + Dimensions.Height - Style.BorderTileHeight, Style.BorderTileWidth, Style.BorderTileHeight),
                     new Rectangle(Dimensions.X + Style.BorderTileWidth, Dimensions.Y + Dimensions.Height - Style.BorderTileHeight, Dimensions.Width - Style.BorderTileWidth*2, Style.BorderTileHeight),
                     new Rectangle(Dimensions.X + Dimensions.Width - Style.BorderTileWidth, Dimensions.Y + Dimensions.Height - Style.BorderTileHeight, Style.BorderTileWidth, Style.BorderTileHeight),
+                };
+
+                for (int b = 0; b < 9; b++)
+                    if (b != 4)
+                        batch.Draw(Style.Borders, dests[b], Style.BorderSourceRects[b], Style.BorderColor);
+            }
+        }
+
+
+        /// <summary>
+        /// Draws the Texture2D saved in Style.Borders around Rectangle 'where'.
+        /// </summary>
+        /// <param name="batch">SpriteBatch</param>
+        /// <param name="where">Rectangle area to draw.</param>
+        protected void DrawBorders(SpriteBatch batch, Rectangle where) {
+            if (Style.Borders != null) {
+                Rectangle[] dests = new Rectangle[] {
+                    new Rectangle(where.X, where.Y, Style.BorderTileWidth, Style.BorderTileHeight),
+                    new Rectangle(where.X + Style.BorderTileWidth, where.Y, where.Width - Style.BorderTileWidth*2, Style.BorderTileHeight),
+                    new Rectangle(where.X + where.Width - Style.BorderTileWidth, where.Y, Style.BorderTileWidth, Style.BorderTileHeight),
+
+                    new Rectangle(where.X, where.Y + Style.BorderTileHeight, Style.BorderTileWidth, where.Height - Style.BorderTileHeight*2),
+                    new Rectangle(), // Center is empty.
+                    new Rectangle(where.X + where.Width - Style.BorderTileWidth, where.Y + Style.BorderTileHeight, Style.BorderTileWidth, where.Height - Style.BorderTileHeight*2),
+
+                    new Rectangle(where.X, where.Y + where.Height - Style.BorderTileHeight, Style.BorderTileWidth, Style.BorderTileHeight),
+                    new Rectangle(where.X + Style.BorderTileWidth, where.Y + where.Height - Style.BorderTileHeight, where.Width - Style.BorderTileWidth*2, Style.BorderTileHeight),
+                    new Rectangle(where.X + where.Width - Style.BorderTileWidth, where.Y + where.Height - Style.BorderTileHeight, Style.BorderTileWidth, Style.BorderTileHeight),
                 };
 
                 for (int b = 0; b < 9; b++)
@@ -252,7 +315,7 @@ namespace MonODGE.UI.Components {
 
     public abstract class OdgeControl : OdgeComponent {
         public OdgeControl(StyleSheet style) {
-            Style = style.Clone();
+            Style = style;
         }
 
         /// <summary>
@@ -281,11 +344,11 @@ namespace MonODGE.UI.Components {
         }
 
         protected bool CheckSubmit {
-            get { return OdgeInput.KB.isKeyTap(Style.SubmitKey) || OdgeInput.GP.isButtonTap(Style.SubmitButton); }
+            get { return OdgeUIInput.KB.isKeyTap(Style.SubmitKey) || OdgeUIInput.GP.isButtonTap(Style.SubmitButton); }
         }
 
         protected bool CheckCancel {
-            get { return OdgeInput.KB.isKeyTap(Style.CancelKey) || OdgeInput.GP.isButtonTap(Style.CancelButton); }
+            get { return OdgeUIInput.KB.isKeyTap(Style.CancelKey) || OdgeUIInput.GP.isButtonTap(Style.CancelButton); }
         }
     }
 
@@ -295,7 +358,7 @@ namespace MonODGE.UI.Components {
         public int Timeout { get; set; }
 
         public OdgePopUp(StyleSheet style) {
-            Style = style.Clone();
+            Style = style;
         }
 
         public void Close() {
@@ -305,4 +368,48 @@ namespace MonODGE.UI.Components {
             }
         }
     }
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    public abstract class OdgeButton : OdgeComponent {
+        public bool IsSelected { get; private set; }
+
+        public OdgeButton(StyleSheet style, EventHandler action) {
+            Style = style;
+            Submit += action;
+        }
+
+        /// <summary>
+        /// This is called when the user presses the key assigned in Style.SubmitKey.
+        /// </summary>
+        public virtual void OnSubmit() { Submit?.Invoke(this, EventArgs.Empty); }
+        public event EventHandler Submit;
+
+        /// <summary>
+        /// This is called when the user presses the key assigned in Style.CancelKey.
+        /// </summary>
+        /// REMOVED
+        //public virtual void OnCancel() { Cancel?.Invoke(this, EventArgs.Empty); }
+        //public event EventHandler Cancel;
+
+        /// <summary>
+        /// This is called when an option is highlighted in the ListMenu.
+        /// </summary>
+        public virtual void OnSelected() {
+            IsSelected = true;
+            Select?.Invoke(this, EventArgs.Empty);
+        }
+        public event EventHandler Select;
+
+        /// <summary>
+        /// This is called when an option is unhighlighted (another option is selected) in the
+        /// ListMenu.
+        /// </summary>
+        public virtual void OnUnselected() {
+            IsSelected = false;
+            Unselect?.Invoke(this, EventArgs.Empty);
+        }
+        public event EventHandler Unselect;
+    }
+
 }

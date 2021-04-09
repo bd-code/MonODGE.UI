@@ -1,8 +1,6 @@
-﻿using System;
+﻿
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -17,22 +15,16 @@ namespace MonODGE.UI {
     /// object found in other UI libraries.</para>
     /// </summary>
     public class OdgeUI {
-        private GraphicsDevice _graphics;
-        public GraphicsDevice GraphicsDevice { get { return _graphics; } }
+        public GraphicsDevice GraphicsDevice { get; }
 
-        Texture2D mask;
+        private Texture2D mask;
 
         private Stack<OdgeControl> controlStack;
         private Queue<OdgePopUp> popupQ;
+        public StyleSheet GlobalStyle { get; set; }
 
-        private StyleSheet _style;
-        public StyleSheet GlobalStyle {
-            get { return _style; }
-            set { _style = value; }
-        }
-        
-        public int ScreenWidth { get { return _graphics.Viewport.Width; } }
-        public int ScreenHeight { get { return _graphics.Viewport.Height; } }
+        public int ScreenWidth { get { return GraphicsDevice.Viewport.Width; } }
+        public int ScreenHeight { get { return GraphicsDevice.Viewport.Height; } }
         public int ControlCount { get { return controlStack.Count; } }
         public int PopUpCount { get { return popupQ.Count; } }
 
@@ -54,7 +46,7 @@ namespace MonODGE.UI {
         public bool RunAllPopUps { get; set; }
         
         public OdgeUI(GraphicsDevice graphics, StyleSheet stylesheet) {
-            _graphics = graphics;
+            GraphicsDevice = graphics;
             mask = new Texture2D(graphics, 1, 1);
             mask.SetData(new Color[] { Color.White });
 
@@ -72,6 +64,14 @@ namespace MonODGE.UI {
 
         public void UpdateControl() {
             if (controlStack.Count > 0) {
+
+                /* Style Changes:
+                As components can (and should) share StyleSheets, if a shared StyleSheet changes 
+                we need to run OnStyleChanged() on each individual component that has it, THEN loop
+                through again to run StyleSheet.AcceptChanges(). Otherwise we will only notify one
+                component before we unflag the change. 
+                */
+
                 // Check for style changes.
                 foreach (OdgeControl odge in controlStack) {
                     if (odge.Style.IsChanged) {

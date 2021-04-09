@@ -51,13 +51,13 @@
     <Compile Include="Components\ProgressBar.cs" />
     <Compile Include="Components\QuestionBox.cs" />
     <Compile Include="Components\ListMenu.cs" />
-    <Compile Include="Components\ListMenuOption.cs" />
+    <Compile Include="Components\Buttons.cs" />
     <Compile Include="Components\PopText.cs" />
-    <Compile Include="Components\TextBox.cs" />
+    <Compile Include="Components\EntryBox.cs" />
     <Compile Include="Exceptions.cs" />
-    <Compile Include="Utilities\AlignedText.cs" />
+    <Compile Include="Components\StyledText.cs" />
     <Compile Include="Utilities\InputHandlers.cs" />
-    <Compile Include="Utilities\OdgeInput.cs" />
+    <Compile Include="Utilities\OdgeUIInput.cs" />
     <Compile Include="OdgeUI.cs" />
     <Compile Include="Components\NoteBox.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

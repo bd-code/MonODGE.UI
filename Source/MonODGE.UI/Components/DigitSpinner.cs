@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 using MonODGE.UI.Utilities;
 
@@ -49,13 +44,24 @@ namespace MonODGE.UI.Components {
         }
 
 
+        public override void OnStyleChanged() {
+            textDimensions = new Vector2[] {
+                Style.Font?.MeasureString("<<") ?? Vector2.Zero,
+                Style.Font?.MeasureString(_value.ToString()) ?? Vector2.Zero,
+                Style.Font?.MeasureString(">>") ?? Vector2.Zero
+            };
+            repositionText();
+            base.OnStyleChanged();
+        }
         public override void OnMove() {
             repositionText();
             base.OnMove();
         }
+        public override void OnResize() {
+            repositionText();
+            base.OnResize();
+        }
 
-
-        // OnValueChanged?
 
         /// <summary>
         /// This is called when Value is incremented by pressing Keys.Right.
@@ -76,11 +82,11 @@ namespace MonODGE.UI.Components {
                 OnSubmit();
             }
 
-            if ((OdgeInput.LEFT || OdgeInput.DOWN) && Value > MinValue) {
+            if ((OdgeUIInput.LEFT || OdgeUIInput.DOWN) && Value-Step >= MinValue) {
                 DecrementByStep();
             }
 
-            else if ((OdgeInput.RIGHT || OdgeInput.UP) && Value < MaxValue) {
+            else if ((OdgeUIInput.RIGHT || OdgeUIInput.UP) && Value+Step <= MaxValue) {
                 IncrementByStep();
             }
 
@@ -91,7 +97,7 @@ namespace MonODGE.UI.Components {
 
 
         public override void Draw(SpriteBatch batch) {
-            DrawCanvas(batch);
+            DrawBG(batch);
             DrawBorders(batch);
 
             if (Value > MinValue)

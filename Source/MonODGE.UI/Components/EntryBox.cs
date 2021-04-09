@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 
 using Microsoft.Xna.Framework;
@@ -10,7 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace MonODGE.UI.Components {
-    public class TextBox : OdgeControl {
+    public class EntryBox : OdgeControl {
         public enum CharsAllowed {
             Any, Alpha, Numeric, AlphaNumeric
         }
@@ -33,15 +29,17 @@ namespace MonODGE.UI.Components {
 
         protected override int MinHeight {
             get {
-                return Style.PaddingBottom + Style.PaddingTop + (int)(Style.Font?.MeasureString("T").Y ?? 16);
+                return Style.PaddingBottom + Style.PaddingTop + (int)charSize.Y;
             }
         }
-
-        private Texture2D[] _frame;
+        
         private Vector2 textPosition;
+        private Vector2 charSize;
 
-        public TextBox(StyleSheet style, Rectangle area, 
+
+        public EntryBox(StyleSheet style, Rectangle area, 
             CharsAllowed allowed = CharsAllowed.Any, string text = "", int maxLength = 255) : base(style) {
+            charSize = Style.Font?.MeasureString("M") ?? Vector2.Zero;
             Dimensions = area;
 
             Text = text ?? string.Empty;
@@ -50,52 +48,22 @@ namespace MonODGE.UI.Components {
 
             _keystate = Keyboard.GetState();
             _oldstate = _keystate;
-            _frame = new Texture2D[2];
         }
-
-
-        public override void OnOpened() {
-            initFrame();
-            base.OnOpened();
-        }
-
-
-        private void initFrame() {
-            if (_manager != null) {
-                _frame[0] = new Texture2D(_manager.GraphicsDevice, 1, Height);
-                Color[] cd0 = new Color[Height];
-                for (int i = 0; i < Height; i++) {
-                    if (i == 0 || i == Height - 1)
-                        cd0[i] = Style.BackgroundColor;
-                    else
-                        cd0[i] = Color.White;
-                }
-                _frame[0].SetData(cd0);
-                
-                // Should only need a 1px texture for horizontal borders.
-                // We will just draw them across the top and bottom.
-                _frame[1] = new Texture2D(_manager.GraphicsDevice, 1, 1);
-                _frame[1].SetData(new Color[] { Color.White });
-            }
-        }
-
+        
 
         public override void OnMove() {
-            // Text Positioning
-            // It's all left for now.
-            //if (Style.TextAlign == StyleSheet.TextAlignments.LEFT) {
-                textPosition = new Vector2(
-                    X + Style.PaddingLeft,
-                    Y + Style.PaddingTop
-                );
-            //}
+            // Horizontal: always left, otherwise we would have to recalc
+            // textPosition on every keystroke.
+            textPosition.X = Style.PaddingLeft;
+
+            // Vertical
+            if (Style.TextAlignV == StyleSheet.AlignmentsV.TOP)
+                textPosition.Y = Style.PaddingTop;
+            else if (Style.TextAlignV == StyleSheet.AlignmentsV.CENTER)
+                textPosition.Y = Height / 2 - (charSize.Y / 2);
+            else // Bottom
+                textPosition.Y = Height - charSize.Y - Style.PaddingBottom;
             base.OnMove();
-        }
-
-
-        public override void OnResize() {
-            initFrame();
-            base.OnResize();
         }
 
 
@@ -146,15 +114,15 @@ namespace MonODGE.UI.Components {
 
 
         public override void Draw(SpriteBatch batch) {
-            DrawCanvas(batch);
-
-            // Draw frame, not style border!
-            batch.Draw(_frame[0], new Vector2(X, Y), Style.BorderColor);
-            batch.Draw(_frame[1], new Rectangle(X + 1, Y, Width - 2, 1), Style.BorderColor);
-            batch.Draw(_frame[1], new Rectangle(X + 1, Y + Height - 1, Width - 2, 1), Style.BorderColor);
-            batch.Draw(_frame[0], new Vector2(X + Width - 1, Y), Style.BorderColor);
-
-            batch.DrawString(Style.Font, Text, textPosition, Style.TextColor);
+            DrawBG(batch);
+            DrawBorders(batch);
+            batch.DrawString(Style.Font, Text, Dimensions.Location.ToVector2() + textPosition, Style.TextColor);
+        }
+        public override void Draw(SpriteBatch batch, Rectangle parentRect) {
+            Rectangle where = new Rectangle(Dimensions.Location + parentRect.Location, Dimensions.Size);
+            DrawBG(batch, where);
+            DrawBorders(batch, where);
+            batch.DrawString(Style.Font, Text, where.Location.ToVector2() + textPosition, Style.TextColor);
         }
 
 

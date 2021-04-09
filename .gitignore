@@ -59,6 +59,7 @@ artifacts/
 # Extra Folders and Types
 Mono\ UI\ Test/
 MonODGE.UI/Mono\ UI\ Test/
+Source_OLD/
 *.sln
 *.mcgb
 *.png

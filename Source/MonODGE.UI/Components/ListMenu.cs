@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -11,14 +8,15 @@ using MonODGE.UI.Utilities;
 
 namespace MonODGE.UI.Components {
     /// <summary>
-    /// Displays a scrollable list of options extended from AbstractListMenuOption.
+    /// Displays a scrollable list of option buttons extended from OdgeButton.
     /// </summary>
     public class ListMenu : OdgeControl {
-        private string title;
-        private Vector2 textPosition;
-        private Vector2 textDimensions;
+        protected StyledText titlebox;
+        protected Point textPoint;
 
-        public List<AbstractMenuOption> Options { get; protected set; }
+        protected List<OdgeButton> Options { get; set; }
+        public OdgeButton[] Buttons { get { return Options.ToArray(); } }
+        protected Rectangle bpanel;
 
         private int _selectedIndex;
         public int SelectedIndex {
@@ -33,20 +31,12 @@ namespace MonODGE.UI.Components {
             }
         }
 
-        public AbstractMenuOption SelectedOption {
+        public OdgeButton SelectedOption {
             get {
                 if (Options != null && Options.Count > 0)
                     return Options[SelectedIndex];
                 else
                     return null;
-            }
-        }
-
-        public override StyleSheet Style {
-            get { return base.Style; }
-            set {
-                base.Style = value;
-                CascadeStyle();
             }
         }
 
@@ -59,36 +49,25 @@ namespace MonODGE.UI.Components {
                 return mw;
             }
         }
-        
-
-        protected int OptionTopBound { get { return Y + Style.PaddingTop + (int)textDimensions.Y + Style.PaddingBottom; } }
-        protected int OptionLowBound { get { return Dimensions.Bottom - Style.PaddingBottom; } }
 
 
-        public ListMenu(StyleSheet style, string heading, Rectangle area) : 
-            this(style, heading, new List<AbstractMenuOption>(), area) { }
-
-        public ListMenu(StyleSheet style, string heading, List<AbstractMenuOption> listOptions, Rectangle area) 
+        public ListMenu(StyleSheet style, Rectangle area, string heading)
             : base(style) {
-            // Set options and options' style first.
-            Options = listOptions;            
-            CascadeStyle();
-
-            // Need textDimensions before we set the menu and option Dimensions.
-            title = heading;
-            textDimensions = string.IsNullOrEmpty(title) ? Vector2.Zero : (Style.HeaderFont?.MeasureString(title) ?? Vector2.Zero);
-
-            // Initialize option dimensions, then cascade real Dimension down.
-            resizeOptions(area.Width - Style.PaddingLeft - Style.PaddingRight);
-            repositionOptions();
+            Options = new List<OdgeButton>();
+            if (string.IsNullOrEmpty(heading)) {
+                titlebox = new StyledText(style, "");
+                titlebox.Dimensions = Rectangle.Empty;
+            }
+            else {
+                titlebox = new StyledText(style, heading);
+                titlebox.StyleMode = StyledText.StyleModes.Header;
+            }
             Dimensions = area;
-            if (area.Location == Point.Zero)
-                repositionText();
         }
 
 
         public override void OnOpened() {
-            foreach (AbstractMenuOption option in Options)
+            foreach (OdgeButton option in Options)
                 option.OnOpened();
 
             base.OnOpened();
@@ -96,31 +75,41 @@ namespace MonODGE.UI.Components {
 
 
         public override void OnStyleChanged() {
-            if ((Options?.Count ?? 0) != 0) {
-                foreach (AbstractMenuOption option in Options) {
+            titlebox.OnStyleChanged();
+            calcTextPoint();
+            calcPanel();
+
+            if (Options.Count > 0) {
+                foreach (OdgeButton option in Options) {
                     if (option.Style.IsChanged) {
                         option.OnStyleChanged();
+                    }
+                }
+                // Loop twice to avoid skipping shared styles after AcceptChanges().
+                foreach (OdgeButton option in Options) {
+                    if (option.Style.IsChanged) {
                         option.Style.AcceptChanges();
                     }
                 }
 
-                resizeOptions(Width - Style.PaddingLeft - Style.PaddingRight);
-                repositionOptions();
-                Dimensions = new Rectangle(X, Y, Width, Height);
+                resetBtns(true);
+                calcPanel(); // Yes, again.
             }
-
-            textDimensions = string.IsNullOrEmpty(title) ? Vector2.Zero : (Style.HeaderFont?.MeasureString(title) ?? Vector2.Zero);
-            repositionText();
 
             base.OnStyleChanged();
         }
 
 
         public override void OnMove() {
-            repositionText();
-            repositionOptions();
+            calcPanel();
             base.OnMove();
         }
+        public override void OnResize() {
+            calcTextPoint();
+            calcPanel();
+            base.OnResize();
+        }
+
 
         /// <summary>
         /// This is called in Update when Options.Count == 0.
@@ -138,10 +127,7 @@ namespace MonODGE.UI.Components {
 
                 // Update each option.
                 for (int p = 0; p < Options.Count; p++) {
-                    if (p == SelectedIndex)
-                        Options[p].Update(true);
-                    else
-                        Options[p].Update(false);
+                    Options[p].Update();
                 }
             }
             
@@ -159,102 +145,97 @@ namespace MonODGE.UI.Components {
 
 
         public override void Draw(SpriteBatch batch) {
-            DrawCanvas(batch);
+            DrawBG(batch);
             DrawBorders(batch);
-            if (title != null)
-                batch.DrawString(Style.HeaderFont, title, textPosition, Style.HeaderColor);
-
-            // Draw Options
+            //batch.Draw(Style.Background, bpanel, Color.Aquamarine);
+            titlebox.Draw(batch, new Rectangle(Dimensions.Location + textPoint, Dimensions.Size));
+            
             for (int p = 0; p < Options.Count; p++) {
-                if (Options[p].Y >= OptionTopBound && Options[p].Dimensions.Bottom <= OptionLowBound) {
-                    if (p == SelectedIndex)
-                        Options[p].Draw(batch, true);
-                    else
-                        Options[p].Draw(batch, false);
+                if (Options[p].Y >= 0 && Options[p].Dimensions.Bottom <= bpanel.Height) {
+                    Options[p].Draw(batch, bpanel);
+                }
+            }
+        }
+        public override void Draw(SpriteBatch batch, Rectangle parentRect) {
+            Rectangle where = new Rectangle(Dimensions.Location + parentRect.Location, Dimensions.Size);
+            DrawBG(batch, where);
+            DrawBorders(batch, where);
+            titlebox.Draw(batch, new Rectangle(where.Location + textPoint, where.Size));
+
+            Rectangle bp2 = new Rectangle(bpanel.Location + parentRect.Location, bpanel.Size);
+            for (int p = 0; p < Options.Count; p++) {
+                if (Options[p].Y >= 0 && Options[p].Dimensions.Bottom <= bp2.Height) {
+                    Options[p].Draw(batch, bp2);
                 }
             }
         }
 
 
-        public void AddOption(AbstractMenuOption option) {
-            option.Style = Style;
+        public void AddOption(OdgeButton option) {
             Options.Add(option);
-            resizeOptions(Options[0].Width);
-            repositionOptions();
+            if (Options.Count == 1) {
+                option.Y = 0;
+                option.OnSelected();
+            }
+            resetBtns(true);
         }
 
-        public void RemoveOption(AbstractMenuOption option) {
+        public void RemoveOption(OdgeButton option) {
             if (SelectedIndex == Options.Count-1)
                 SelectedIndex--;
             
             Options.Remove(option);
-            repositionOptions();
+            resetBtns(true);
         }
 
 
         /// <summary>
-        /// Cascades ListMenu's StyleSheet to AbstractListMenuOptions.
+        /// Cascades ListMenu's StyleSheet to OdgeButtons.
         /// </summary>
         /// <param name="forced">
         /// If true, sets option's StyleSheet even if the option already has one.
         /// If false (default), only sets option's StyleSheet if it is null.
         /// </param>
         public void CascadeStyle(bool forced = false) {
-            if (Options != null) {
-                foreach (AbstractMenuOption option in Options)
-                    if (forced || option.Style == null) {
-                        option.Style = Style;
-                        option.Style.RegisterChanges();
-                    }
-            }
+            foreach (OdgeButton option in Options)
+                if (forced || option.Style == null) {
+                    option.Style = Style;
+                    option.Style.RegisterChanges();
+                }
         }
 
 
         private void handleInput() {
             // Submit.
             if (CheckSubmit) {
-                Options[SelectedIndex].OnSubmit();
+                SelectedOption.OnSubmit();
                 // this.OnSubmit()? Maybe containers shouldn't have submit.
             }
 
             // Move Down.
-            else if (OdgeInput.DOWN) {
-                Options[SelectedIndex].OnUnselected();
+            else if (OdgeUIInput.DOWN) {
                 if (SelectedIndex + 1 >= Options.Count)
                     SelectedIndex = 0;
                 else
                     SelectedIndex++;
-                Options[SelectedIndex].OnSelected();
             }
 
             // Move Up!
-            else if (OdgeInput.UP) {
-                Options[SelectedIndex].OnUnselected();
+            else if (OdgeUIInput.UP) {
                 if (SelectedIndex - 1 < 0)
                     SelectedIndex = Options.Count - 1;
                 else
                     SelectedIndex--;
-                Options[SelectedIndex].OnSelected();
             }
 
             // Jump Down.
-            else if (OdgeInput.RIGHT) {
-                int x = SelectedIndex;
+            else if (OdgeUIInput.RIGHT) {
                 SelectedIndex += 8;
-                if (x != SelectedIndex) {
-                    Options[x].OnUnselected();
-                    Options[SelectedIndex].OnSelected();
-                }
             }
 
             // Jump Up!
-            else if (OdgeInput.LEFT) {
-                int x = SelectedIndex;
+            else if (OdgeUIInput.LEFT) {
                 SelectedIndex -= 8;
-                if (x != SelectedIndex) {
-                    Options[x].OnUnselected();
-                    Options[SelectedIndex].OnSelected();
-                }
             }
 
             // Cancel.
@@ -264,70 +245,62 @@ namespace MonODGE.UI.Components {
         }
 
 
-        private void repositionText() {
-            if (Style.TextAlignH == StyleSheet.AlignmentsH.LEFT) {
-                textPosition = new Vector2(
-                    X + Style.PaddingLeft,
-                    Y + Style.PaddingTop
-                );
-            }
-            else if (Style.TextAlignH == StyleSheet.AlignmentsH.CENTER) {
-                textPosition = new Vector2(
-                    Dimensions.Center.X - (textDimensions.X / 2),
-                    Y + Style.PaddingTop
-                );
-            }
-            else { // Right
-                textPosition = new Vector2(
-                    Dimensions.Right - textDimensions.X - Style.PaddingRight,
-                    Y + Style.PaddingTop
-                );
-            }
+        private void calcTextPoint() {
+            textPoint.Y = Style.PaddingTop;
+
+            // Horizontal
+            if (Style.TextAlignH == StyleSheet.AlignmentsH.LEFT)
+                textPoint.X = Style.PaddingLeft;
+            else if (Style.TextAlignH == StyleSheet.AlignmentsH.CENTER)
+                textPoint.X = Width / 2 - (titlebox.Width / 2);
+            else // Right
+                textPoint.X = Width - titlebox.Width - Style.PaddingRight;
         }
 
 
-        private void repositionOptions() {
-            int xpos = X + Style.PaddingLeft;
-            int ypos = OptionTopBound;
-            foreach (AbstractMenuOption option in Options) {
-                option.Dimensions = new Rectangle(xpos, ypos, option.Width, option.Height);
-                ypos += option.Height + option.Style.SpacingV;
+        private void resetBtns(bool fullWidth = true) {
+            int wdh = fullWidth ? bpanel.Width : 1;
+            int ypos = Options[0]?.Y ?? 0;
+
+            // Get max width.
+            foreach (OdgeButton option in Options) {
+                wdh = Math.Max(wdh, option.Width);
             }
+
+            // Reposition and resize options to full width.
+            foreach (OdgeButton option in Options) {
+                option.Dimensions = new Rectangle(0, ypos, wdh, option.Height);
+                ypos += option.Height + Style.SpacingV;
+            }
+
+            // Since widening options affect MinWidth, check for that too.
+            if (Width < MinWidth)
+                Width = MinWidth;
         }
 
 
-        private void resizeOptions(int width = 0) {
-            // Set initial option widths.
-            foreach (AbstractMenuOption option in Options) {
-                option.Width = width;
-
-                if (option.Width > width)
-                    width = option.Width;
-            }
-
-            // Resize options again to full width.
-            foreach (AbstractMenuOption option in Options) {
-                if (option.Width < width)
-                    option.Width = width;
-            }
+        private void calcPanel() {
+            bpanel = new Rectangle(
+                X + Style.PaddingLeft,
+                Y + Style.PaddingTop + titlebox.Height + Style.SpacingV,
+                Width - Style.PaddingLeft - Style.PaddingRight,
+                Height - (Style.PaddingTop + titlebox.Height + Style.SpacingV + Style.PaddingBottom)
+                );
         }
 
 
         private void scrollOptions() {
-            int topBound = OptionTopBound;
-            int lowBound = OptionLowBound;
-
             // SelectedOption too high
-            if (SelectedOption.Y < topBound) {
-                int dy = -(SelectedOption.Y - topBound);
-                foreach (AbstractMenuOption op in Options)
+            if (SelectedOption.Y < 0) {
+                int dy = -(SelectedOption.Y);
+                foreach (OdgeButton op in Options)
                     op.Y += (dy / 2) + 1;
             }
 
             // SelectedOption too low
-            else if (SelectedOption.Dimensions.Bottom > lowBound) {
-                int dy = SelectedOption.Dimensions.Bottom - lowBound;
-                foreach (AbstractMenuOption op in Options)
+            else if (SelectedOption.Dimensions.Bottom > bpanel.Height) {
+                int dy = SelectedOption.Dimensions.Bottom - bpanel.Height;
+                foreach (OdgeButton op in Options)
                     op.Y -= (dy / 2) + 1;
             }
         }

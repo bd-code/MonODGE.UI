@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -13,31 +8,33 @@ namespace MonODGE.UI.Components {
     /// one-line notifications.
     /// </summary>
     public class NoteBox : OdgePopUp {
-        private string note;
-        private Vector2 textPosition;
-        private Vector2 textDimensions;
+        private StyledText _text;
+        private Point textPoint;
 
         protected override int MinWidth {
-            get { return (int)textDimensions.X + Style.PaddingLeft + Style.PaddingRight; }
+            get { return _text.Width + Style.PaddingLeft + Style.PaddingRight; }
         }
         protected override int MinHeight {
-            get { return (int)textDimensions.Y + Style.PaddingTop + Style.PaddingBottom; }
+            get { return _text.Height + Style.PaddingTop + Style.PaddingBottom; }
         }
 
-        public NoteBox(StyleSheet style, string text, Rectangle area, int lifetime = 355) : base(style) {
-            note = text;
+        public NoteBox(StyleSheet style, string text, Rectangle area, int lifetime = 360) : base(style) {
+            _text = new StyledText(style, text);
             Timeout = lifetime;
-            textDimensions = Style.Font?.MeasureString(note) ?? Vector2.Zero;
             Dimensions = area;
         }
 
 
+        public override void OnStyleChanged() {
+            calcTextPoint();
+            base.OnStyleChanged();
+        }
         public override void OnMove() {
-            repositionText();
+            calcTextPoint();
             base.OnMove();
         }
         public override void OnResize() {
-            repositionText();
+            calcTextPoint();
             base.OnResize();
         }
 
@@ -54,33 +51,36 @@ namespace MonODGE.UI.Components {
 
 
         public override void Draw(SpriteBatch batch) {
-            DrawCanvas(batch);
+            DrawBG(batch);
             DrawBorders(batch);
-            batch.DrawString(Style.Font, note, textPosition, Style.TextColor);
+            _text.Draw(batch, new Rectangle(Dimensions.Location + textPoint, Dimensions.Size));
         }
 
 
-        private void repositionText() {
-            float nx, ny = 0;
+        public override void Draw(SpriteBatch batch, Rectangle parentRect) {
+            Rectangle where = new Rectangle(parentRect.Location + Dimensions.Location, Dimensions.Size);
+            DrawBG(batch, where);
+            DrawBorders(batch, where);
+            _text.Draw(batch, new Rectangle(where.Location + textPoint, where.Size));
+        }
 
+
+        private void calcTextPoint() {
             // Horizontal
             if (Style.TextAlignH == StyleSheet.AlignmentsH.LEFT)
-                nx = X + Style.PaddingLeft;
+                textPoint.X = Style.PaddingLeft;
             else if (Style.TextAlignH == StyleSheet.AlignmentsH.CENTER)
-                nx = Dimensions.Center.X - (textDimensions.X / 2);
-            else  // Right
-                nx = Dimensions.Right - textDimensions.X - Style.PaddingRight;
-
+                textPoint.X = Width / 2 - (_text.Width / 2);
+            else // Right
+                textPoint.X = Width - _text.Width - Style.PaddingRight;
 
             // Vertical
             if (Style.TextAlignV == StyleSheet.AlignmentsV.TOP)
-                ny = Y + Style.PaddingTop;
+                textPoint.Y = Style.PaddingTop;
             else if (Style.TextAlignV == StyleSheet.AlignmentsV.CENTER)
-                ny = Dimensions.Center.Y - (textDimensions.Y / 2);
+                textPoint.Y = Height / 2 - (_text.Height / 2);
             else // Bottom
-                ny = Dimensions.Bottom - textDimensions.Y - Style.PaddingBottom;
-
-            textPosition = new Vector2(nx, ny);
+                textPoint.Y = Height - _text.Height - Style.PaddingBottom;
         }
     }
 }
