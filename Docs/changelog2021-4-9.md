@@ -19,4 +19,4 @@
 - StyleSheet's constructor is now empty. Use object initializers instead.
 - Various bug fixes.
 - Various untracked new features, options, and other changes, including changes to constructor and method signitures.
-- LOTS of internal implementation changes,
+- LOTS of internal implementation changes.

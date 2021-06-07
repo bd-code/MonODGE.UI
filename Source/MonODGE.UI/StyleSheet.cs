@@ -7,6 +7,9 @@ using Microsoft.Xna.Framework.Input;
 
 namespace MonODGE.UI {
     public class StyleSheet : IChangeTracking {
+        // Screen dimensions are static for size and consistency.
+        public static int ScreenWidth { get; internal set; }
+        public static int ScreenHeight { get; internal set; }
         public bool IsChanged { get; private set; }
 
         //// Alignment ////
@@ -540,7 +543,9 @@ namespace MonODGE.UI {
         public bool CloseOnCancel { get; set; } // No IsChanged necessary.
 
 
-        public StyleSheet() {
+        public StyleSheet(int screenwidth, int screenheight) {
+            ScreenWidth = screenwidth;
+            ScreenHeight = screenheight;
             BackgroundColor = Color.TransparentBlack;            
             BorderColor = Color.White;
 
@@ -559,18 +564,14 @@ namespace MonODGE.UI {
 
             IsChanged = false;
         }
-        
-        /// <summary>
-        /// Creates an empty StyleSheet.
-        /// </summary>
-        public static StyleSheet Empty { get { return new StyleSheet(); } }
+
 
         /// <summary>
         /// Creates a clone of this StyleSheet.
         /// </summary>
         /// <returns>A new StyleSheet object with this StyleSheet's values.</returns>
         public StyleSheet Clone() {
-            StyleSheet clone = new StyleSheet();
+            StyleSheet clone = new StyleSheet(ScreenWidth, ScreenHeight);
             clone.Background = Background;              clone.BackgroundColor = BackgroundColor;
             clone.BorderColor = BorderColor;            clone.Borders = Borders;
             clone.BorderSourceRects = BorderSourceRects;

@@ -15,16 +15,11 @@ namespace MonODGE.UI {
     /// object found in other UI libraries.</para>
     /// </summary>
     public class OdgeUI {
-        public GraphicsDevice GraphicsDevice { get; }
-
-        private Texture2D mask;
-
         private Stack<OdgeControl> controlStack;
         private Queue<OdgePopUp> popupQ;
+        private Texture2D mask;
+        
         public StyleSheet GlobalStyle { get; set; }
-
-        public int ScreenWidth { get { return GraphicsDevice.Viewport.Width; } }
-        public int ScreenHeight { get { return GraphicsDevice.Viewport.Height; } }
         public int ControlCount { get { return controlStack.Count; } }
         public int PopUpCount { get { return popupQ.Count; } }
 
@@ -46,7 +41,6 @@ namespace MonODGE.UI {
         public bool RunAllPopUps { get; set; }
         
         public OdgeUI(GraphicsDevice graphics, StyleSheet stylesheet) {
-            GraphicsDevice = graphics;
             mask = new Texture2D(graphics, 1, 1);
             mask.SetData(new Color[] { Color.White });
 
@@ -243,6 +237,17 @@ namespace MonODGE.UI {
                 control.Style = style;
             foreach (OdgePopUp pop in popupQ)
                 pop.Style = style;
+        }
+
+
+        public void ResetScreenSize(int screenwidth, int screenheight) {
+            StyleSheet.ScreenWidth = screenwidth;
+            StyleSheet.ScreenHeight = screenheight;
+
+            foreach (OdgeControl c in controlStack)
+                c.Style.RegisterChanges();
+            foreach (OdgePopUp p in popupQ)
+                p.Style.RegisterChanges();
         }
     }
 }
