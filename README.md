@@ -1,4 +1,10 @@
 # MonODGE.UI
+
+## DISCONTINUED AS OF 2021/10/7
+**Use [the new MonODGE libraries](https://github.com/bd-code/MonODGE) instead.**
+
+---
+
 A stylesheet-based, event-driven player interface library for 2D MonoGame projects.
 
 **Framework**: MonoGame 3.0 or above.
